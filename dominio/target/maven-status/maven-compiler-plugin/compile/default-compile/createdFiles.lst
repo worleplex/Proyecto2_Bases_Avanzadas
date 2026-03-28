@@ -1,3 +1,13 @@
+entidades\DetalleComanda.class
+entidades\Mesero.class
+entidades\EstadoComanda.class
+entidades\Ingrediente.class
+entidades\Comanda.class
+entidades\TipoProducto.class
+entidades\Mesa.class
+entidades\UnidadMedida.class
 entidades\ClienteFrecuente.class
-com\mycompany\dominio\Dominio.class
+entidades\ProductoIngrediente.class
+entidades\Producto.class
 entidades\Cliente.class
+entidades\Empleado.class

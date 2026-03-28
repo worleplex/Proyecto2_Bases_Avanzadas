@@ -1,3 +1,6 @@
+daos\ClienteFrecuenteDAO.class
+daos\ClienteDAO.class
 com\mycompany\persistencia\Persistencia.class
+excepciones\PersistenciaException.class
 com\mycompany\persistencia\Persistencia$ConexionBD.class
 conexion\ConexionBD.class

@@ -1,1 +1,5 @@
-com\mycompany\negocio\Negocio.class
+objetosnegocio\ClienteBO.class
+adaptadores\ClienteFrecuenteAdapter.class
+adaptadores\ClienteAdapter.class
+excepciones\NegocioException.class
+objetosnegocio\ClienteFrecuenteBO.class

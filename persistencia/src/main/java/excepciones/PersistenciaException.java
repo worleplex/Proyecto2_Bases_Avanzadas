@@ -11,7 +11,7 @@ package excepciones;
  * PersistenciaException para mostrar cualquier error que ocurra al interactuar 
  * con la base de datos
  */
-public class  extends Exception {
+public class PersistenciaException extends Exception {
 
     public PersistenciaException(String message) {
         super(message);

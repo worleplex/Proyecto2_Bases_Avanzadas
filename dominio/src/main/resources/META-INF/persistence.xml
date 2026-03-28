@@ -5,6 +5,13 @@
     <class>entidades.Cliente</class>
     <class>entidades.ClienteFrecuente</class>
     <class>entidades.Empleado</class>
+    <class>entidades.Mesero</class>
+    <class>entidades.Mesa</class>
+    <class>entidades.Producto</class>
+    <class>entidades.Ingrediente</class>
+    <class>entidades.ProductoIngrediente</class>
+    <class>entidades.Comanda</class>
+    <class>entidades.DetalleComanda</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/gestionrestaurante?zeroDateTimeBehavior=CONVERT_TO_NULL"/>
       <property name="javax.persistence.jdbc.user" value="root"/>

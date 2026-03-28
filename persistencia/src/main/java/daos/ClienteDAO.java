@@ -16,6 +16,19 @@ import javax.persistence.EntityManager;
  * 
  */
 public class ClienteDAO {
+    // singleton
+    private static ClienteDAO instancia;
+
+    private ClienteDAO() {
+    }
+
+    public static ClienteDAO getInstance() {
+        if (instancia == null) {
+            instancia = new ClienteDAO();
+        }
+        return instancia;
+    }
+    
     /**
      * Guardar un cliente a la base de datos
      * @param cliente Cliente a guardar.

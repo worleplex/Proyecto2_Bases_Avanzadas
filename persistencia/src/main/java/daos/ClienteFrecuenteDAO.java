@@ -16,6 +16,20 @@ import javax.persistence.EntityManager;
  * con beneficios de lealtad.
  */
 public class ClienteFrecuenteDAO {
+    
+    private static ClienteFrecuenteDAO instancia;
+    
+    private ClienteFrecuenteDAO() {
+    }
+    
+    public static ClienteFrecuenteDAO getInstance() {
+        if (instancia == null) {
+            instancia = new ClienteFrecuenteDAO();
+        }
+        return instancia;
+    }
+    
+
     /**
      * Guarda un nuevo cliente frecuente en la base de datos.
      * @param cliente Guardar.
