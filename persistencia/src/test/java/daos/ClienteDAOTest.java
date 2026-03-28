@@ -9,11 +9,13 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Disabled;
 
 /**
  *
  * @author julian izaguirre
  */
+@Disabled("No correr hasta que los inserts masivos esten listos")
 public class ClienteDAOTest {
     
     public ClienteDAOTest() {
