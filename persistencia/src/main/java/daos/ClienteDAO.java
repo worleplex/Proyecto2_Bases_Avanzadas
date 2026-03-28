@@ -19,7 +19,7 @@ public class ClienteDAO {
     // singleton
     private static ClienteDAO instancia;
 
-    private ClienteDAO() {
+    public ClienteDAO() {
     }
 
     public static ClienteDAO getInstance() {
