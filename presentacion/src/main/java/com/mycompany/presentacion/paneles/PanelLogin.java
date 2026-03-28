@@ -1,16 +1,19 @@
 package com.mycompany.presentacion.paneles;
 
+import com.mycompany.presentacion.controlador.Coordinador;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 public class PanelLogin extends JFrame {
+    private final Coordinador coordinador;
     private Image imagen;
     private String usuarioAdmin = "Maye";
     private String contraseñaAdmin = "1234";
 
-    private String mesero = "luis";
+    private String nombreMesero = "luis";
     private String contraseñaMesero = "4321";
 
     /*
@@ -22,11 +25,14 @@ public class PanelLogin extends JFrame {
         getContentPane().add(panel, BorderLayout.CENTER);
         revalidate();
         repaint();
+        panel.requestFocusInWindow();
     }
 
 
-    public PanelLogin(){
+    public PanelLogin(Coordinador coordinador){
+        this.coordinador = coordinador;
         imagen = new ImageIcon("presentacion\\src\\main\\java\\com\\mycompany\\presentacion\\fondos\\FondoInicio.png").getImage();
+        mostrar();
     }
 
     public void mostrar(){
@@ -110,16 +116,21 @@ public class PanelLogin extends JFrame {
         panelFondo.getActionMap().put("accion", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(textFieldUsuario.getText().equals(usuarioAdmin)  && textFieldContraseña.getText().equals(contraseñaAdmin) ){
+                if(textFieldUsuario.getText().isEmpty() || textFieldContraseña.getText().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "No puede dejar ningun campo vacio");
+                }
+
+                if(textFieldUsuario.getText().equals(usuarioAdmin) && textFieldContraseña.getText().equals(contraseñaAdmin)){
                     setTitle("Menu admin");
                     cambiarPanel(new PanelMenuAdmin());
                 }
-                else if(textFieldUsuario.equals(mesero) && textFieldContraseña.equals(contraseñaMesero)){
+                else if(textFieldUsuario.getText().equals(nombreMesero) && textFieldContraseña.getText().equals(contraseñaMesero)){
                     setTitle("Menu mesero");
                     cambiarPanel(new PanelMenuMesero());
                 }
-                JOptionPane.showMessageDialog(null,"El usuario o contraseña son incorrectos","",1);
-
+                else {
+                    JOptionPane.showMessageDialog(null, "El usuario o contraseña son incorrectos");
+                }
 
             }
         });
