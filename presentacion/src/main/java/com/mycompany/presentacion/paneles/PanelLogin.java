@@ -2,9 +2,27 @@ package com.mycompany.presentacion.paneles;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 public class PanelLogin extends JFrame {
     private Image imagen;
+    private String usuarioAdmin = "Maye";
+    private String contraseñaAdmin = "1234";
+
+    private String mesero = "luis";
+    private String contraseñaMesero = "4321";
+
+    /*
+        metodo auxiliar para facilitar la navegacion entre paneles
+        @param toma como parametro el metodo al que quieres cambiar
+     */
+    public void cambiarPanel(JPanel panel){
+        getContentPane().removeAll();
+        getContentPane().add(panel, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+    }
 
 
     public PanelLogin(){
@@ -83,6 +101,28 @@ public class PanelLogin extends JFrame {
         panelFondo.add(panelCentro, BorderLayout.CENTER);
 
         add(panelFondo);
+
+
+
+        panelFondo.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "accion");
+
+        panelFondo.getActionMap().put("accion", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(textFieldUsuario.getText().equals(usuarioAdmin)  && textFieldContraseña.getText().equals(contraseñaAdmin) ){
+                    setTitle("Menu admin");
+                    cambiarPanel(new PanelMenuAdmin());
+                }
+                else if(textFieldUsuario.equals(mesero) && textFieldContraseña.equals(contraseñaMesero)){
+                    setTitle("Menu mesero");
+                    cambiarPanel(new PanelMenuMesero());
+                }
+                JOptionPane.showMessageDialog(null,"El usuario o contraseña son incorrectos","",1);
+
+
+            }
+        });
 
         setVisible(true);
     }
