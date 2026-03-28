@@ -1,7 +1,11 @@
 package com.mycompany.presentacion.paneles;
 
+import com.mycompany.presentacion.controlador.Coordinador;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class PanelMenuAdmin extends JPanel{
     private Image imagen;
@@ -83,6 +87,16 @@ public class PanelMenuAdmin extends JPanel{
         panelFondo.add(panelNorte, BorderLayout.NORTH);
         panelFondo.add(panelCentro, BorderLayout.CENTER);
         add(panelFondo, BorderLayout.CENTER);
+
+        buttonCliente.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Coordinador coordinador = new Coordinador();
+                PanelLogin panel = new PanelLogin(coordinador);
+                panel.cambiarPanel(new PanelMenuClientes());
+
+            }
+        });
 
     }
 }

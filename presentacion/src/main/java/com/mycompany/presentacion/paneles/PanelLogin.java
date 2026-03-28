@@ -1,16 +1,19 @@
 package com.mycompany.presentacion.paneles;
 
+import com.mycompany.presentacion.controlador.Coordinador;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 public class PanelLogin extends JFrame {
+    private final Coordinador coordinador;
     private Image imagen;
     private String usuarioAdmin = "Maye";
     private String contraseñaAdmin = "1234";
 
-    private String mesero = "luis";
+    private String nombreMesero = "luis";
     private String contraseñaMesero = "4321";
 
     /*
@@ -22,17 +25,14 @@ public class PanelLogin extends JFrame {
         getContentPane().add(panel, BorderLayout.CENTER);
         revalidate();
         repaint();
+        panel.requestFocusInWindow();
     }
 
-    public PanelLogin(){
-        // Fíjate cómo ahora incluimos toda la ruta de los paquetes
-        java.net.URL url = getClass().getResource("/FondoInicio.png");
-        
-        if(url != null){
-            imagen = new ImageIcon(url).getImage();
-        } else {
-            System.out.println("la imagen no fue encontrada");
-        }
+
+    public PanelLogin(Coordinador coordinador){
+        this.coordinador = coordinador;
+        imagen = new ImageIcon("presentacion\\src\\main\\java\\com\\mycompany\\presentacion\\fondos\\FondoInicio.png").getImage();
+        mostrar();
     }
 
     public void mostrar(){
@@ -40,20 +40,24 @@ public class PanelLogin extends JFrame {
 
         setSize(1080, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(null); // Centra la ventana en el escritorio
         setLayout(new BorderLayout(20, 20));
 
         JPanel panelFondo = new JPanel(new BorderLayout()){
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
+
                 Graphics2D g2 = (Graphics2D) g;
+
+                // Habilitar alta calidad
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                 g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                if(imagen != null){
-                    g2.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
-                }
+
+                // Dibujar imagen con interpolación suave
+                g2.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
             }
         };
 
@@ -72,15 +76,15 @@ public class PanelLogin extends JFrame {
         labelContraseña.setForeground(Color.WHITE);
 
         JTextField textFieldUsuario = new JTextField(20);
-        JPasswordField textFieldContraseña = new JPasswordField(20); // Cambiado a JPasswordField
+        JTextField textFieldContraseña = new JTextField(20);
 
         JLabel labelTitulo = new JLabel("Menu principal");
-        labelTitulo.setFont(new Font("Arial", Font.BOLD, 32));
+        labelTitulo.setFont(new Font("Arial",Font.BOLD, 32));
         labelTitulo.setForeground(Color.WHITE);
+                                //arriba, izquierda, abajo, derecha en ese orden
+        gbc.insets = new Insets(10,10, 90, 10);
 
-        gbc.insets = new Insets(10, 10, 90, 10);
-
-        // fila 1
+        //fila 1
         gbc.gridx = 0; gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.WEST;
         panelCentro.add(labelUsuario, gbc);
@@ -89,7 +93,7 @@ public class PanelLogin extends JFrame {
         gbc.anchor = GridBagConstraints.EAST;
         panelCentro.add(textFieldUsuario, gbc);
 
-        // fila 2
+        //fila 2
         gbc.gridx = 0; gbc.gridy = 1;
         gbc.anchor = GridBagConstraints.WEST;
         panelCentro.add(labelContraseña, gbc);
@@ -104,26 +108,30 @@ public class PanelLogin extends JFrame {
 
         add(panelFondo);
 
+
+
         panelFondo.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
                 .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "accion");
 
         panelFondo.getActionMap().put("accion", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String usuario = textFieldUsuario.getText();
-                String contrasena = new String(textFieldContraseña.getPassword());
+                if(textFieldUsuario.getText().isEmpty() || textFieldContraseña.getText().isEmpty()){
+                    JOptionPane.showMessageDialog(null, "No puede dejar ningun campo vacio");
+                }
 
-                if(usuario.equals(usuarioAdmin) && contrasena.equals(contraseñaAdmin)){
+                if(textFieldUsuario.getText().equals(usuarioAdmin) && textFieldContraseña.getText().equals(contraseñaAdmin)){
                     setTitle("Menu admin");
                     cambiarPanel(new PanelMenuAdmin());
                 }
-                else if(usuario.equals(mesero) && contrasena.equals(contraseñaMesero)){
+                else if(textFieldUsuario.getText().equals(nombreMesero) && textFieldContraseña.getText().equals(contraseñaMesero)){
                     setTitle("Menu mesero");
                     cambiarPanel(new PanelMenuMesero());
                 }
                 else {
-                    JOptionPane.showMessageDialog(null, "El usuario o contraseña son incorrectos", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "El usuario o contraseña son incorrectos");
                 }
+
             }
         });
 

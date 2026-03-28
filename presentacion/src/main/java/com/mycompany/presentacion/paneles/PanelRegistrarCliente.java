@@ -8,6 +8,8 @@ import dtos.ClienteFrecuenteDTO;
 import excepciones.NegocioException;
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
+
 import objetosnegocio.ClienteFrecuenteBO;
 
 /**
@@ -84,10 +86,11 @@ public class PanelRegistrarCliente extends JPanel {
             dto.setApellidoMaterno(txtApMaterno.getText());
             dto.setCorreo(txtCorreo.getText());
             dto.setTelefono(txtTelefono.getText());
+            dto.setFechaRegistro(LocalDate.now());
             dto.setPuntos(0.0);
             dto.setFechaRegistro(java.time.LocalDate.now()); 
 
-            bo.guardarCliente(dto); 
+            bo.guardarCliente(dto);
             JOptionPane.showMessageDialog(this, "Cliente registrado con exito.");
             regresar();
         } catch (NegocioException ex) {
