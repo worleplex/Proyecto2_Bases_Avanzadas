@@ -51,6 +51,7 @@ public class ClienteFrecuenteDAO {
         
         
     }
+    
     /**
      * Elimina a un cliente frecuente del sistema de lealtad.
      *
@@ -60,15 +61,17 @@ public class ClienteFrecuenteDAO {
     public boolean eliminar(Long id) {
         EntityManager em = ConexionBD.crearConexion();
         try {
+            em.getTransaction().begin();
             ClienteFrecuente cf = em.find(ClienteFrecuente.class, id);
+            
             if (cf == null) {
+                em.getTransaction().rollback(); 
                 return false;
             }
-
-            em.getTransaction().begin();
             em.remove(cf);
             em.getTransaction().commit();
             return true;
+            
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
@@ -77,8 +80,8 @@ public class ClienteFrecuenteDAO {
         } finally {
             em.close();
         }
-
     }
+    
     /**
      * Actualiza la informacion de un ClienteFrecuente, incluyendo sus puntos.
      *

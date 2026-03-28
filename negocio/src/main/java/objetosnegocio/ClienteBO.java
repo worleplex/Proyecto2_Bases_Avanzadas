@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package objetosnegocio;
 
 import adaptadores.ClienteAdapter;
@@ -62,5 +58,24 @@ public class ClienteBO {
             throw new NegocioException("Error al obtener la lista de clientes generales", e);
         }
     }
-    
+
+    public void editarCliente(ClienteDTO clienteDTO) throws NegocioException {
+        try {
+            Cliente entidad = ClienteAdapter.dtoAEntidad(clienteDTO);
+            clienteDAO.editar(entidad); 
+        } catch (Exception e) {
+            throw new NegocioException("Error al actualizar el cliente general: " + e.getMessage(), e);
+        }
+    }
+
+    public void eliminarCliente(Long id) throws NegocioException {
+        try {
+            boolean eliminado = clienteDAO.eliminar(id);
+            if (!eliminado) {
+                throw new NegocioException("No se encontró el cliente con ID: " + id);
+            }
+        } catch (Exception e) {
+            throw new NegocioException("Error al eliminar el cliente general: " + e.getMessage(), e);
+        }
+    }
 }

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package adaptadores;
 
 import dtos.ClienteFrecuenteDTO;
@@ -30,11 +26,10 @@ public class ClienteFrecuenteAdapter {
         );
     }
 
-    // Este lo necesitamos para cuando el usuario le dé clic en "Guardar"
     public static ClienteFrecuente dtoAEntidad(ClienteFrecuenteDTO dto) {
         if (dto == null) return null;
         
-        return new ClienteFrecuente(
+        ClienteFrecuente entidad = new ClienteFrecuente(
                 dto.getNombres(), 
                 dto.getApellidoPaterno(), 
                 dto.getApellidoMaterno(), 
@@ -43,9 +38,12 @@ public class ClienteFrecuenteAdapter {
                 dto.getFechaRegistro(), 
                 dto.getPuntos()
         );
+        
+        entidad.setId(dto.getId());
+        
+        return entidad;
     }
     
-    // Equivalente al de tu profe: Convierte listas
     public static List<ClienteFrecuenteDTO> listaEntidadADTO(List<ClienteFrecuente> entidades) {
         List<ClienteFrecuenteDTO> dtos = new ArrayList<>();
         if (entidades != null) {

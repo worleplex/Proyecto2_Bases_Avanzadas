@@ -85,6 +85,7 @@ public class PanelRegistrarCliente extends JPanel {
             dto.setCorreo(txtCorreo.getText());
             dto.setTelefono(txtTelefono.getText());
             dto.setPuntos(0.0);
+            dto.setFechaRegistro(java.time.LocalDate.now()); 
 
             bo.guardarCliente(dto); 
             JOptionPane.showMessageDialog(this, "Cliente registrado con exito.");
@@ -93,6 +94,8 @@ public class PanelRegistrarCliente extends JPanel {
             JOptionPane.showMessageDialog(this, ex.getMessage());
         }
     }
+    
+    
     /**
      * Regresa al menu principal.
      */

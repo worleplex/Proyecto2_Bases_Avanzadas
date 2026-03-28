@@ -42,7 +42,14 @@ public class PanelMenuAdmin extends JPanel{
         JButton buttonIngredientes = new JButton("Ingredientes");
         JButton buttonCliente = new JButton("Clientes");
         JButton buttonReportes = new JButton("Reportes");
-
+        
+        buttonCliente.addActionListener(e -> {
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            if(frame instanceof PanelLogin){
+                ((PanelLogin) frame).cambiarPanel(new PanelMenuClientes());
+            }
+        });
+        
         GridBagConstraints gbc = new GridBagConstraints();
         //arriba, izquierda, abajo, derecha en ese orden
         gbc.insets = new Insets(10,10, 10, 10);

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.presentacion.paneles;
 
 import adaptadores.ClienteFrecuenteAdapter;
@@ -10,6 +6,7 @@ import excepciones.NegocioException;
 import javax.swing.*;
 import java.awt.*;
 import objetosnegocio.ClienteFrecuenteBO;
+
 /**
  *
  * @author Gael Galaviz
@@ -61,31 +58,33 @@ public class PanelSeleccionarID extends JPanel {
         fondo.add(contenido);
         add(fondo, BorderLayout.CENTER);
     }
-/**
- * Valida el ID ingresado y abre el siguiente paso (Editar o Eliminar).
- * 
- */
- private void procesar() {
+
+    /**
+     * Valida el ID ingresado y abre el siguiente paso (Editar o Eliminar).
+     */
+    private void procesar() {
         try {
             Long id = Long.parseLong(txtId.getText());
-            if (accion.equals("editar")) {
-                ClienteFrecuenteDTO dto = bo.buscarClientePorId(id);
-                if (dto != null) {
+            
+            // 1. Buscamos si el cliente existe en la BD
+            ClienteFrecuenteDTO dto = bo.buscarClientePorId(id);
+            
+            if (dto != null) {
+                // 2. Si sí existe, revisamos qué botón presionó el usuario al principio
+                if (accion.equals("editar")) {
                     abrir(new PanelEditarCliente(ClienteFrecuenteAdapter.dtoAEntidad(dto)));
                 } else {
-                    JOptionPane.showMessageDialog(this, "ID no encontrado.");
+                    // ¡AQUÍ ESTÁ LA MAGIA! Lo mandamos a tu nuevo panel de eliminar
+                    abrir(new PanelEliminarClienteFrecuente(ClienteFrecuenteAdapter.dtoAEntidad(dto)));
                 }
             } else {
-                int ok = JOptionPane.showConfirmDialog(this, "¿Eliminar cliente " + id + "?", "Confirmar", JOptionPane.YES_NO_OPTION);
-                if (ok == JOptionPane.YES_OPTION) {
-                    JOptionPane.showMessageDialog(this, "Eliminado.");
-                    regresar();
-                }
+                JOptionPane.showMessageDialog(this, "ID no encontrado en la base de datos.");
             }
+            
         } catch (NegocioException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage());
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "ID invalido.");
+            JOptionPane.showMessageDialog(this, "ID inválido. Por favor ingresa solo números.");
         }
     }
 
@@ -109,16 +108,20 @@ public class PanelSeleccionarID extends JPanel {
     }
 
     private JPanel crearFondo() {
-        Image img = new ImageIcon("presentacion\\src\\main\\java\\com\\mycompany\\presentacion\\fondos\\FondoInicio.png").getImage();
         JPanel p = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-                g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.drawImage(img, 0, 0, getWidth(), getHeight(), null);
+                // ¡Ruta de imagen corregida para que no te dé errores en Maven!
+                java.net.URL url = getClass().getResource("/com/mycompany/presentacion/fondos/fondoInicio.png");
+                if (url != null) {
+                    Image img = new ImageIcon(url).getImage();
+                    Graphics2D g2 = (Graphics2D) g;
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                    g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.drawImage(img, 0, 0, getWidth(), getHeight(), null);
+                }
             }
         };
         p.setOpaque(false);

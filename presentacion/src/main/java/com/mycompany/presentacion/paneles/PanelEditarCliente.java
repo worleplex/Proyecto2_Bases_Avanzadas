@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.presentacion.paneles;
 
 import adaptadores.ClienteFrecuenteAdapter;
@@ -11,15 +7,15 @@ import excepciones.NegocioException;
 import javax.swing.*;
 import java.awt.*;
 import objetosnegocio.ClienteFrecuenteBO;
+
 /**
  *
  * @author Gael Galaviz
- * Clase para modificar los datos de un cliente
- * existente.
+ * Clase para modificar los datos de un cliente existente.
  */
 public class PanelEditarCliente extends JPanel {
 
-    private ClienteFrecuente cliente;// Datos actuales del cliente
+    private ClienteFrecuente cliente; // Datos actuales del cliente
     private JTextField txtNombre, txtApPaterno, txtApMaterno, txtCorreo, txtTelefono;
     private ClienteFrecuenteBO bo =  ClienteFrecuenteBO.getInstance();
 
@@ -75,8 +71,9 @@ public class PanelEditarCliente extends JPanel {
         fondo.add(pB, BorderLayout.SOUTH);
         add(fondo, BorderLayout.CENTER);
     }
+
     /**
-     *Toma los nuevos datos de los campos y actualiza al cliente.
+     * Toma los nuevos datos de los campos y actualiza al cliente.
      */
     private void actualizar() {
         try {
@@ -88,8 +85,8 @@ public class PanelEditarCliente extends JPanel {
 
             ClienteFrecuenteDTO dto = ClienteFrecuenteAdapter.entidadADTO(cliente);
 
-            
-            bo.guardarCliente(dto);
+            // ¡Corrección! Usamos editarCliente en lugar de guardarCliente
+            bo.editarCliente(dto);
 
             JOptionPane.showMessageDialog(this, "Datos actualizados correctamente.");
             regresar();
@@ -97,6 +94,7 @@ public class PanelEditarCliente extends JPanel {
             JOptionPane.showMessageDialog(this, "Error al actualizar: " + ex.getMessage());
         }
     }
+
     private void regresar() {
         JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
         v.setContentPane(new PanelMenuClientes());
@@ -128,16 +126,20 @@ public class PanelEditarCliente extends JPanel {
     }
 
     private JPanel crearFondo() {
-        Image img = new ImageIcon("presentacion\\src\\main\\java\\com\\mycompany\\presentacion\\fondos\\FondoInicio.png").getImage();
         JPanel p = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-                g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.drawImage(img, 0, 0, getWidth(), getHeight(), null);
+                // ¡Corrección de la ruta de la imagen!
+                java.net.URL url = getClass().getResource("/com/mycompany/presentacion/fondos/fondoInicio.png");
+                if (url != null) {
+                    Image img = new ImageIcon(url).getImage();
+                    Graphics2D g2 = (Graphics2D) g;
+                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                    g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.drawImage(img, 0, 0, getWidth(), getHeight(), null);
+                }
             }
         };
         p.setOpaque(false);
