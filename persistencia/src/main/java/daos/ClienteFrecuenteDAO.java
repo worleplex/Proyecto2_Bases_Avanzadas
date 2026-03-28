@@ -40,10 +40,11 @@ public class ClienteFrecuenteDAO {
             em.getTransaction().begin();
             em.persist(cliente);
             em.getTransaction().commit();
-            } catch (Exception e) {
+        } catch (Exception e) {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
+            throw e;
         } finally {
             em.close();
         }
@@ -154,6 +155,7 @@ public class ClienteFrecuenteDAO {
             if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
+            throw e;
         } finally {
             em.close();
         }
