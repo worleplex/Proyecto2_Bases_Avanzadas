@@ -219,21 +219,40 @@ public class PanelConsultarClientes extends JPanel {
     }
 
     private JPanel crearFondo() {
+        // Intentamos cargar la imagen desde la raiz de resources
+        java.net.URL url = getClass().getResource("/FondoInicio.png");
+
+        ImageIcon icono;
+        if (url != null) {
+            icono = new ImageIcon(url);
+            // Si no encuentra, mandamos un error a la consola para saber
+        } else {
+            System.err.println("Error: No se encontro FondoInicio.png en la raiz de resources");
+            icono = new ImageIcon();
+        }
+
+        Image imagen = icono.getImage();
+
         JPanel p = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                java.net.URL url = getClass().getResource("/com/mycompany/presentacion/fondos/fondoInicio.png");
-                if (url != null) {
-                    Image img = new ImageIcon(url).getImage();
+
+                if (imagen != null && imagen.getWidth(null) > 0) {
                     Graphics2D g2 = (Graphics2D) g;
+                    // Calidad de renderizado
                     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                     g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.drawImage(img, 0, 0, getWidth(), getHeight(), null);
+
+                    g2.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
+                } else {
+                    g.setColor(new Color(30, 30, 30));
+                    g.fillRect(0, 0, getWidth(), getHeight());
                 }
             }
         };
+
         p.setOpaque(false);
         return p;
     }

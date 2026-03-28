@@ -29,12 +29,17 @@ public class PanelLogin extends JFrame {
     }
 
 
-    public PanelLogin(Coordinador coordinador){
+    public PanelLogin(Coordinador coordinador) {
         this.coordinador = coordinador;
-        imagen = new ImageIcon("presentacion\\src\\main\\java\\com\\mycompany\\presentacion\\fondos\\FondoInicio.png").getImage();
+        // Carga desde resources
+        java.net.URL url = getClass().getResource("/FondoInicio.png");
+        if (url != null) {
+            this.imagen = new ImageIcon(url).getImage();
+        } else {
+            System.err.println("Error: No se encontro FondoInicio.png en la raiz de resources");
+        }
         mostrar();
     }
-
     public void mostrar(){
         setTitle("Inicio de sesion");
 

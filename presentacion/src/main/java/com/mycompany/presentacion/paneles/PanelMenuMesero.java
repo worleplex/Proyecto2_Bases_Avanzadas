@@ -6,11 +6,12 @@ import java.awt.*;
 public class PanelMenuMesero extends JPanel {
     private Image imagen;
 
-
     public PanelMenuMesero() {
-        imagen = new ImageIcon("presentacion\\src\\main\\java\\com\\mycompany\\presentacion\\fondos\\FondoInicio.png").getImage();
+        java.net.URL url = getClass().getResource("/FondoInicio.png");
+        if (url != null) {
+            this.imagen = new ImageIcon(url).getImage();
+        }
     }
-
     public void mostrar() {
         setSize(1080, 720);
         setLayout(new BorderLayout(20, 20));
