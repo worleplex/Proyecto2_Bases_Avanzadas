@@ -1,5 +1,7 @@
-objetosnegocio\ClienteBO.class
 adaptadores\ClienteFrecuenteAdapter.class
 adaptadores\ClienteAdapter.class
+objetosnegocio\ClienteBO.class
+adaptadores\EmpleadoAdapter.class
+objetosnegocio\EmpleadoBO.class
 excepciones\NegocioException.class
 objetosnegocio\ClienteFrecuenteBO.class

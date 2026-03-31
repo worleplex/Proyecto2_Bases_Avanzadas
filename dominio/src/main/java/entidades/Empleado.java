@@ -14,6 +14,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "empleados")
 @Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "DTYPE")
 public abstract class Empleado implements Serializable {
 
     @Id

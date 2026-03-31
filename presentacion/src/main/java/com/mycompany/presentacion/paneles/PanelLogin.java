@@ -1,25 +1,19 @@
 package com.mycompany.presentacion.paneles;
 
 import com.mycompany.presentacion.controlador.Coordinador;
+import dtos.EmpleadoDTO;
+import excepciones.NegocioException;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import objetosnegocio.EmpleadoBO;
 
 public class PanelLogin extends JFrame {
     private final Coordinador coordinador;
     private Image imagen;
-    private String usuarioAdmin = "Maye";
-    private String contraseñaAdmin = "1234";
 
-    private String nombreMesero = "luis";
-    private String contraseñaMesero = "4321";
-
-    /*
-        metodo auxiliar para facilitar la navegacion entre paneles
-        @param toma como parametro el metodo al que quieres cambiar
-     */
     public void cambiarPanel(JPanel panel){
         getContentPane().removeAll();
         getContentPane().add(panel, BorderLayout.CENTER);
@@ -27,7 +21,6 @@ public class PanelLogin extends JFrame {
         repaint();
         panel.requestFocusInWindow();
     }
-
 
     public PanelLogin(Coordinador coordinador) {
         this.coordinador = coordinador;
@@ -40,12 +33,13 @@ public class PanelLogin extends JFrame {
         }
         mostrar();
     }
+
     public void mostrar(){
         setTitle("Inicio de sesion");
 
         setSize(1080, 720);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // Centra la ventana en el escritorio
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout(20, 20));
 
         JPanel panelFondo = new JPanel(new BorderLayout()){
@@ -56,12 +50,10 @@ public class PanelLogin extends JFrame {
 
                 Graphics2D g2 = (Graphics2D) g;
 
-                // Habilitar alta calidad
                 g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                 g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Dibujar imagen con interpolación suave
                 g2.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
             }
         };
@@ -81,12 +73,12 @@ public class PanelLogin extends JFrame {
         labelContraseña.setForeground(Color.WHITE);
 
         JTextField textFieldUsuario = new JTextField(20);
-        JTextField textFieldContraseña = new JTextField(20);
+        
+        JPasswordField textFieldContraseña = new JPasswordField(20); 
 
         JLabel labelTitulo = new JLabel("Menu principal");
         labelTitulo.setFont(new Font("Arial",Font.BOLD, 32));
         labelTitulo.setForeground(Color.WHITE);
-                                //arriba, izquierda, abajo, derecha en ese orden
         gbc.insets = new Insets(10,10, 90, 10);
 
         //fila 1
@@ -113,30 +105,35 @@ public class PanelLogin extends JFrame {
 
         add(panelFondo);
 
-
-
         panelFondo.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
                 .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "accion");
 
         panelFondo.getActionMap().put("accion", new AbstractAction() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                if(textFieldUsuario.getText().isEmpty() || textFieldContraseña.getText().isEmpty()){
-                    JOptionPane.showMessageDialog(null, "No puede dejar ningun campo vacio");
-                }
+            public void actionPerformed(ActionEvent e) { // aqui esta lo nuevo q puse
+                // para iniciar sesion pero bien
+                String usuario = textFieldUsuario.getText();
+                String contraseña = new String(textFieldContraseña.getPassword()); 
 
-                if(textFieldUsuario.getText().equals(usuarioAdmin) && textFieldContraseña.getText().equals(contraseñaAdmin)){
-                    setTitle("Menu admin");
-                    cambiarPanel(new PanelMenuAdmin());
-                }
-                else if(textFieldUsuario.getText().equals(nombreMesero) && textFieldContraseña.getText().equals(contraseñaMesero)){
-                    setTitle("Menu mesero");
-                    cambiarPanel(new PanelMenuMesero());
-                }
-                else {
-                    JOptionPane.showMessageDialog(null, "El usuario o contraseña son incorrectos");
-                }
+                try {
+                    EmpleadoDTO empleadoLogueado = EmpleadoBO.getInstance().iniciarSesion(usuario, contraseña);
 
+                    if (empleadoLogueado == null) {
+                        JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrectos", "Error de Login", JOptionPane.ERROR_MESSAGE);
+                        return; 
+                    }
+
+                    if ("ADMIN".equals(empleadoLogueado.getRol())) {
+                        setTitle("Menu admin - " + empleadoLogueado.getNombreCompleto());
+                        cambiarPanel(new PanelMenuAdmin());
+                    } else {
+                        setTitle("Menu mesero - " + empleadoLogueado.getNombreCompleto());
+                        cambiarPanel(new PanelMenuMesero());
+                    }
+
+                } catch (NegocioException ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage(), "Error del Sistema", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 

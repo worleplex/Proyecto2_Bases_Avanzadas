@@ -1,3 +1,4 @@
-dtos\ClienteFrecuenteDTO.class
 com\mycompany\dtos\Dtos.class
+dtos\ClienteFrecuenteDTO.class
+dtos\EmpleadoDTO.class
 dtos\ClienteDTO.class
