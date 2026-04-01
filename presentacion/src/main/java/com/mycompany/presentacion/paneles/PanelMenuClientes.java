@@ -4,8 +4,13 @@
  */
 package com.mycompany.presentacion.paneles;
 
+import dtos.EmpleadoDTO;
+import objetosnegocio.EmpleadoBO;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  *
@@ -36,6 +41,10 @@ public class PanelMenuClientes extends JPanel {
         JButton btnEditar = crearBoton("Editar Cliente");
         JButton btnEliminar = crearBoton("Eliminar Cliente");
         JButton btnBuscador = crearBoton("Consultar Clientes");
+        JButton buttonRegresar = new JButton("Regresar");
+
+        JPanel panelSur = new JPanel();
+        panelSur.setOpaque(false);
 
         JPanel panelBotones = new JPanel(new GridLayout(4, 1, 0, 15));
         panelBotones.setOpaque(false);
@@ -45,15 +54,23 @@ public class PanelMenuClientes extends JPanel {
         panelBotones.add(btnEditar);
         panelBotones.add(btnEliminar);
         panelBotones.add(btnBuscador);
+        panelSur.add(buttonRegresar);
 
         fondo.add(titulo, BorderLayout.NORTH);
         fondo.add(panelBotones, BorderLayout.CENTER);
+        fondo.add(panelSur, BorderLayout.SOUTH);
         add(fondo, BorderLayout.CENTER);
 
         btnRegistrar.addActionListener(e -> abrir(new PanelRegistrarCliente()));
         btnEditar.addActionListener(e -> abrir(new PanelSeleccionarID("editar")));
         btnEliminar.addActionListener(e -> abrir(new PanelSeleccionarID("eliminar")));
         btnBuscador.addActionListener(e -> abrir(new PanelConsultarClientes()));
+        buttonRegresar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                abrir(new PanelMenuAdmin());
+            }
+        });
     }
  /**
   * Cambia el panel actual de la ventana por uno nuevo.
