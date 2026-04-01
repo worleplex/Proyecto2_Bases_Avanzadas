@@ -10,16 +10,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import objetosnegocio.EmpleadoBO;
 
-public class PanelLogin extends JFrame {
+public class PanelLogin extends JPanel {
     private final Coordinador coordinador;
     private Image imagen;
 
     public void cambiarPanel(JPanel panel){
-        getContentPane().removeAll();
-        getContentPane().add(panel, BorderLayout.CENTER);
-        revalidate();
-        repaint();
-        panel.requestFocusInWindow();
+            JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
+            v.setContentPane(panel);
+            v.revalidate();
     }
 
     public PanelLogin(Coordinador coordinador) {
@@ -35,11 +33,7 @@ public class PanelLogin extends JFrame {
     }
 
     public void mostrar(){
-        setTitle("Inicio de sesion");
-
         setSize(1080, 720);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
         setLayout(new BorderLayout(20, 20));
 
         JPanel panelFondo = new JPanel(new BorderLayout()){
@@ -124,10 +118,8 @@ public class PanelLogin extends JFrame {
                     }
 
                     if ("ADMIN".equals(empleadoLogueado.getRol())) {
-                        setTitle("Menu admin - " + empleadoLogueado.getNombreCompleto());
                         cambiarPanel(new PanelMenuAdmin());
                     } else {
-                        setTitle("Menu mesero - " + empleadoLogueado.getNombreCompleto());
                         cambiarPanel(new PanelMenuMesero());
                     }
 

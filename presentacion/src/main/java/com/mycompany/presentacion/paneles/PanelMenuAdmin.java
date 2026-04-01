@@ -11,11 +11,11 @@ public class PanelMenuAdmin extends JPanel{
     private Image imagen;
 
     public void cambiarPanel(JPanel panel){
-        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        if(frame instanceof PanelLogin){
-            ((PanelLogin) frame).cambiarPanel(panel);
-        }
+        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
+        v.setContentPane(panel);
+        v.revalidate();
     }
+
 
     public PanelMenuAdmin() {
         // Carga desde resources
@@ -62,7 +62,7 @@ public class PanelMenuAdmin extends JPanel{
         });
         
         buttonReportes.addActionListener(e -> {
-            cambiarPanel(new PanelMenuReportes());
+            cambiarPanel(new PanelMenuReportes(new Coordinador()));
         });
 
         buttonCerrarSesion.addActionListener(new ActionListener() {
