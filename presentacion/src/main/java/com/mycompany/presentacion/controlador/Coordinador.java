@@ -1,5 +1,6 @@
 package com.mycompany.presentacion.controlador;
 
+import com.mycompany.presentacion.paneles.PanelElegir;
 import com.mycompany.presentacion.paneles.PanelLogin;
 import com.mycompany.presentacion.paneles.PanelMenuClientes;
 
@@ -9,17 +10,24 @@ import com.mycompany.presentacion.paneles.PanelMenuClientes;
 public class Coordinador {
     PanelMenuClientes panelMenuClientes;
     PanelLogin panelLogin;
+    PanelElegir panelElegir;
 
     public Coordinador(){
 
     }
 
+//    public void iniciarSistema() {
+//        if (panelLogin == null) {
+//            panelLogin = new PanelLogin(this);
+//        }
+//        panelLogin.setVisible(true);
+//    }
+    
     public void iniciarSistema() {
-        if (panelLogin == null) {
-            panelLogin = new PanelLogin(this);
+        if (panelElegir == null) {
+            panelElegir = new PanelElegir(this);
         }
-        panelLogin.setVisible(true);
+        panelElegir.setVisible(true);
     }
-
 
 }

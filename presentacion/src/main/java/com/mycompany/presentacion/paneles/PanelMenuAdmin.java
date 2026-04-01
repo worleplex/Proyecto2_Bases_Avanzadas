@@ -60,6 +60,10 @@ public class PanelMenuAdmin extends JPanel{
         buttonCliente.addActionListener(e -> {
             cambiarPanel(new PanelMenuClientes());
         });
+        
+        buttonReportes.addActionListener(e -> {
+            cambiarPanel(new PanelMenuReportes());
+        });
 
         buttonCerrarSesion.addActionListener(new ActionListener() {
             @Override
@@ -104,7 +108,5 @@ public class PanelMenuAdmin extends JPanel{
         panelFondo.add(panelCentro, BorderLayout.CENTER);
         panelFondo.add(panelSur,BorderLayout.SOUTH);
         add(panelFondo, BorderLayout.CENTER);
-
-
     }
 }
