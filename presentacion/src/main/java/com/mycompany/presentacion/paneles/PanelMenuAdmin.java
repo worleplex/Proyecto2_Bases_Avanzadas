@@ -10,6 +10,13 @@ import java.awt.event.ActionListener;
 public class PanelMenuAdmin extends JPanel{
     private Image imagen;
 
+    public void cambiarPanel(JPanel panel){
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if(frame instanceof PanelLogin){
+            ((PanelLogin) frame).cambiarPanel(panel);
+        }
+    }
+
     public PanelMenuAdmin() {
         // Carga desde resources
         java.net.URL url = getClass().getResource("/FondoInicio.png");
@@ -36,6 +43,8 @@ public class PanelMenuAdmin extends JPanel{
         panelNorte.setOpaque(false);
         JPanel panelCentro = new JPanel(new GridBagLayout());
         panelCentro.setOpaque(false);
+        JPanel panelSur = new JPanel();
+        panelSur.setOpaque(false);
 
         JLabel labelTitulo = new JLabel("Menu principal");
         labelTitulo.setFont(new Font("Arial",Font.BOLD, 32));
@@ -46,11 +55,17 @@ public class PanelMenuAdmin extends JPanel{
         JButton buttonIngredientes = new JButton("Ingredientes");
         JButton buttonCliente = new JButton("Clientes");
         JButton buttonReportes = new JButton("Reportes");
-        
+        JButton buttonCerrarSesion = new JButton("Cerrar sesion");
+
         buttonCliente.addActionListener(e -> {
-            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            if(frame instanceof PanelLogin){
-                ((PanelLogin) frame).cambiarPanel(new PanelMenuClientes());
+            cambiarPanel(new PanelMenuClientes());
+        });
+
+        buttonCerrarSesion.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Coordinador coordinador = new Coordinador();
+            //    cambiarPanel(new PanelLogin(coordinador)); En produccion me trono el coco
             }
         });
         
@@ -84,19 +99,12 @@ public class PanelMenuAdmin extends JPanel{
         panelCentro.add(buttonReportes, gbc);
 
         panelNorte.add(labelTitulo, BorderLayout.NORTH);
+        panelSur.add(buttonCerrarSesion);
         panelFondo.add(panelNorte, BorderLayout.NORTH);
         panelFondo.add(panelCentro, BorderLayout.CENTER);
+        panelFondo.add(panelSur,BorderLayout.SOUTH);
         add(panelFondo, BorderLayout.CENTER);
 
-        buttonCliente.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Coordinador coordinador = new Coordinador();
-                PanelLogin panel = new PanelLogin(coordinador);
-                panel.cambiarPanel(new PanelMenuClientes());
-
-            }
-        });
 
     }
 }
