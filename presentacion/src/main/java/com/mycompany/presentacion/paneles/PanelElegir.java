@@ -13,12 +13,18 @@ import java.awt.event.ActionEvent;
  *
  * @author julian izaguirre
  */
-public class PanelElegir extends JFrame{
-    
+public class PanelElegir extends JPanel{
     private final Coordinador coordinador;
     private Image imagen;
 
+    private void cambiarPanel(JPanel panel) {
+        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
+        v.setContentPane(panel);
+        v.revalidate();
+    }
+
     public PanelElegir(Coordinador coordinador) {
+        setSize(1080, 720);
         this.coordinador = coordinador;
         java.net.URL url = getClass().getResource("/FondoInicio.png");
         if (url != null) {
@@ -30,11 +36,6 @@ public class PanelElegir extends JFrame{
     }
 
     public void mostrar() {
-        setTitle("Pantalla de Eleccion");
-        setSize(1080, 720);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); 
-
         JPanel panelFondo = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -65,24 +66,11 @@ public class PanelElegir extends JFrame{
         btnAdmin.setPreferredSize(new Dimension(350, 70));
 
         btnMesero.addActionListener((ActionEvent e) -> {
-            PanelElegir.this.setVisible(false);
-            PanelElegir.this.dispose(); 
-            
-            JFrame frameMesero = new JFrame("Menu Mesero");
-            frameMesero.setSize(1080, 720);
-            frameMesero.setLocationRelativeTo(null);
-            frameMesero.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            
-            PanelMenuMesero menu = new PanelMenuMesero();
-            frameMesero.add(menu);
-            frameMesero.setVisible(true);
+            cambiarPanel(new PanelMenuMesero());
         });
 
         btnAdmin.addActionListener((ActionEvent e) -> {
-            PanelElegir.this.setVisible(false);
-            PanelElegir.this.dispose();
-            
-            new PanelLogin(coordinador); 
+            cambiarPanel(new PanelMenuAdmin());
         });
 
         // Agregamos los botones directamente al panel transparente (sin la caja blanca)
@@ -93,7 +81,7 @@ public class PanelElegir extends JFrame{
         panelCentro.add(btnAdmin, gbc);
 
         panelFondo.add(panelCentro, BorderLayout.CENTER);
-        add(panelFondo);
+        add(panelFondo, BorderLayout.CENTER);
 
         setVisible(true);
     }
