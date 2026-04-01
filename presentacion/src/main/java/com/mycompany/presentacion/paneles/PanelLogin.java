@@ -19,7 +19,6 @@ public class PanelLogin extends JFrame {
         getContentPane().add(panel, BorderLayout.CENTER);
         revalidate();
         repaint();
-        panel.requestFocusInWindow();
     }
 
     public PanelLogin(Coordinador coordinador) {
@@ -112,8 +111,8 @@ public class PanelLogin extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) { // aqui esta lo nuevo q puse
                 // para iniciar sesion pero bien
-                String usuario = textFieldUsuario.getText();
-                String contraseña = new String(textFieldContraseña.getPassword()); 
+                String usuario = textFieldUsuario.getText().trim();
+                String contraseña = new String(textFieldContraseña.getPassword());
 
                 try {
                     EmpleadoDTO empleadoLogueado = EmpleadoBO.getInstance().iniciarSesion(usuario, contraseña);
