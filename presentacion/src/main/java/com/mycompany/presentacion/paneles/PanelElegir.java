@@ -66,11 +66,11 @@ public class PanelElegir extends JPanel{
         btnAdmin.setPreferredSize(new Dimension(350, 70));
 
         btnMesero.addActionListener((ActionEvent e) -> {
-            cambiarPanel(new PanelMenuMesero());
+            cambiarPanel(new PanelMenuMesero(coordinador));
         });
 
         btnAdmin.addActionListener((ActionEvent e) -> {
-            cambiarPanel(new PanelMenuAdmin());
+            cambiarPanel(new PanelLogin(coordinador));
         });
 
         // Agregamos los botones directamente al panel transparente (sin la caja blanca)
