@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.presentacion.paneles;
+import com.mycompany.presentacion.controlador.Coordinador;
 import javax.swing.*;
 import java.awt.*;
 
@@ -14,7 +15,16 @@ import java.awt.*;
 public class PanelMenuReportes extends JPanel {
     
     private Image imagen;
-
+    
+    private void cambiarPanel(JPanel panel) {
+        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (v != null) {
+            v.setContentPane(panel);
+            v.revalidate();
+            v.repaint();
+        }
+    }
+    
     public PanelMenuReportes() {
         java.net.URL url = getClass().getResource("/FondoInicio.png"); 
         if (url != null) {
@@ -62,10 +72,7 @@ public class PanelMenuReportes extends JPanel {
         btnRegresar.setPreferredSize(new Dimension(300, 60));
 
         btnRegresar.addActionListener(e -> {
-            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            if (frame instanceof PanelLogin) {
-                ((PanelLogin) frame).cambiarPanel(new PanelMenuAdmin());
-            }
+            cambiarPanel(new PanelMenuAdmin());
         });
 
         btnComandas.addActionListener(e -> {
