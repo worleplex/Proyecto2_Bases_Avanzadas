@@ -1,31 +1,32 @@
 package com.mycompany.presentacion.paneles;
 
 import com.mycompany.presentacion.controlador.Coordinador;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-public class PanelMenuAdmin extends JPanel{
+public class PanelMenuAdmin extends JPanel {
     private final Coordinador coordinador;
     private Image imagen;
 
     public void cambiarPanel(JPanel panel){
         JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        v.setContentPane(panel);
-        v.revalidate();
+        if (v != null) {
+            v.setContentPane(panel);
+            v.revalidate();
+            v.repaint();
+        }
     }
 
     public PanelMenuAdmin(Coordinador coordinador) {
         this.coordinador = coordinador;
         // Carga desde resources
+
         java.net.URL url = getClass().getResource("/FondoInicio.png");
         if (url != null) {
             this.imagen = new ImageIcon(url).getImage();
         }
 
-        setLayout(new BorderLayout(20, 20));
+        setLayout(new BorderLayout());
 
         JPanel panelFondo = new JPanel(new BorderLayout()) {
             @Override
@@ -40,74 +41,68 @@ public class PanelMenuAdmin extends JPanel{
                 }
             }
         };
-        JPanel panelNorte = new JPanel();
-        panelNorte.setOpaque(false);
-        JPanel panelCentro = new JPanel(new GridBagLayout());
-        panelCentro.setOpaque(false);
+
+        JLabel labelTitulo = new JLabel("Menú principal", SwingConstants.CENTER);
+        labelTitulo.setFont(new Font("Segoe UI", Font.BOLD, 45));
+        labelTitulo.setForeground(Color.WHITE);
+        labelTitulo.setBorder(BorderFactory.createEmptyBorder(40, 0, 20, 0));
+
+        JButton buttonComandas = crearBoton("Comandas");
+        JButton buttonProductos = crearBoton("Productos");
+        JButton buttonIngredientes = crearBoton("Ingredientes");
+        JButton buttonCliente = crearBoton("Clientes");
+        JButton buttonReportes = crearBoton("Reportes");
+
+        JButton buttonCerrarSesion = new JButton("Cerrar sesión");
+        buttonCerrarSesion.setPreferredSize(new Dimension(250, 50));
+        buttonCerrarSesion.setBackground(new Color(105, 105, 105)); // Gris
+        buttonCerrarSesion.setForeground(Color.WHITE);
+        buttonCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        buttonCerrarSesion.setFocusPainted(false);
+        buttonCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        JPanel panelBotones = new JPanel(new GridLayout(5, 1, 0, 15));
+        panelBotones.setOpaque(false);
+        panelBotones.setBorder(BorderFactory.createEmptyBorder(20, 150, 60, 150));
+
+        panelBotones.add(buttonComandas);
+        panelBotones.add(buttonProductos);
+        panelBotones.add(buttonIngredientes);
+        panelBotones.add(buttonCliente);
+        panelBotones.add(buttonReportes);
+
         JPanel panelSur = new JPanel();
         panelSur.setOpaque(false);
-
-        JLabel labelTitulo = new JLabel("Menu principal");
-        labelTitulo.setFont(new Font("Arial",Font.BOLD, 32));
-        labelTitulo.setForeground(Color.WHITE);
-
-        JButton buttonComandas = new JButton("Comandas");
-        JButton buttonProductos = new JButton("Productos");
-        JButton buttonIngredientes = new JButton("Ingredientes");
-        JButton buttonCliente = new JButton("Clientes");
-        JButton buttonReportes = new JButton("Reportes");
-        JButton buttonCerrarSesion = new JButton("Cerrar sesion");
+        panelSur.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
+        panelSur.add(buttonCerrarSesion);
 
         buttonCliente.addActionListener(e -> {
             cambiarPanel(new PanelMenuClientes());
         });
         
         buttonReportes.addActionListener(e -> {
-            cambiarPanel(new PanelMenuReportes(new Coordinador()));
+            cambiarPanel(new PanelMenuReportes(coordinador));
         });
 
-        buttonCerrarSesion.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Coordinador coordinador = new Coordinador();
-            //    cambiarPanel(new PanelLogin(coordinador)); En produccion me trono el coco
-            }
+        buttonCerrarSesion.addActionListener(e -> {
+            cambiarPanel(new PanelElegir(coordinador));
         });
+
+        panelFondo.add(labelTitulo, BorderLayout.NORTH);
+        panelFondo.add(panelBotones, BorderLayout.CENTER);
+        panelFondo.add(panelSur, BorderLayout.SOUTH);
         
-        GridBagConstraints gbc = new GridBagConstraints();
-        //arriba, izquierda, abajo, derecha en ese orden
-        gbc.insets = new Insets(10,10, 10, 10);
-
-        //fila 1
-        gbc.gridx = 0; gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panelCentro.add(buttonComandas, gbc);
-
-        //fila 2
-        gbc.gridx = 0; gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panelCentro.add(buttonProductos, gbc);
-
-        //fila 3
-        gbc.gridx = 0; gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panelCentro.add(buttonIngredientes, gbc);
-
-        //fila 4
-        gbc.gridx = 0; gbc.gridy = 3;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panelCentro.add(buttonCliente, gbc);
-
-        //fila 5
-        gbc.gridx = 0; gbc.gridy = 4;
-        gbc.anchor = GridBagConstraints.CENTER;
-        panelCentro.add(buttonReportes, gbc);
-
-        panelNorte.add(labelTitulo, BorderLayout.NORTH);
-        panelSur.add(buttonCerrarSesion);
-        panelFondo.add(panelNorte, BorderLayout.NORTH);
-        panelFondo.add(panelCentro, BorderLayout.CENTER);
-        panelFondo.add(panelSur,BorderLayout.SOUTH);
         add(panelFondo, BorderLayout.CENTER);
+    }
+
+    private JButton crearBoton(String texto) {
+        JButton btn = new JButton(texto);
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+        btn.setBackground(Color.WHITE);
+        btn.setForeground(Color.BLACK);
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setPreferredSize(new Dimension(0, 60)); // Altura fija
+        return btn;
     }
 }

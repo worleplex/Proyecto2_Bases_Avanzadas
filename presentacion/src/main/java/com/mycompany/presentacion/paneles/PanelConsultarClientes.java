@@ -14,8 +14,8 @@ import java.awt.event.FocusEvent;
 
 /**
  *
- * @author Gael Galaviz / Adaptación visual por Julian
- * Clase que muestra la lista completa de clientes con filtros avanzados.
+ * @author Gael Galaviz / julian izaguirre
+ * Clase que muestra la lista completa de clientes con filtros avanzados
  */
 public class PanelConsultarClientes extends JPanel {
 
@@ -33,25 +33,23 @@ public class PanelConsultarClientes extends JPanel {
         JPanel fondo = crearFondo();
         fondo.setLayout(new BorderLayout());
 
-        // --- TÍTULO ---
         JLabel t = new JLabel("Consultar clientes", SwingConstants.CENTER);
         t.setFont(new Font("Segoe UI", Font.BOLD, 36));
         t.setForeground(Color.WHITE);
         t.setBorder(BorderFactory.createEmptyBorder(30, 0, 30, 0));
 
-        // --- PANEL CENTRAL (Tabla a la izquierda, Filtros a la derecha) ---
         JPanel panelCentral = new JPanel(new BorderLayout(20, 0));
         panelCentral.setOpaque(false);
         panelCentral.setBorder(BorderFactory.createEmptyBorder(0, 40, 20, 40));
 
-        // 1. Configuración de la Tabla (Izquierda)
+        // la tablilla
         modelo = new DefaultTableModel(new Object[]{
             "Nombre", "Apellido paterno", "Apellido materno", "Correo electrónico", "Teléfono", "Puntos de fidelidad"
         }, 0);
         
         tabla = new JTable(modelo);
         tabla.setRowHeight(35);
-        tabla.setBackground(new Color(255, 204, 204)); // Color durazno/rosita de la imagen
+        tabla.setBackground(new Color(255, 204, 204));
         tabla.setSelectionBackground(new Color(255, 153, 153));
         
         JTableHeader header = tabla.getTableHeader();
@@ -63,69 +61,63 @@ public class PanelConsultarClientes extends JPanel {
         sp.getViewport().setOpaque(false);
         panelCentral.add(sp, BorderLayout.CENTER);
 
-        // 2. Configuración del Panel de Filtros (Derecha)
         JPanel panelFiltros = new JPanel();
         panelFiltros.setLayout(new BoxLayout(panelFiltros, BoxLayout.Y_AXIS));
         panelFiltros.setOpaque(false);
-        panelFiltros.setPreferredSize(new Dimension(300, 0)); // Ancho fijo para los filtros
+        panelFiltros.setPreferredSize(new Dimension(300, 0)); 
 
         // Filtro Nombre
         panelFiltros.add(crearEtiquetaFiltro("Filtrar por nombre:"));
         txtFiltroNombre = new JTextField();
         aplicarPlaceholder(txtFiltroNombre, "ingresar el nombre del cliente");
         panelFiltros.add(txtFiltroNombre);
-        panelFiltros.add(Box.createVerticalStrut(20)); // Espaciador
+        panelFiltros.add(Box.createVerticalStrut(20)); 
 
         // Filtro Teléfono
         panelFiltros.add(crearEtiquetaFiltro("Filtrar por Teléfono:"));
         txtFiltroTelefono = new JTextField();
         aplicarPlaceholder(txtFiltroTelefono, "ingresar el telefono");
         panelFiltros.add(txtFiltroTelefono);
-        panelFiltros.add(Box.createVerticalStrut(20)); // Espaciador
+        panelFiltros.add(Box.createVerticalStrut(20)); 
 
         // Filtro Correo
         panelFiltros.add(crearEtiquetaFiltro("Filtrar por Correo:"));
         txtFiltroCorreo = new JTextField();
         aplicarPlaceholder(txtFiltroCorreo, "ingrese el correo");
         panelFiltros.add(txtFiltroCorreo);
-        panelFiltros.add(Box.createVerticalStrut(30)); // Espaciador más grande antes del botón
+        panelFiltros.add(Box.createVerticalStrut(30));
 
-        // Botón Ver Información (Buscar)
-        JButton btnBuscar = boton("ver informacion", new Color(110, 220, 110)); // Verde claro
-        btnBuscar.setForeground(Color.BLACK); // Letra negra como en tu diseño
+        JButton btnBuscar = boton("ver informacion", new Color(110, 220, 110));
+        btnBuscar.setForeground(Color.BLACK);
         btnBuscar.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         btnBuscar.addActionListener(e -> cargarDatos());
         panelFiltros.add(btnBuscar);
 
         panelCentral.add(panelFiltros, BorderLayout.EAST);
 
-        // --- PANEL INFERIOR (Botón Regresar) ---
         JPanel panelSur = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panelSur.setOpaque(false);
         panelSur.setBorder(BorderFactory.createEmptyBorder(0, 40, 30, 0));
-        JButton btnR = boton("Regresar", new Color(255, 80, 50)); // Rojo anaranjado
+        JButton btnR = boton("Regresar", new Color(255, 80, 50));
         btnR.setPreferredSize(new Dimension(200, 45));
         btnR.setFont(new Font("Segoe UI", Font.BOLD, 18));
         btnR.addActionListener(e -> regresar());
         panelSur.add(btnR);
 
-        // --- ENSAMBLAJE FINAL ---
         fondo.add(t, BorderLayout.NORTH);
         fondo.add(panelCentral, BorderLayout.CENTER);
         fondo.add(panelSur, BorderLayout.SOUTH);
         add(fondo, BorderLayout.CENTER);
-
-        // Cargar los datos la primera vez que se abre
         cargarDatos();
     }
 
     /**
-     * Solicita al BO la lista de clientes, aplica los filtros si están escritos,
-     * y dibuja los resultados en la tabla.
+     * Solicita al BO la lista de clientes aplica los filtros si están escritos
+     * y dibuja los resultados en la tabla
      */
     private void cargarDatos() {
         try {
-            modelo.setRowCount(0); // Limpiamos la tabla
+            modelo.setRowCount(0);
             List<ClienteFrecuenteDTO> listaCompleta = bo.obtenerTodosLosClientes();
             
             String fNombre = obtenerTextoFiltro(txtFiltroNombre, "ingresar el nombre del cliente").toLowerCase();
@@ -141,7 +133,6 @@ public class PanelConsultarClientes extends JPanel {
                 boolean pasaTel = fTel.isEmpty() || telCliente.contains(fTel);
                 boolean pasaCorreo = fCorreo.isEmpty() || correoCliente.contains(fCorreo);
 
-                // Si pasa los filtros, lo agregamos a la tabla
                 if (pasaNombre && pasaTel && pasaCorreo) {
                     modelo.addRow(new Object[]{
                         c.getNombres(), 
@@ -162,7 +153,7 @@ public class PanelConsultarClientes extends JPanel {
     private String obtenerTextoFiltro(JTextField campo, String placeholder) {
         String texto = campo.getText().trim();
         if (texto.equals(placeholder)) {
-            return ""; // Si es el placeholder, cuenta como vacío
+            return ""; 
         }
         return texto;
     }
@@ -194,7 +185,7 @@ public class PanelConsultarClientes extends JPanel {
     private JLabel crearEtiquetaFiltro(String texto) {
         JLabel lbl = new JLabel(texto, SwingConstants.CENTER);
         lbl.setOpaque(true);
-        lbl.setBackground(new Color(77, 184, 255)); // Azul claro de tu diseño
+        lbl.setBackground(new Color(77, 184, 255));
         lbl.setForeground(Color.WHITE);
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lbl.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
@@ -219,13 +210,11 @@ public class PanelConsultarClientes extends JPanel {
     }
 
     private JPanel crearFondo() {
-        // Intentamos cargar la imagen desde la raiz de resources
         java.net.URL url = getClass().getResource("/FondoInicio.png");
 
         ImageIcon icono;
         if (url != null) {
             icono = new ImageIcon(url);
-            // Si no encuentra, mandamos un error a la consola para saber
         } else {
             System.err.println("Error: No se encontro FondoInicio.png en la raiz de resources");
             icono = new ImageIcon();
@@ -240,7 +229,6 @@ public class PanelConsultarClientes extends JPanel {
 
                 if (imagen != null && imagen.getWidth(null) > 0) {
                     Graphics2D g2 = (Graphics2D) g;
-                    // Calidad de renderizado
                     g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
                     g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
                     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

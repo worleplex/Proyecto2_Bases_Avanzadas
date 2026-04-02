@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.presentacion.paneles;
 
 import com.mycompany.presentacion.controlador.Coordinador;
@@ -13,19 +9,23 @@ import java.awt.event.ActionEvent;
  *
  * @author julian izaguirre
  */
-public class PanelElegir extends JPanel{
+public class PanelElegir extends JPanel {
     private final Coordinador coordinador;
     private Image imagen;
 
     private void cambiarPanel(JPanel panel) {
         JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        v.setContentPane(panel);
-        v.revalidate();
+        if (v != null) {
+            v.setContentPane(panel);
+            v.revalidate();
+            v.repaint();
+        }
     }
 
     public PanelElegir(Coordinador coordinador) {
-        setSize(1080, 720);
         this.coordinador = coordinador;
+        setLayout(new BorderLayout());
+        
         java.net.URL url = getClass().getResource("/FondoInicio.png");
         if (url != null) {
             this.imagen = new ImageIcon(url).getImage();
@@ -50,20 +50,13 @@ public class PanelElegir extends JPanel{
             }
         };
 
-        // Panel central transparente para agrupar los botones
-        JPanel panelCentro = new JPanel(new GridBagLayout());
-        panelCentro.setOpaque(false);
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(25, 0, 25, 0); // Espacio entre botones
-        gbc.gridx = 0; 
-        gbc.fill = GridBagConstraints.HORIZONTAL; 
+        JPanel panelCentro = new JPanel(new GridLayout(2, 1, 0, 60));
+        panelCentro.setOpaque(false);
+        panelCentro.setBorder(BorderFactory.createEmptyBorder(200, 150, 200, 150));
 
         BotonDegradado btnMesero = new BotonDegradado("SOY MESERO");
-        btnMesero.setPreferredSize(new Dimension(350, 70));
-
         BotonDegradado btnAdmin = new BotonDegradado("SOY ADMINISTRADOR");
-        btnAdmin.setPreferredSize(new Dimension(350, 70));
 
         btnMesero.addActionListener((ActionEvent e) -> {
             cambiarPanel(new PanelMenuMesero(coordinador));
@@ -73,17 +66,11 @@ public class PanelElegir extends JPanel{
             cambiarPanel(new PanelLogin(coordinador));
         });
 
-        // Agregamos los botones directamente al panel transparente (sin la caja blanca)
-        gbc.gridy = 0;
-        panelCentro.add(btnMesero, gbc);
-        
-        gbc.gridy = 1;
-        panelCentro.add(btnAdmin, gbc);
+        panelCentro.add(btnMesero);
+        panelCentro.add(btnAdmin);
 
         panelFondo.add(panelCentro, BorderLayout.CENTER);
         add(panelFondo, BorderLayout.CENTER);
-
-        setVisible(true);
     }
 
     class BotonDegradado extends JButton {
@@ -93,7 +80,7 @@ public class PanelElegir extends JPanel{
             setFocusPainted(false);
             setBorderPainted(false);
             setForeground(Color.WHITE);
-            setFont(new Font("Arial", Font.BOLD, 28)); 
+            setFont(new Font("Arial", Font.BOLD, 36));
             setCursor(new Cursor(Cursor.HAND_CURSOR)); 
         }
 
@@ -105,20 +92,17 @@ public class PanelElegir extends JPanel{
             int ancho = getWidth();
             int alto = getHeight();
             
-            // Colores oscuros y elegantes (Grafito / Carbón)
-            Color colorClaro = new Color(70, 70, 70);   // Gris oscuro
-            Color colorOscuro = new Color(15, 15, 15);  // Casi negro
+            Color colorClaro = new Color(70, 70, 70);   
+            Color colorOscuro = new Color(15, 15, 15);  
             
-            // Degradado de arriba hacia abajo para dar efecto de relieve o 3D
             GradientPaint gp = new GradientPaint(0, 0, colorClaro, 0, alto, colorOscuro);
             g2.setPaint(gp);
             
-            g2.fillRoundRect(0, 0, ancho, alto, 60, 60);
+            g2.fillRoundRect(0, 0, ancho, alto, 30, 30); // Le bajé un poco la curva (de 60 a 30) para que se vea como en tu imagen
             
-            // Borde sutil gris claro para que el botón no se pierda en el fondo
             g2.setPaint(new Color(120, 120, 120)); 
             g2.setStroke(new BasicStroke(2));
-            g2.drawRoundRect(1, 1, ancho - 2, alto - 2, 60, 60);
+            g2.drawRoundRect(1, 1, ancho - 2, alto - 2, 30, 30);
             
             g2.dispose();
             super.paintComponent(g);
