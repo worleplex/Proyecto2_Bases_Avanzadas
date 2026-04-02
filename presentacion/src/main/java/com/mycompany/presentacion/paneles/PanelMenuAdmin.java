@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class PanelMenuAdmin extends JPanel{
+    private final Coordinador coordinador;
     private Image imagen;
 
     public void cambiarPanel(JPanel panel){
@@ -16,8 +17,8 @@ public class PanelMenuAdmin extends JPanel{
         v.revalidate();
     }
 
-
-    public PanelMenuAdmin() {
+    public PanelMenuAdmin(Coordinador coordinador) {
+        this.coordinador = coordinador;
         // Carga desde resources
         java.net.URL url = getClass().getResource("/FondoInicio.png");
         if (url != null) {

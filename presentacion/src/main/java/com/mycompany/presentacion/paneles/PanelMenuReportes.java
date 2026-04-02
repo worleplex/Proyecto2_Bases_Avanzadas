@@ -3,6 +3,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.presentacion.paneles;
+import com.mycompany.presentacion.controlador.Coordinador;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,10 +14,11 @@ import java.awt.*;
  * @author julian izaguirre
  */
 public class PanelMenuReportes extends JPanel {
-    
+    private final Coordinador coordinador;
     private Image imagen;
 
-    public PanelMenuReportes() {
+    public PanelMenuReportes(Coordinador coordinador) {
+        this.coordinador = coordinador;
         java.net.URL url = getClass().getResource("/FondoInicio.png"); 
         if (url != null) {
             this.imagen = new ImageIcon(url).getImage();
@@ -62,10 +65,7 @@ public class PanelMenuReportes extends JPanel {
         btnRegresar.setPreferredSize(new Dimension(300, 60));
 
         btnRegresar.addActionListener(e -> {
-            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-            if (frame instanceof PanelLogin) {
-                ((PanelLogin) frame).cambiarPanel(new PanelMenuAdmin());
-            }
+            JOptionPane.showMessageDialog(this, "En desarrollo");
         });
 
         btnComandas.addActionListener(e -> {
