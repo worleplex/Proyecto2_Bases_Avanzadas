@@ -1,11 +1,14 @@
 package com.mycompany.presentacion.controlador;
 
 import com.mycompany.presentacion.paneles.*;
+import entidades.Cliente;
+import entidades.ClienteFrecuente;
 
 import javax.swing.*;
 
 /**
  *  @author Luis
+ *  clase auxiliar que se encarga de la navegacion de las pantallas
  **/
 public class Coordinador {
     FramePrincipal framePrincipal;
@@ -13,6 +16,14 @@ public class Coordinador {
     PanelElegir panelElegir;
     PanelMenuMesero panelMenuMesero;
     PanelMenuAdmin panelMenuAdmin;
+    PanelConsultarClientes panelConsultarClientes;
+    PanelMenuClientes panelMenuClientes;
+    PanelMenuReportes panelMenuReportes;
+    PanelRegistrarCliente panelRegistrarCliente;
+    PanelSeleccionarID panelSeleccionarID;
+    PanelEditarCliente panelEditarCliente;
+    PanelEliminarClienteFrecuente panelEliminarClienteFrecuente;
+
 
     public Coordinador(){
 
@@ -49,10 +60,67 @@ public class Coordinador {
         cambiarPanel(panelElegir);
     }
 
-    public void mostrarPanelMenuAdmin(){
-        if(panelMenuAdmin == null){
+    public void mostrarPanelMenuAdmin() {
+        if (panelMenuAdmin == null) {
             panelMenuAdmin = new PanelMenuAdmin(this);
+            cambiarPanel(panelMenuAdmin);
         }
+    }
+
+    public void mostrarPanelConsultarCliente(){
+        if(panelConsultarClientes == null){
+            panelConsultarClientes = new PanelConsultarClientes(this);
+        }
+            cambiarPanel(panelConsultarClientes);
+    }
+
+    public void mostrarPanelMenuMesero(){
+        if(panelMenuMesero == null){
+            panelMenuMesero = new PanelMenuMesero(this);
+        }
+        cambiarPanel(panelMenuMesero);
+    }
+
+    public void mostrarPanelMenuClientes(){
+        if(panelMenuClientes == null){
+            panelMenuClientes = new PanelMenuClientes(this);
+        }
+        cambiarPanel(panelMenuClientes);
+    }
+
+    public void mostrarPanelMenuReportes(){
+        if(panelMenuReportes == null){
+            panelMenuReportes = new PanelMenuReportes(this);
+        }
+        cambiarPanel(panelMenuReportes);
+    }
+
+    public void mostrarPanelRegistrarCliente(){
+        if(panelRegistrarCliente == null){
+            panelRegistrarCliente = new PanelRegistrarCliente(this);
+        }
+        cambiarPanel(panelRegistrarCliente);
+    }
+
+    public void mostrarPanelSeleccionarID(String accion){
+        if(panelSeleccionarID == null){
+            panelSeleccionarID = new PanelSeleccionarID(this, accion);
+        }
+        cambiarPanel(panelSeleccionarID);
+    }
+
+    public void mostrarPanelEditarClienteFrecuente(ClienteFrecuente clienteFrecuente){
+        if(panelEditarCliente == null){
+            panelEditarCliente = new PanelEditarCliente(this, clienteFrecuente);
+        }
+        cambiarPanel(panelEditarCliente);
+    }
+
+    public void mostrarPanelEliminarClienteFrecuente(ClienteFrecuente clienteFrecuente){
+        if(panelEliminarClienteFrecuente == null){
+            panelEliminarClienteFrecuente = new PanelEliminarClienteFrecuente(this, clienteFrecuente);
+        }
+        cambiarPanel(panelEliminarClienteFrecuente);
     }
 
 }
