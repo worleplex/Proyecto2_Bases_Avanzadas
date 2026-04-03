@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" 
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" 
+              name="ReporteClientes" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="842" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="a1b2c3d4-e5f6-7890-1234-567890abcdef">
+    
+    <field name="ID" class="java.lang.Object"/>
+    <field name="Nombres" class="java.lang.Object"/>
+    <field name="Apellido Paterno" class="java.lang.Object"/>
+    <field name="Apellido Materno" class="java.lang.Object"/>
+    <field name="Numero de visitas" class="java.lang.Object"/>
+    <field name="Total gastado" class="java.lang.Object"/>
+    <field name="Fecha ultima comanda" class="java.lang.Object"/>
+
+    <background>
+        <band height="595" splitType="Stretch">
+            <image scaleImage="FillFrame">
+                <reportElement x="0" y="0" width="842" height="595" uuid="99999999-aaaa-bbbb-cccc-dddddddddddd"/>
+                <imageExpression><![CDATA["https://i.ibb.co/zhCmybbx/Fondo-Inicio.png"]]></imageExpression>
+            </image>
+        </band>
+    </background>
+
+    <title>
+        <band height="80">
+            <staticText>
+                <reportElement x="20" y="20" width="802" height="40" forecolor="#FFFFFF" uuid="11111111-2222-3333-4444-555555555555"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="Monospaced" size="26" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Reporte de Clientes Frecuentes]]></text>
+            </staticText>
+            
+            <textField pattern="dd/MM/yyyy">
+                <reportElement x="620" y="60" width="202" height="20" forecolor="#FFFFFF" uuid="33333333-4444-5555-6666-111111111111"/>
+                <textElement textAlignment="Right">
+                    <font fontName="Monospaced" size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Fecha: " + new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date())]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="30">
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="20" y="0" width="50" height="30" uuid="22222222-3333-4444-5555-666666666666"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[ID]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="70" y="0" width="150" height="30" uuid="33333333-4444-5555-6666-777777777777"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Nombres]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="220" y="0" width="120" height="30" uuid="44444444-5555-6666-7777-888888888888"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Ap. Paterno]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="340" y="0" width="120" height="30" uuid="aaaa0000-5555-6666-7777-888888888888"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Ap. Materno]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="460" y="0" width="100" height="30" uuid="bbbb0000-5555-6666-7777-888888888888"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Visitas]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="560" y="0" width="120" height="30" uuid="cccc0000-5555-6666-7777-888888888888"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Total Gastado]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="680" y="0" width="142" height="30" uuid="dddd0000-5555-6666-7777-888888888888"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Última Comanda]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="30">
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="20" y="0" width="50" height="30" uuid="55555555-6666-7777-8888-999999999999"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[String.valueOf($F{ID})]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="70" y="0" width="150" height="30" uuid="66666666-7777-8888-9999-000000000000"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[String.valueOf($F{Nombres})]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="220" y="0" width="120" height="30" uuid="77777777-8888-9999-0000-111111111111"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[String.valueOf($F{Apellido Paterno})]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="340" y="0" width="120" height="30" uuid="eeee0000-8888-9999-0000-111111111111"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[String.valueOf($F{Apellido Materno})]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="460" y="0" width="100" height="30" uuid="ffff0000-8888-9999-0000-111111111111"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[String.valueOf($F{Numero de visitas})]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="560" y="0" width="120" height="30" uuid="1a1a1a1a-8888-9999-0000-111111111111"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[String.valueOf($F{Total gastado})]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="680" y="0" width="142" height="30" uuid="2b2b2b2b-8888-9999-0000-111111111111"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[String.valueOf($F{Fecha ultima comanda})]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="40">
+            <textField>
+                <reportElement x="640" y="10" width="150" height="20" forecolor="#FFFFFF" uuid="11112222-3333-4444-5555-666677778888"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="Monospaced" size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Página " + $V{PAGE_NUMBER} + " de "]]></textFieldExpression>
+            </textField>
+            
+            <textField evaluationTime="Report">
+                <reportElement x="790" y="10" width="40" height="20" forecolor="#FFFFFF" uuid="88887777-6666-5555-4444-333322221111"/>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font fontName="Monospaced" size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+</jasperReport>

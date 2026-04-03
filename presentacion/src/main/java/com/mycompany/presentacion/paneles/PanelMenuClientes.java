@@ -4,6 +4,7 @@
  */
 package com.mycompany.presentacion.paneles;
 
+import com.mycompany.presentacion.controlador.Coordinador; // <-- IMPORTANTE: Importar el coordinador
 import dtos.EmpleadoDTO;
 import objetosnegocio.EmpleadoBO;
 
@@ -21,9 +22,12 @@ import java.awt.event.ActionListener;
  
 public class PanelMenuClientes extends JPanel {
 
+    private final Coordinador coordinador = null;
+
     public PanelMenuClientes() {
         construir();
     }
+
     /**
      * Configura el diseño visual y los botones del menu.
      */
@@ -62,23 +66,28 @@ public class PanelMenuClientes extends JPanel {
         add(fondo, BorderLayout.CENTER);
 
         btnRegistrar.addActionListener(e -> abrir(new PanelRegistrarCliente()));
-        btnEditar.addActionListener(e -> abrir(new PanelSeleccionarID("editar")));
+        btnEditar.addActionListener(e -> abrir(new PanelSeleccionarID("editar"))); 
         btnEliminar.addActionListener(e -> abrir(new PanelSeleccionarID("eliminar")));
         btnBuscador.addActionListener(e -> abrir(new PanelConsultarClientes()));
+
         buttonRegresar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                abrir(new PanelMenuAdmin());
+                abrir(new PanelMenuAdmin(coordinador)); 
             }
         });
     }
+
  /**
   * Cambia el panel actual de la ventana por uno nuevo.
   */
     private void abrir(JPanel panel) {
         JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        v.setContentPane(panel);
-        v.revalidate();
+        if (v != null) { // Es buena práctica validar que v no sea null
+            v.setContentPane(panel);
+            v.revalidate();
+            v.repaint(); // Agregué el repaint para que la interfaz se actualice sin problemas
+        }
     }
     
     private JButton crearBoton(String texto) {
@@ -91,6 +100,7 @@ public class PanelMenuClientes extends JPanel {
         btn.setPreferredSize(new Dimension(0, 45));
         return btn;
     }
+
     /**
      * Crea el fondo con la imagen
      */

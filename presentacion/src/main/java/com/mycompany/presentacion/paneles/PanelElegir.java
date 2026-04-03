@@ -59,7 +59,7 @@ public class PanelElegir extends JPanel {
         BotonDegradado btnAdmin = new BotonDegradado("SOY ADMINISTRADOR");
 
         btnMesero.addActionListener((ActionEvent e) -> {
-            cambiarPanel(new PanelMenuMesero(coordinador));
+            cambiarPanel(new PanelMenuMesero());
         });
 
         btnAdmin.addActionListener((ActionEvent e) -> {

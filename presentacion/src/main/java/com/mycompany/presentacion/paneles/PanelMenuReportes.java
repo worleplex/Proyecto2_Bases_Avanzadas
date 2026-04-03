@@ -8,7 +8,6 @@ import com.mycompany.presentacion.controlador.Coordinador;
 import javax.swing.*;
 import java.awt.*;
 
-
 /**
  *
  * @author julian izaguirre
@@ -16,6 +15,15 @@ import java.awt.*;
 public class PanelMenuReportes extends JPanel {
     private final Coordinador coordinador;
     private Image imagen;
+
+    private void cambiarPanel(JPanel panel) {
+        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
+        if (v != null) {
+            v.setContentPane(panel);
+            v.revalidate();
+            v.repaint();
+        }
+    }
 
     public PanelMenuReportes(Coordinador coordinador) {
         this.coordinador = coordinador;
@@ -65,7 +73,7 @@ public class PanelMenuReportes extends JPanel {
         btnRegresar.setPreferredSize(new Dimension(300, 60));
 
         btnRegresar.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "En desarrollo");
+            cambiarPanel(new PanelMenuAdmin(coordinador));
         });
 
         btnComandas.addActionListener(e -> {
@@ -73,7 +81,7 @@ public class PanelMenuReportes extends JPanel {
         });
 
         btnClientes.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, "Abriendo Reporte de Clientes");
+            cambiarPanel(new PanelReporteClientes(coordinador));
         });
 
         gbc.gridy = 1;
@@ -111,6 +119,4 @@ public class PanelMenuReportes extends JPanel {
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return btn;
     }
-    
-    
 }

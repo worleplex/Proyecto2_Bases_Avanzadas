@@ -118,7 +118,7 @@ public class PanelLogin extends JPanel {
                     }
 
                     if ("ADMIN".equals(empleadoLogueado.getRol())) {
-                        cambiarPanel(new PanelMenuAdmin());
+                        cambiarPanel(new PanelMenuAdmin(coordinador));
                     } else {
                         cambiarPanel(new PanelMenuMesero());
                     }
