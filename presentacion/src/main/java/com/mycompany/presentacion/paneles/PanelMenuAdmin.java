@@ -77,7 +77,7 @@ public class PanelMenuAdmin extends JPanel {
         panelSur.add(buttonCerrarSesion);
 
         buttonCliente.addActionListener(e -> {
-            cambiarPanel(new PanelMenuClientes());
+            cambiarPanel(new PanelMenuClientes(coordinador));
         });
         
         buttonReportes.addActionListener(e -> {

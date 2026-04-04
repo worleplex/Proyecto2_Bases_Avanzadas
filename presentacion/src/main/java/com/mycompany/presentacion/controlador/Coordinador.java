@@ -24,7 +24,6 @@ public class Coordinador {
     PanelEditarCliente panelEditarCliente;
     PanelEliminarClienteFrecuente panelEliminarClienteFrecuente;
 
-
     public Coordinador(){
 
     }
@@ -39,11 +38,14 @@ public class Coordinador {
         framePrincipal.setTitle("Bienvenido al sistema " + nombre);
     }
 
+    public void cambiarTituloIniciarSistema(){
+        framePrincipal.setTitle("Bienvenido al sistema");
+    }
 
     public void cambiarPanel(JPanel panel) {
-        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(framePrincipal);
-        v.setContentPane(panel);
-        v.revalidate();
+        framePrincipal.setContentPane(panel);
+        framePrincipal.revalidate();
+        framePrincipal.repaint();
     }
 
     public void mostrarPanelLogin(){
@@ -109,9 +111,9 @@ public class Coordinador {
         cambiarPanel(panelSeleccionarID);
     }
 
-    public void mostrarPanelEditarClienteFrecuente(ClienteFrecuente clienteFrecuente){
+    public void mostrarPanelEditarClienteFrecuente(ClienteFrecuente cliente){
         if(panelEditarCliente == null){
-            panelEditarCliente = new PanelEditarCliente(this, clienteFrecuente);
+            panelEditarCliente = new PanelEditarCliente(this, cliente);
         }
         cambiarPanel(panelEditarCliente);
     }

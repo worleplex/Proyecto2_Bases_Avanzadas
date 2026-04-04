@@ -4,7 +4,10 @@
  */
 package com.mycompany.presentacion.paneles;
 
+import com.mycompany.presentacion.controlador.Coordinador;
 import dtos.EmpleadoDTO;
+import entidades.Cliente;
+import entidades.ClienteFrecuente;
 import objetosnegocio.EmpleadoBO;
 
 import javax.swing.*;
@@ -20,8 +23,9 @@ import java.awt.event.ActionListener;
  */
  
 public class PanelMenuClientes extends JPanel {
-
-    public PanelMenuClientes() {
+    private final Coordinador coordinador;
+    public PanelMenuClientes(Coordinador coordinador) {
+        this.coordinador = coordinador;
         construir();
     }
     /**
@@ -61,24 +65,17 @@ public class PanelMenuClientes extends JPanel {
         fondo.add(panelSur, BorderLayout.SOUTH);
         add(fondo, BorderLayout.CENTER);
 
-        btnRegistrar.addActionListener(e -> abrir(new PanelRegistrarCliente()));
-        btnEditar.addActionListener(e -> abrir(new PanelSeleccionarID("editar")));
-        btnEliminar.addActionListener(e -> abrir(new PanelSeleccionarID("eliminar")));
-        btnBuscador.addActionListener(e -> abrir(new PanelConsultarClientes()));
+        btnRegistrar.addActionListener(e -> coordinador.mostrarPanelRegistrarCliente());
+        btnEditar.addActionListener(e -> coordinador.mostrarPanelSeleccionarID("editar"));
+        btnEliminar.addActionListener(e -> coordinador.mostrarPanelSeleccionarID("eliminar"));
+        btnBuscador.addActionListener(e -> coordinador.mostrarPanelConsultarCliente());
         buttonRegresar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                abrir(new PanelMenuAdmin());
+
+                coordinador.mostrarPanelMenuAdmin();
             }
         });
-    }
- /**
-  * Cambia el panel actual de la ventana por uno nuevo.
-  */
-    private void abrir(JPanel panel) {
-        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        v.setContentPane(panel);
-        v.revalidate();
     }
     
     private JButton crearBoton(String texto) {

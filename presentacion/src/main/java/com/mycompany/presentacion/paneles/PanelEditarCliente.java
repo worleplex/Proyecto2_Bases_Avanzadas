@@ -1,6 +1,7 @@
 package com.mycompany.presentacion.paneles;
 
 import adaptadores.ClienteFrecuenteAdapter;
+import com.mycompany.presentacion.controlador.Coordinador;
 import dtos.ClienteFrecuenteDTO;
 import entidades.ClienteFrecuente;
 import excepciones.NegocioException;
@@ -14,12 +15,13 @@ import objetosnegocio.ClienteFrecuenteBO;
  * Clase para modificar los datos de un cliente existente.
  */
 public class PanelEditarCliente extends JPanel {
-
+    private final Coordinador coordinador;
     private ClienteFrecuente cliente; // Datos actuales del cliente
     private JTextField txtNombre, txtApPaterno, txtApMaterno, txtCorreo, txtTelefono;
     private ClienteFrecuenteBO bo =  ClienteFrecuenteBO.getInstance();
 
-    public PanelEditarCliente(ClienteFrecuente cliente) {
+    public PanelEditarCliente(Coordinador coordinador, ClienteFrecuente cliente) {
+        this.coordinador = coordinador;
         this.cliente = cliente;
         construir();
     }
@@ -61,7 +63,7 @@ public class PanelEditarCliente extends JPanel {
         JButton btnC = botonRojo("Cancelar");
 
         btnG.addActionListener(e -> actualizar());
-        btnC.addActionListener(e -> regresar());
+        btnC.addActionListener(e -> coordinador.mostrarPanelMenuClientes());
 
         pB.add(btnG);
         pB.add(btnC);
@@ -89,16 +91,10 @@ public class PanelEditarCliente extends JPanel {
             bo.editarCliente(dto);
 
             JOptionPane.showMessageDialog(this, "Datos actualizados correctamente.");
-            regresar();
+            coordinador.mostrarPanelMenuClientes();
         } catch (NegocioException ex) {
             JOptionPane.showMessageDialog(this, "Error al actualizar: " + ex.getMessage());
         }
-    }
-
-    private void regresar() {
-        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        v.setContentPane(new PanelMenuClientes());
-        v.revalidate();
     }
 
     private JLabel etiqueta(String t) {

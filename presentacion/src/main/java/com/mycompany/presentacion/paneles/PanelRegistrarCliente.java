@@ -4,6 +4,7 @@
  */
 package com.mycompany.presentacion.paneles;
 
+import com.mycompany.presentacion.controlador.Coordinador;
 import dtos.ClienteFrecuenteDTO;
 import excepciones.NegocioException;
 import javax.swing.*;
@@ -19,11 +20,12 @@ import objetosnegocio.ClienteFrecuenteBO;
  */
  
 public class PanelRegistrarCliente extends JPanel {
-
+    private final Coordinador coordinador;
     private JTextField txtNombre, txtApPaterno, txtApMaterno, txtCorreo, txtTelefono;
     private ClienteFrecuenteBO bo =  ClienteFrecuenteBO.getInstance();
 
-    public PanelRegistrarCliente() {
+    public PanelRegistrarCliente(Coordinador coordinador) {
+        this.coordinador = coordinador;
         construir();
     }
 
@@ -104,7 +106,7 @@ public class PanelRegistrarCliente extends JPanel {
      */
     private void regresar() {
         JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        v.setContentPane(new PanelMenuClientes());
+        v.setContentPane(new PanelMenuClientes(coordinador));
         v.revalidate();
     }
 

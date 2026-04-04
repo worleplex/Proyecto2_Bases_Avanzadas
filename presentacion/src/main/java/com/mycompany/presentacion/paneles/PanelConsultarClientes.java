@@ -1,5 +1,6 @@
 package com.mycompany.presentacion.paneles;
 
+import com.mycompany.presentacion.controlador.Coordinador;
 import dtos.ClienteFrecuenteDTO;
 import excepciones.NegocioException;
 import java.util.List;
@@ -18,13 +19,14 @@ import java.awt.event.FocusEvent;
  * Clase que muestra la lista completa de clientes con filtros avanzados
  */
 public class PanelConsultarClientes extends JPanel {
-
+    private final Coordinador coordinador;
     private JTable tabla;
     private DefaultTableModel modelo;
     private JTextField txtFiltroNombre, txtFiltroTelefono, txtFiltroCorreo;
     private ClienteFrecuenteBO bo = ClienteFrecuenteBO.getInstance();
 
-    public PanelConsultarClientes() {
+    public PanelConsultarClientes(Coordinador coordinador) {
+        this.coordinador = coordinador;
         construir();
     }
 
@@ -101,7 +103,7 @@ public class PanelConsultarClientes extends JPanel {
         JButton btnR = boton("Regresar", new Color(255, 80, 50));
         btnR.setPreferredSize(new Dimension(200, 45));
         btnR.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        btnR.addActionListener(e -> regresar());
+        btnR.addActionListener(e -> coordinador.mostrarPanelMenuClientes());
         panelSur.add(btnR);
 
         fondo.add(t, BorderLayout.NORTH);
@@ -191,12 +193,6 @@ public class PanelConsultarClientes extends JPanel {
         lbl.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         lbl.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         return lbl;
-    }
-
-    private void regresar() {
-        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        v.setContentPane(new PanelMenuClientes());
-        v.revalidate();
     }
 
     private JButton boton(String t, Color c) {

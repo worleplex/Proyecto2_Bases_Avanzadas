@@ -14,12 +14,6 @@ public class PanelLogin extends JPanel {
     private final Coordinador coordinador;
     private Image imagen;
 
-    public void cambiarPanel(JPanel panel){
-            JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-            v.setContentPane(panel);
-            v.revalidate();
-    }
-
     public PanelLogin(Coordinador coordinador) {
         this.coordinador = coordinador;
         // Carga desde resources
@@ -118,9 +112,11 @@ public class PanelLogin extends JPanel {
                     }
 
                     if ("ADMIN".equals(empleadoLogueado.getRol())) {
-                        cambiarPanel(new PanelMenuAdmin());
+                        coordinador.cambiarTituloFrame("Admin: " + textFieldUsuario.getText());
+                        coordinador.mostrarPanelMenuAdmin();
                     } else {
-                        cambiarPanel(new PanelMenuMesero());
+                        coordinador.cambiarTituloFrame("Mesero: " + textFieldUsuario.getText());
+                        coordinador.mostrarPanelMenuMesero();
                     }
 
                 } catch (NegocioException ex) {
