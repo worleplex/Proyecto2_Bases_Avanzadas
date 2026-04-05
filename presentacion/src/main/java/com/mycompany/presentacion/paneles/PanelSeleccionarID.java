@@ -1,6 +1,7 @@
 package com.mycompany.presentacion.paneles;
 
 import adaptadores.ClienteFrecuenteAdapter;
+import com.mycompany.presentacion.controlador.Coordinador;
 import dtos.ClienteFrecuenteDTO;
 import excepciones.NegocioException;
 import javax.swing.*;
@@ -14,12 +15,13 @@ import objetosnegocio.ClienteFrecuenteBO;
  * realizar una accion.
  */
 public class PanelSeleccionarID extends JPanel {
-
+    private final Coordinador coordinador;
     private String accion; // Define si vamos a editar o eliminar
     private JTextField txtId;
     private ClienteFrecuenteBO bo = ClienteFrecuenteBO.getInstance();
 
-    public PanelSeleccionarID(String accion) {
+    public PanelSeleccionarID(Coordinador coordinador, String accion) {
+        this.coordinador = coordinador;
         this.accion = accion;
         construir();
     }
@@ -46,7 +48,7 @@ public class PanelSeleccionarID extends JPanel {
         JButton btnCan = boton("Regresar", new Color(200, 50, 30));
 
         btnOk.addActionListener(e -> procesar());
-        btnCan.addActionListener(e -> regresar());
+        btnCan.addActionListener(e -> coordinador.mostrarPanelMenuAdmin());
 
         pB.add(btnOk);
         pB.add(btnCan);
@@ -72,10 +74,11 @@ public class PanelSeleccionarID extends JPanel {
             if (dto != null) {
                 // 2. Si sí existe, revisamos qué botón presionó el usuario al principio
                 if (accion.equals("editar")) {
-                    abrir(new PanelEditarCliente(ClienteFrecuenteAdapter.dtoAEntidad(dto)));
+                    coordinador.mostrarPanelEditarClienteFrecuente(ClienteFrecuenteAdapter.dtoAEntidad(dto));
+
                 } else {
                     // ¡AQUÍ ESTÁ LA MAGIA! Lo mandamos a tu nuevo panel de eliminar
-                    abrir(new PanelEliminarClienteFrecuente(ClienteFrecuenteAdapter.dtoAEntidad(dto)));
+                    coordinador.mostrarPanelEliminarClienteFrecuente(ClienteFrecuenteAdapter.dtoAEntidad(dto));
                 }
             } else {
                 JOptionPane.showMessageDialog(this, "ID no encontrado en la base de datos.");
@@ -86,16 +89,6 @@ public class PanelSeleccionarID extends JPanel {
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "ID inválido. Por favor ingresa solo números.");
         }
-    }
-
-    private void abrir(JPanel p) {
-        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        v.setContentPane(p);
-        v.revalidate();
-    }
-
-    private void regresar() {
-        abrir(new PanelMenuClientes());
     }
 
     private JButton boton(String t, Color c) {

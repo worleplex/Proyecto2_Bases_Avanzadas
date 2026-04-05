@@ -1,5 +1,6 @@
 package com.mycompany.presentacion.paneles;
 
+import com.mycompany.presentacion.controlador.Coordinador;
 import entidades.ClienteFrecuente;
 import excepciones.NegocioException;
 import javax.swing.*;
@@ -12,12 +13,13 @@ import objetosnegocio.ClienteFrecuenteBO;
  * Panel para confirmar y eliminar un cliente de la base de datos.
  */
 public class PanelEliminarClienteFrecuente extends JPanel {
-
+    private final Coordinador coordinador;
     private ClienteFrecuente cliente; // El cliente que vamos a eliminar
     private ClienteFrecuenteBO bo = ClienteFrecuenteBO.getInstance();
 
     // Recibimos al cliente desde el PanelSeleccionarID (Igual que en Editar)
-    public PanelEliminarClienteFrecuente(ClienteFrecuente cliente) {
+    public PanelEliminarClienteFrecuente(Coordinador coordinador, ClienteFrecuente cliente) {
+        this.coordinador = coordinador;
         this.cliente = cliente;
         construir();
     }
@@ -61,7 +63,7 @@ public class PanelEliminarClienteFrecuente extends JPanel {
         JButton btnCancelar = boton("Cancelar", new Color(100, 100, 100)); // Gris
 
         btnEliminar.addActionListener(e -> eliminar());
-        btnCancelar.addActionListener(e -> regresar());
+        btnCancelar.addActionListener(e -> coordinador.mostrarPanelMenuClientes());
 
         pB.add(btnEliminar);
         pB.add(btnCancelar);
@@ -82,17 +84,11 @@ public class PanelEliminarClienteFrecuente extends JPanel {
             if (confirmacion == JOptionPane.YES_OPTION) {
                 bo.eliminarCliente(cliente.getId());
                 JOptionPane.showMessageDialog(this, "Cliente eliminado exitosamente");
-                regresar();
+                coordinador.mostrarPanelMenuClientes();
             }
         } catch (NegocioException ex) {
             JOptionPane.showMessageDialog(this, "Error al eliminar: " + ex.getMessage());
         }
-    }
-
-    private void regresar() {
-        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        v.setContentPane(new PanelMenuClientes());
-        v.revalidate();
     }
 
     private JLabel etiqueta(String t) {

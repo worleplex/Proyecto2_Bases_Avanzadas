@@ -19,7 +19,6 @@ public class PanelMenuAdmin extends JPanel {
 
     public PanelMenuAdmin(Coordinador coordinador) {
         this.coordinador = coordinador;
-        // Carga desde resources
 
         java.net.URL url = getClass().getResource("/FondoInicio.png");
         if (url != null) {
@@ -77,7 +76,7 @@ public class PanelMenuAdmin extends JPanel {
         panelSur.add(buttonCerrarSesion);
 
         buttonCliente.addActionListener(e -> {
-            cambiarPanel(new PanelMenuClientes());
+            cambiarPanel(new PanelMenuClientes(coordinador));
         });
         
         buttonReportes.addActionListener(e -> {
@@ -85,7 +84,7 @@ public class PanelMenuAdmin extends JPanel {
         });
 
         buttonCerrarSesion.addActionListener(e -> {
-            cambiarPanel(new PanelElegir(coordinador));
+            coordinador.mostrarPanelElegir();
         });
 
         panelFondo.add(labelTitulo, BorderLayout.NORTH);

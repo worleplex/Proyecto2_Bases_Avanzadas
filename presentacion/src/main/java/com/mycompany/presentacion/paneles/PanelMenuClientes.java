@@ -4,14 +4,9 @@
  */
 package com.mycompany.presentacion.paneles;
 
-import com.mycompany.presentacion.controlador.Coordinador; // <-- IMPORTANTE: Importar el coordinador
-import dtos.EmpleadoDTO;
-import objetosnegocio.EmpleadoBO;
-
+import com.mycompany.presentacion.controlador.Coordinador;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  *
@@ -21,13 +16,11 @@ import java.awt.event.ActionListener;
  */
  
 public class PanelMenuClientes extends JPanel {
-
-    private final Coordinador coordinador = null;
-
-    public PanelMenuClientes() {
+    private final Coordinador coordinador;
+    public PanelMenuClientes(Coordinador coordinador) {
+        this.coordinador = coordinador;
         construir();
     }
-
     /**
      * Configura el diseño visual y los botones del menu.
      */
@@ -65,29 +58,11 @@ public class PanelMenuClientes extends JPanel {
         fondo.add(panelSur, BorderLayout.SOUTH);
         add(fondo, BorderLayout.CENTER);
 
-        btnRegistrar.addActionListener(e -> abrir(new PanelRegistrarCliente()));
-        btnEditar.addActionListener(e -> abrir(new PanelSeleccionarID("editar"))); 
-        btnEliminar.addActionListener(e -> abrir(new PanelSeleccionarID("eliminar")));
-        btnBuscador.addActionListener(e -> abrir(new PanelConsultarClientes()));
-
-        buttonRegresar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                abrir(new PanelMenuAdmin(coordinador)); 
-            }
-        });
-    }
-
- /**
-  * Cambia el panel actual de la ventana por uno nuevo.
-  */
-    private void abrir(JPanel panel) {
-        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        if (v != null) { // Es buena práctica validar que v no sea null
-            v.setContentPane(panel);
-            v.revalidate();
-            v.repaint(); // Agregué el repaint para que la interfaz se actualice sin problemas
-        }
+        btnRegistrar.addActionListener(e -> coordinador.mostrarPanelRegistrarCliente());
+        btnEditar.addActionListener(e -> coordinador.mostrarPanelSeleccionarID("editar"));
+        btnEliminar.addActionListener(e -> coordinador.mostrarPanelSeleccionarID("eliminar"));
+        btnBuscador.addActionListener(e -> coordinador.mostrarPanelConsultarCliente());
+        buttonRegresar.addActionListener(e -> coordinador.mostrarPanelMenuAdmin());
     }
     
     private JButton crearBoton(String texto) {
@@ -100,18 +75,15 @@ public class PanelMenuClientes extends JPanel {
         btn.setPreferredSize(new Dimension(0, 45));
         return btn;
     }
-
     /**
      * Crea el fondo con la imagen
      */
     private JPanel crearFondo() {
-        // Intentamos cargar la imagen desde la raiz de resources
         java.net.URL url = getClass().getResource("/FondoInicio.png");
 
         ImageIcon icono;
         if (url != null) {
             icono = new ImageIcon(url);
-            // Si no encuentra, mandamos un error a la consola para saber
         } else {
             System.err.println("Error: No se encontro FondoInicio.png en la raiz de resources");
             icono = new ImageIcon();

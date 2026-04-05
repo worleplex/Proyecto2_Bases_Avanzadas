@@ -13,15 +13,6 @@ public class PanelElegir extends JPanel {
     private final Coordinador coordinador;
     private Image imagen;
 
-    private void cambiarPanel(JPanel panel) {
-        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        if (v != null) {
-            v.setContentPane(panel);
-            v.revalidate();
-            v.repaint();
-        }
-    }
-
     public PanelElegir(Coordinador coordinador) {
         this.coordinador = coordinador;
         setLayout(new BorderLayout());
@@ -59,11 +50,13 @@ public class PanelElegir extends JPanel {
         BotonDegradado btnAdmin = new BotonDegradado("SOY ADMINISTRADOR");
 
         btnMesero.addActionListener((ActionEvent e) -> {
-            cambiarPanel(new PanelMenuMesero());
+            coordinador.cambiarTituloIniciarSistema();
+            coordinador.mostrarPanelMenuMesero();
         });
 
         btnAdmin.addActionListener((ActionEvent e) -> {
-            cambiarPanel(new PanelLogin(coordinador));
+            coordinador.cambiarTituloIniciarSistema();
+            coordinador.mostrarPanelLogin();
         });
 
         panelCentro.add(btnMesero);
