@@ -1,4 +1,4 @@
-package com.mycompany.presentacion.paneles;
+package com.mycompany.presentacion.paneles.panelesClientes;
 
 import com.mycompany.presentacion.controlador.Coordinador;
 import entidades.ClienteFrecuente;

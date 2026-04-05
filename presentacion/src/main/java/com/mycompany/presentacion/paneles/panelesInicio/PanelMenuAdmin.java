@@ -1,6 +1,9 @@
-package com.mycompany.presentacion.paneles;
+package com.mycompany.presentacion.paneles.panelesInicio;
 
 import com.mycompany.presentacion.controlador.Coordinador;
+import com.mycompany.presentacion.paneles.panelesClientes.PanelMenuClientes;
+import com.mycompany.presentacion.paneles.PanelesReporte.PanelMenuReportes;
+
 import javax.swing.*;
 import java.awt.*;
 

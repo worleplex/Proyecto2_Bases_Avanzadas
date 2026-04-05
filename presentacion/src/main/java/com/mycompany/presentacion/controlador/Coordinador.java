@@ -1,7 +1,11 @@
 package com.mycompany.presentacion.controlador;
 
-import com.mycompany.presentacion.paneles.*;
-import entidades.Cliente;
+import com.mycompany.presentacion.paneles.panelesClientes.PanelEditarCliente;
+import com.mycompany.presentacion.paneles.panelesClientes.PanelConsultarClientes;
+import com.mycompany.presentacion.paneles.panelesClientes.PanelEliminarClienteFrecuente;
+import com.mycompany.presentacion.paneles.PanelesReporte.PanelMenuReportes;
+import com.mycompany.presentacion.paneles.panelesInicio.*;
+import com.mycompany.presentacion.paneles.panelesClientes.*;
 import entidades.ClienteFrecuente;
 import javax.swing.*;
 
