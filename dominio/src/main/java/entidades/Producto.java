@@ -39,7 +39,8 @@ public class Producto implements Serializable {
 
     @Column(name = "imagen", length = 255)
     private String imagen;
-
+    
+    // cambiar lo del all para despues
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
     private List<ProductoIngrediente> ingredientesRequeridos;
 

@@ -1,9 +1,13 @@
 package com.mycompany.presentacion.controlador;
 
 import com.mycompany.presentacion.paneles.*;
+import dtos.ProductoDTO;
 import entidades.Cliente;
 import entidades.ClienteFrecuente;
 import javax.swing.*;
+import panelesProductos.PanelBuscarProducto;
+import panelesProductos.PanelFormularioProducto;
+import panelesProductos.PanelOpcionProducto;
 
 /**
  * @author Luis
@@ -22,6 +26,9 @@ public class Coordinador {
     PanelSeleccionarID panelSeleccionarID;
     PanelEditarCliente panelEditarCliente;
     PanelEliminarClienteFrecuente panelEliminarClienteFrecuente;
+    PanelOpcionProducto panelOpcionProducto;
+    PanelBuscarProducto panelBuscarProducto;
+    PanelFormularioProducto panelFormularioProducto;
 
     public Coordinador() {
     }
@@ -66,7 +73,7 @@ public class Coordinador {
         if (panelMenuAdmin == null) {
             panelMenuAdmin = new PanelMenuAdmin(this);
         }
-        cambiarPanel(panelMenuAdmin); // FIX: cambiarPanel fuera del if
+        cambiarPanel(panelMenuAdmin);
     }
 
     public void mostrarPanelMenuMesero() {
@@ -123,5 +130,26 @@ public class Coordinador {
             panelEliminarClienteFrecuente = new PanelEliminarClienteFrecuente(this, clienteFrecuente);
         }
         cambiarPanel(panelEliminarClienteFrecuente);
+    }
+    // intento de julian
+    public void mostrarPanelOpcionProducto() {
+        if (panelOpcionProducto == null) {
+            panelOpcionProducto = new PanelOpcionProducto(this);
+        }
+        cambiarPanel(panelOpcionProducto);
+    }
+    
+    public void mostrarPanelBuscarProducto() {
+        if (panelBuscarProducto == null) {
+            panelBuscarProducto = new PanelBuscarProducto(this);
+        }
+        cambiarPanel(panelBuscarProducto);
+    }
+    
+    public void mostrarPanelFormularioProducto(boolean modoEdicion, ProductoDTO productoDTO) {
+        if (panelFormularioProducto == null) {
+            panelFormularioProducto = new PanelFormularioProducto(this, modoEdicion, productoDTO);
+        }
+        cambiarPanel(panelFormularioProducto);
     }
 }

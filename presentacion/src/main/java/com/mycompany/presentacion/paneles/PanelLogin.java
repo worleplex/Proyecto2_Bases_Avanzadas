@@ -110,8 +110,6 @@ public class PanelLogin extends JPanel {
         panelFondo.add(panelSur, BorderLayout.SOUTH);
 
         add(panelFondo);
-
-        // FIX: Enter directo en los campos, sin getInputMap/getActionMap
         ActionListener accionLogin = e -> iniciarSesion();
         textFieldUsuario.addActionListener(accionLogin);
         textFieldContraseña.addActionListener(accionLogin);
