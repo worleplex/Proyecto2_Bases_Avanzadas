@@ -1,4 +1,4 @@
-package com.mycompany.presentacion.paneles;
+package com.mycompany.presentacion.paneles.panelesInicio;
 
 import com.mycompany.presentacion.controlador.Coordinador;
 import javax.swing.*;

@@ -1,8 +1,12 @@
 package com.mycompany.presentacion.controlador;
 
-import com.mycompany.presentacion.paneles.*;
 import dtos.ProductoDTO;
-import entidades.Cliente;
+import com.mycompany.presentacion.paneles.panelesClientes.PanelEditarCliente;
+import com.mycompany.presentacion.paneles.panelesClientes.PanelConsultarClientes;
+import com.mycompany.presentacion.paneles.panelesClientes.PanelEliminarClienteFrecuente;
+import com.mycompany.presentacion.paneles.PanelesReporte.PanelMenuReportes;
+import com.mycompany.presentacion.paneles.panelesInicio.*;
+import com.mycompany.presentacion.paneles.panelesClientes.*;
 import entidades.ClienteFrecuente;
 import javax.swing.*;
 import panelesProductos.PanelBuscarProducto;
@@ -58,7 +62,7 @@ public class Coordinador {
         if (panelLogin == null) {
             panelLogin = new PanelLogin(this);
         }
-        panelLogin.mostrar(); // FIX: limpia campos y pide foco siempre
+        panelLogin.mostrar();
         cambiarPanel(panelLogin);
     }
 

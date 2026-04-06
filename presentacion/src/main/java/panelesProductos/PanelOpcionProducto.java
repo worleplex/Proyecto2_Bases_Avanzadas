@@ -4,7 +4,6 @@
  */
 package panelesProductos;
 
-import com.mycompany.presentacion.paneles.*;
 import com.mycompany.presentacion.controlador.Coordinador;
 import java.awt.*;
 import javax.swing.*;

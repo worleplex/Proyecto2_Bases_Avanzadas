@@ -5,10 +5,6 @@
 package com.mycompany.presentacion;
 
 import com.mycompany.presentacion.controlador.Coordinador;
-import com.mycompany.presentacion.paneles.PanelLogin;
-import com.mycompany.presentacion.paneles.PanelMenuMesero;
-
-import java.awt.*;
 
 /**
  *

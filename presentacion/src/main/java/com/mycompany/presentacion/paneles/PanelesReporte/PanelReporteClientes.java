@@ -1,4 +1,4 @@
-package com.mycompany.presentacion.paneles;
+package com.mycompany.presentacion.paneles.PanelesReporte;
 
 import com.mycompany.presentacion.controlador.Coordinador;
 import dtos.ClienteFrecuenteDTO;
