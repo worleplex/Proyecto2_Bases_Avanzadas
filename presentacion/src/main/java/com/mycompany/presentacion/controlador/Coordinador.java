@@ -115,26 +115,6 @@ public class Coordinador {
         cambiarPanel(panelRegistrarCliente);
     }
 
-    public void mostrarPanelSeleccionarID(String accion) {
-        if (panelSeleccionarID == null) {
-            panelSeleccionarID = new PanelSeleccionarID(this, accion);
-        }
-        cambiarPanel(panelSeleccionarID);
-    }
-
-    public void mostrarPanelEditarClienteFrecuente(ClienteFrecuente cliente) {
-        if (panelEditarCliente == null) {
-            panelEditarCliente = new PanelEditarCliente(this, cliente);
-        }
-        cambiarPanel(panelEditarCliente);
-    }
-
-    public void mostrarPanelEliminarClienteFrecuente(ClienteFrecuente clienteFrecuente) {
-        if (panelEliminarClienteFrecuente == null) {
-            panelEliminarClienteFrecuente = new PanelEliminarClienteFrecuente(this, clienteFrecuente);
-        }
-        cambiarPanel(panelEliminarClienteFrecuente);
-    }
     // intento de julian
     public void mostrarPanelOpcionProducto() {
         if (panelOpcionProducto == null) {
@@ -143,17 +123,29 @@ public class Coordinador {
         cambiarPanel(panelOpcionProducto);
     }
     
-    public void mostrarPanelBuscarProducto() {
-        if (panelBuscarProducto == null) {
-            panelBuscarProducto = new PanelBuscarProducto(this);
-        }
-        cambiarPanel(panelBuscarProducto);
-    }
-    
     public void mostrarPanelFormularioProducto(boolean modoEdicion, ProductoDTO productoDTO) {
-        if (panelFormularioProducto == null) {
-            panelFormularioProducto = new PanelFormularioProducto(this, modoEdicion, productoDTO);
-        }
+        panelFormularioProducto = new PanelFormularioProducto(this, modoEdicion, productoDTO);
         cambiarPanel(panelFormularioProducto);
     }
+
+    public void mostrarPanelBuscarProducto() {
+        panelBuscarProducto = new PanelBuscarProducto(this);
+        cambiarPanel(panelBuscarProducto);
+    }
+
+    public void mostrarPanelEditarClienteFrecuente(ClienteFrecuente cliente) {
+        panelEditarCliente = new PanelEditarCliente(this, cliente);
+        cambiarPanel(panelEditarCliente);
+    }
+
+    public void mostrarPanelEliminarClienteFrecuente(ClienteFrecuente clienteFrecuente) {
+        panelEliminarClienteFrecuente = new PanelEliminarClienteFrecuente(this, clienteFrecuente);
+        cambiarPanel(panelEliminarClienteFrecuente);
+    }
+
+    public void mostrarPanelSeleccionarID(String accion) {
+        panelSeleccionarID = new PanelSeleccionarID(this, accion);
+        cambiarPanel(panelSeleccionarID);
+    }
+    
 }

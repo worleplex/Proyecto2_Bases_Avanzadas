@@ -14,14 +14,14 @@ import entidades.Ingrediente;
 public class IngredienteAdapter {
     
     public static IngredienteDTO aDTO(Ingrediente entidad) {
-        if (entidad == null) return null;
-        
+        if (entidad == null) {
+            return null;
+        }
         IngredienteDTO dto = new IngredienteDTO();
         dto.setId(entidad.getId());
         dto.setNombre(entidad.getNombre());
         dto.setUnidadMedida(entidad.getUnidadMedida());
-        dto.setStock(entidad.getStock());
-        
+        dto.setStock(entidad.getStock()); 
         return dto;
     }
     

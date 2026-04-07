@@ -41,7 +41,7 @@ public class Producto implements Serializable {
     private String imagen;
     
     // cambiar lo del all para despues
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductoIngrediente> ingredientesRequeridos;
 
     @OneToMany(mappedBy = "producto")

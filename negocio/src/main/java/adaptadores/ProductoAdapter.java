@@ -5,8 +5,12 @@
 package adaptadores;
 
 import dtos.ProductoDTO;
+import dtos.ProductoIngredienteDTO;
 import entidades.Producto;
+import entidades.ProductoIngrediente;
 import entidades.TipoProducto;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -23,12 +27,28 @@ public class ProductoAdapter {
         dto.setNombre(entidad.getNombre());
         dto.setPrecio(entidad.getPrecio());
         dto.setDescripcion(entidad.getDescripcion());
-        dto.setTipo(entidad.getTipo()); 
+        dto.setTipo(entidad.getTipo());
         dto.setEstado(entidad.getEstado());
         dto.setImagen(entidad.getImagen());
-        
+        if (entidad.getIngredientesRequeridos() != null) {
+            List<ProductoIngredienteDTO> ingredientesDTO = new ArrayList<>();
+            for (ProductoIngrediente pi : entidad.getIngredientesRequeridos()) {
+                ProductoIngredienteDTO piDTO = new ProductoIngredienteDTO(
+                    pi.getIngrediente().getId(),
+                    pi.getIngrediente().getNombre(),
+                    pi.getCantidadRequerida().floatValue(),
+                    pi.getIngrediente().getUnidadMedida() != null 
+                        ? pi.getIngrediente().getUnidadMedida().toString() : "-",
+                    pi.getIngrediente().getStock()
+                );
+                ingredientesDTO.add(piDTO);
+            }
+            dto.setIngredientes(ingredientesDTO);
+        }
+
         return dto;
     }
+
 
     public static Producto aEntidad(ProductoDTO dto) {
         if (dto == null) {

@@ -24,9 +24,11 @@ public class PanelBuscarIngrediente extends JDialog {
 
     private JTextField txtBuscar;
     private Image imagen;
+    private final PanelFormularioProducto formulario;
 
-    public PanelBuscarIngrediente(JFrame padre) {
+    public PanelBuscarIngrediente(JFrame padre, PanelFormularioProducto formulario) {
         super(padre, "Buscar Ingrediente", true);
+        this.formulario = formulario;
         java.net.URL url = getClass().getResource("/FondoInicio.png");
         if (url != null) {
             this.imagen = new ImageIcon(url).getImage();
@@ -76,7 +78,7 @@ public class PanelBuscarIngrediente extends JDialog {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
         panelBotones.setOpaque(false);
 
-        JButton btnContinuar = crearBoton("continuar", new Color(100, 200, 100));
+        JButton btnContinuar = crearBoton("Continuar", new Color(100, 200, 100));
         JButton btnRegresar = crearBoton("Regresar", new Color(255, 80, 50));
         panelBotones.add(btnContinuar);
         panelBotones.add(btnRegresar);
@@ -90,7 +92,7 @@ public class PanelBuscarIngrediente extends JDialog {
         btnContinuar.addActionListener(e -> {
             String busqueda = txtBuscar.getText().trim();
             if (busqueda.isEmpty() || busqueda.equals("nombre del ingrediente")) {
-                JOptionPane.showMessageDialog(this, "Por favor ingrese un nombre");
+                JOptionPane.showMessageDialog(this, "Por favor ingrese un nombre.");
                 return;
             }
             try {
@@ -102,20 +104,17 @@ public class PanelBuscarIngrediente extends JDialog {
                         JOptionPane.WARNING_MESSAGE);
                     return;
                 }
+
                 JFrame padre = (JFrame) SwingUtilities.getWindowAncestor(this);
                 DialogSeleccionarIngrediente dialogo = new DialogSeleccionarIngrediente(padre, resultados);
                 dialogo.setVisible(true);
 
+                // FIX: usa referencia directa al formulario
                 if (dialogo.getIngredienteSeleccionado() != null) {
-                    if (padre instanceof JFrame) {
-                        Component contentPane = ((JFrame) padre).getContentPane();
-                        if (contentPane instanceof PanelFormularioProducto) {
-                            ((PanelFormularioProducto) contentPane).agregarIngredienteDesdeDialogo(
-                                dialogo.getIngredienteSeleccionado(),
-                                dialogo.getCantidadSeleccionada()
-                            );
-                        }
-                    }
+                    formulario.agregarIngredienteDesdeDialogo(
+                        dialogo.getIngredienteSeleccionado(),
+                        dialogo.getCantidadSeleccionada()
+                    );
                     dispose();
                 }
 
@@ -123,6 +122,9 @@ public class PanelBuscarIngrediente extends JDialog {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+
+        // Enter en el campo también busca
+        txtBuscar.addActionListener(e -> btnContinuar.doClick());
 
         panelFondo.add(panelCentro, BorderLayout.CENTER);
         setContentPane(panelFondo);

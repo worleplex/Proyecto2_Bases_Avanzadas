@@ -11,12 +11,24 @@ package dtos;
 public class ProductoIngredienteDTO {
     private Long idIngrediente;
     private String nombreIngrediente;
-    private double cantidadRequerida;
-    
-    public ProductoIngredienteDTO(Long idIngrediente, String nombreIngrediente, Float cantidadRequerida) {
+    private Double cantidadRequerida;
+    private String unidadMedida;
+    private Double stock;
+
+    public ProductoIngredienteDTO() {}
+
+    public ProductoIngredienteDTO(Long idIngrediente, String nombreIngrediente, float cantidadRequerida) {
         this.idIngrediente = idIngrediente;
         this.nombreIngrediente = nombreIngrediente;
-        this.cantidadRequerida = cantidadRequerida;
+        this.cantidadRequerida = (double) cantidadRequerida;
+    }
+
+    public ProductoIngredienteDTO(Long idIngrediente, String nombreIngrediente, float cantidadRequerida, String unidadMedida, Double stock) {
+        this.idIngrediente = idIngrediente;
+        this.nombreIngrediente = nombreIngrediente;
+        this.cantidadRequerida = (double) cantidadRequerida;
+        this.unidadMedida = unidadMedida;
+        this.stock = stock;
     }
 
     public Long getIdIngrediente() {
@@ -35,11 +47,27 @@ public class ProductoIngredienteDTO {
         this.nombreIngrediente = nombreIngrediente;
     }
 
-    public double getCantidadRequerida() {
+    public Double getCantidadRequerida() {
         return cantidadRequerida;
     }
 
-    public void setCantidadRequerida(double cantidadRequerida) {
+    public void setCantidadRequerida(Double cantidadRequerida) {
         this.cantidadRequerida = cantidadRequerida;
+    }
+
+    public String getUnidadMedida() {
+        return unidadMedida;
+    }
+
+    public void setUnidadMedida(String unidadMedida) {
+        this.unidadMedida = unidadMedida;
+    }
+
+    public Double getStock() {
+        return stock;
+    }
+
+    public void setStock(Double stock) {
+        this.stock = stock;
     }
 }

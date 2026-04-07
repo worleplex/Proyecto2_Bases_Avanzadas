@@ -75,10 +75,18 @@ public class ProductoDAO {
         }
     }
 
+    /**
+     * * @param filtro
+     * @return
+     * @throws PersistenciaException 
+     */
     public List<Producto> buscarProductos(String filtro) throws PersistenciaException {
         EntityManager em = ConexionBD.crearConexion();
         try {
-            String jpql = "select p from Producto p where lower(p.nombre) like lower(:filtro)";
+            String jpql = "select distinct p from Producto p " +
+                          "left join fetch p.ingredientesRequeridos pi " +
+                          "left join fetch pi.ingrediente " +
+                          "where lower(p.nombre) like lower(:filtro)";
             TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
             query.setParameter("filtro", "%" + filtro + "%");
             return query.getResultList();
@@ -89,16 +97,46 @@ public class ProductoDAO {
         }
     }
     
+    /**
+     * 
+     * @param id
+     * @return
+     * @throws PersistenciaException 
+     */
     public Producto obtenerPorId(Long id) throws PersistenciaException {
         EntityManager em = ConexionBD.crearConexion();
         try {
-            return em.find(Producto.class, id);
+            String jpql = "SELECT p FROM Producto p " +
+                          "LEFT JOIN FETCH p.ingredientesRequeridos pi " +
+                          "LEFT JOIN FETCH pi.ingrediente " +
+                          "WHERE p.id = :id";
+            TypedQuery<Producto> query = em.createQuery(jpql, Producto.class);
+            query.setParameter("id", id);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
         } catch (Exception e) {
             throw new PersistenciaException("Error al buscar producto por ID: " + e.getMessage());
         } finally {
             if (em != null && em.isOpen()) {
                 em.close();
             }
+        }
+    }
+
+    public void limpiarIngredientesDeProducto(Long idProducto) throws PersistenciaException {
+        EntityManager em = ConexionBD.crearConexion();
+        try {
+            em.getTransaction().begin();
+            em.createQuery("delete from ProductoIngrediente pi where pi.producto.id = :id")
+              .setParameter("id", idProducto)
+              .executeUpdate();
+            em.getTransaction().commit();
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            throw new PersistenciaException("Error al limpiar los ingredientes viejos: " + e.getMessage());
+        } finally {
+            em.close();
         }
     }
 }

@@ -72,8 +72,7 @@ public class ProductoBO {
     }
     
     /**
-     * 
-     * @param productoDTO
+     * * @param productoDTO
      * @return
      * @throws NegocioException 
      */
@@ -87,7 +86,7 @@ public class ProductoBO {
             if (productoExistente != null && !productoExistente.getId().equals(productoDTO.getId())) {
                 throw new NegocioException("Ya existe OTRO producto registrado con el nombre: " + productoDTO.getNombre());
             }
-            // validar lo mismo del precio e ingredientes
+            
             if (productoDTO.getPrecio() == null || productoDTO.getPrecio() <= 0) {
                 throw new NegocioException("El precio debe ser mayor a cero");
             }
@@ -95,8 +94,63 @@ public class ProductoBO {
                 throw new NegocioException("El producto debe contener por lo menos un ingrediente asociado");
             }
 
-            Producto entidad = ProductoAdapter.aEntidad(productoDTO);
-            Producto productoActualizado = productoDAO.actualizar(entidad);
+            Producto entidadBD = productoDAO.obtenerPorId(productoDTO.getId());
+            if (entidadBD == null) {
+                throw new NegocioException("No se encontró el producto a editar en la BD");
+            }
+            
+            entidadBD.setNombre(productoDTO.getNombre());
+            entidadBD.setPrecio(productoDTO.getPrecio());
+            entidadBD.setDescripcion(productoDTO.getDescripcion());
+            entidadBD.setTipo(productoDTO.getTipo());
+            entidadBD.setEstado(productoDTO.getEstado());
+            entidadBD.setImagen(productoDTO.getImagen());
+
+            java.util.List<entidades.ProductoIngrediente> listaBD = entidadBD.getIngredientesRequeridos();
+            if (listaBD == null) {
+                listaBD = new java.util.ArrayList<>();
+                entidadBD.setIngredientesRequeridos(listaBD);
+            }
+
+            java.util.Iterator<entidades.ProductoIngrediente> iterador = listaBD.iterator();
+            while (iterador.hasNext()) {
+                entidades.ProductoIngrediente piBD = iterador.next();
+                boolean existeEnPantalla = false;
+                
+                for (dtos.ProductoIngredienteDTO piDTO : productoDTO.getIngredientes()) {
+                    if (piBD.getIngrediente().getId().equals(piDTO.getIdIngrediente())) {
+                        piBD.setCantidadRequerida(piDTO.getCantidadRequerida());
+                        existeEnPantalla = true;
+                        break;
+                    }
+                }
+                if (!existeEnPantalla) {
+                    iterador.remove();
+                }
+            }
+
+            for (dtos.ProductoIngredienteDTO piDTO : productoDTO.getIngredientes()) {
+                boolean esNuevo = true;
+                for (entidades.ProductoIngrediente piBD : listaBD) {
+                    if (piBD.getIngrediente().getId().equals(piDTO.getIdIngrediente())) {
+                        esNuevo = false;
+                        break;
+                    }
+                }
+                if (esNuevo) {
+                    entidades.ProductoIngrediente nuevoPi = new entidades.ProductoIngrediente();
+                    entidades.Ingrediente ingrediente = new entidades.Ingrediente();
+                    ingrediente.setId(piDTO.getIdIngrediente());
+                    
+                    nuevoPi.setIngrediente(ingrediente);
+                    nuevoPi.setCantidadRequerida(piDTO.getCantidadRequerida());
+                    nuevoPi.setProducto(entidadBD);
+                    
+                    listaBD.add(nuevoPi);
+                }
+            }
+
+            Producto productoActualizado = productoDAO.actualizar(entidadBD);
             
             return ProductoAdapter.aDTO(productoActualizado);
 
@@ -106,8 +160,7 @@ public class ProductoBO {
     }
 
     /**
-     * 
-     * @param idProducto
+     * * @param idProducto
      * @param nuevoEstado
      * @throws NegocioException 
      */
@@ -127,8 +180,7 @@ public class ProductoBO {
     }
 
     /**
-     * 
-     * @param filtro
+     * * @param filtro
      * @return
      * @throws NegocioException 
      */
