@@ -76,7 +76,7 @@ public class ProductoDAO {
     }
 
     /**
-     * * @param filtro
+     * @param filtro
      * @return
      * @throws PersistenciaException 
      */
