@@ -9,6 +9,9 @@ import entidades.Admin;
 import entidades.Cliente;
 import entidades.Ingrediente;
 import entidades.Mesero;
+import entidades.Producto;
+import entidades.ProductoIngrediente;
+import entidades.TipoProducto;
 import entidades.UnidadMedida;
 import java.time.LocalDate;
 import java.util.Random;
@@ -19,7 +22,19 @@ import javax.persistence.EntityManager;
  * @author julian izaguirre
  */
 public class insertsMasivos {
-
+    
+    /**
+     * 
+     * @param nombreArchivo
+     * @return 
+     */
+    private static String getRuta(String nombreArchivo) {
+        java.net.URL url = insertsMasivos.class.getResource("/" + nombreArchivo);
+        // Solo guarda "/nombre.png", no la ruta absoluta
+        return url != null ? "/" + nombreArchivo : null;
+    }
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -39,23 +54,80 @@ public class insertsMasivos {
             Mesero mesero2 = new Mesero("Julian Izaguirre", "julian", "0000", "Matutino", "M-002");
             em.persist(mesero2);
             // los ingredientes
-            Ingrediente agua = new Ingrediente("Vaso de Agua", UnidadMedida.MILILITRO, 5000.0, null);
+            
+            // Para Vaso de Agua
+            Ingrediente agua = new Ingrediente("Agua", UnidadMedida.MILILITRO, 10000.0, getRuta("agua.png"));
             em.persist(agua);
 
-            Ingrediente tortillaMaiz = new Ingrediente("Tortilla de Maíz", UnidadMedida.PIEZA, 200.0, null);
-            em.persist(tortillaMaiz);
+            Ingrediente hielo = new Ingrediente("Hielo", UnidadMedida.PIEZA, 200.0, getRuta("hielo.png"));
+            em.persist(hielo);
 
-            Ingrediente tortillaHarina = new Ingrediente("Tortilla de Harina", UnidadMedida.PIEZA, 150.0, null);
-            em.persist(tortillaHarina);
+            // Para Tacos de Carne Asada
+            Ingrediente tortilla = new Ingrediente("Tortilla de Maíz", UnidadMedida.PIEZA, 300.0, getRuta("tortilla_maiz.png"));
+            em.persist(tortilla);
 
-            Ingrediente carneAsada = new Ingrediente("Carne Asada", UnidadMedida.GRAMO, 3000.0, null);
+            Ingrediente carneAsada = new Ingrediente("Carne Asada", UnidadMedida.GRAMO, 5000.0, getRuta("carne_asada.png"));
             em.persist(carneAsada);
 
-            Ingrediente pollo = new Ingrediente("Pollo", UnidadMedida.GRAMO, 2500.0, null);
-            em.persist(pollo);
+            Ingrediente cebolla = new Ingrediente("Cebolla", UnidadMedida.PIEZA, 50.0, getRuta("cebolla.png"));
+            em.persist(cebolla);
+
+            Ingrediente cilantro = new Ingrediente("Cilantro", UnidadMedida.GRAMO, 500.0, getRuta("cilantro.png"));
+            em.persist(cilantro);
+
+            // Para Quesadilla
+            Ingrediente tortillaHarina = new Ingrediente("Tortilla de Harina", UnidadMedida.PIEZA, 200.0, getRuta("tortilla_harina.png"));
+            em.persist(tortillaHarina);
+
+            Ingrediente queso = new Ingrediente("Queso Oaxaca", UnidadMedida.GRAMO, 3000.0, getRuta("queso.png"));
+            em.persist(queso);
+            
+            // Vaso de Agua
+            Producto vasoAgua = new Producto();
+            vasoAgua.setNombre("Vaso de Agua");
+            vasoAgua.setPrecio(15.0);
+            vasoAgua.setDescripcion("Vaso de agua fría con hielo");
+            vasoAgua.setTipo(TipoProducto.BEBIDA);
+            vasoAgua.setEstado(true);
+            vasoAgua.setImagen(getRuta("vaso_agua.png"));
+            em.persist(vasoAgua);
+
+            ProductoIngrediente piAgua = new ProductoIngrediente(250.0, vasoAgua, agua);
+            em.persist(piAgua);
+
+            ProductoIngrediente piHielo = new ProductoIngrediente(3.0, vasoAgua, hielo);
+            em.persist(piHielo);
+
+            // Taco de Carne Asada 
+            Producto tacos = new Producto();
+            tacos.setNombre("Taco de Carne Asada");
+            tacos.setPrecio(35.0);
+            tacos.setDescripcion("taco de carne asada con cebolla y cilantro");
+            tacos.setTipo(TipoProducto.PLATILLO);
+            tacos.setEstado(true);
+            tacos.setImagen(getRuta("tacos.png"));
+            em.persist(tacos);
+
+            em.persist(new ProductoIngrediente(3.0,   tacos, tortilla));
+            em.persist(new ProductoIngrediente(150.0, tacos, carneAsada));
+            em.persist(new ProductoIngrediente(1.0,   tacos, cebolla));
+            em.persist(new ProductoIngrediente(10.0,  tacos, cilantro));
+
+            // Quesadilla
+            Producto quesadilla = new Producto();
+            quesadilla.setNombre("Quesadilla");
+            quesadilla.setPrecio(50.0);
+            quesadilla.setDescripcion("Quesadilla de harina con queso Oaxaca");
+            quesadilla.setTipo(TipoProducto.PLATILLO);
+            quesadilla.setEstado(true);
+            quesadilla.setImagen(getRuta("quesadilla.png"));
+            em.persist(quesadilla);
+
+            em.persist(new ProductoIngrediente(2.0,   quesadilla, tortillaHarina));
+            em.persist(new ProductoIngrediente(100.0, quesadilla, queso));
 
             em.getTransaction().commit();
-            System.out.println("¡Listo! Empleados e ingredientes agregados con éxito.");
+            System.out.println("¡Listo! Datos ingresados bien");
 
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {

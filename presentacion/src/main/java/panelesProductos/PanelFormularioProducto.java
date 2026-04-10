@@ -65,6 +65,15 @@ public class PanelFormularioProducto extends JPanel {
         }
     }
 
+    private ImageIcon cargarImagen(String ruta) {
+        if (ruta == null || ruta.isEmpty()) return null;
+        java.net.URL url = getClass().getResource(ruta);
+        if (url != null) return new ImageIcon(url);
+        File archivo = new File(ruta);
+        if (archivo.exists()) return new ImageIcon(ruta);
+        return null;
+    }
+
     private void inicializarComponentes() {
         setLayout(new BorderLayout());
 
@@ -119,8 +128,23 @@ public class PanelFormularioProducto extends JPanel {
             int resultado = chooser.showOpenDialog(this);
             if (resultado == JFileChooser.APPROVE_OPTION) {
                 File archivo = chooser.getSelectedFile();
+                try {
+                    java.net.URL carpetaUrl = getClass().getResource("/");
+                    if (carpetaUrl != null) {
+                        File destino = new File(carpetaUrl.getPath() + archivo.getName());
+                        java.nio.file.Files.copy(
+                            archivo.toPath(),
+                            destino.toPath(),
+                            java.nio.file.StandardCopyOption.REPLACE_EXISTING
+                        );
+                        productoDTO.setImagen("/" + archivo.getName());
+                    } else {
+                        productoDTO.setImagen(archivo.getAbsolutePath());
+                    }
+                } catch (Exception ex) {
+                    productoDTO.setImagen(archivo.getAbsolutePath());
+                }
                 lblRutaImagen.setText(archivo.getName());
-                productoDTO.setImagen(archivo.getAbsolutePath());
                 ImageIcon icon = new ImageIcon(archivo.getAbsolutePath());
                 Image img = icon.getImage().getScaledInstance(75, 75, Image.SCALE_SMOOTH);
                 lblPreviewImagen.setIcon(new ImageIcon(img));
@@ -164,7 +188,7 @@ public class PanelFormularioProducto extends JPanel {
         panelTabla.add(lblTabla, BorderLayout.NORTH);
 
         modeloIngredientes = new DefaultTableModel(new Object[]{
-            "Nombre", "Unidad de Medida", "Cantidad actual", "Cantidad requerida", "Acción"
+            "Nombre", "Unidad de Medida", "Cantidad actual", "Cantidad requerida", "Editar", "Eliminar"
         }, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -182,18 +206,21 @@ public class PanelFormularioProducto extends JPanel {
         header.setForeground(Color.BLACK);
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        tablaIngredientes.getColumnModel().getColumn(0).setPreferredWidth(180);
-        tablaIngredientes.getColumnModel().getColumn(1).setPreferredWidth(130);
-        tablaIngredientes.getColumnModel().getColumn(2).setPreferredWidth(120);
-        tablaIngredientes.getColumnModel().getColumn(3).setPreferredWidth(140);
-        tablaIngredientes.getColumnModel().getColumn(4).setPreferredWidth(100);
+        tablaIngredientes.getColumnModel().getColumn(0).setPreferredWidth(160);
+        tablaIngredientes.getColumnModel().getColumn(1).setPreferredWidth(120);
+        tablaIngredientes.getColumnModel().getColumn(2).setPreferredWidth(110);
+        tablaIngredientes.getColumnModel().getColumn(3).setPreferredWidth(130);
+        tablaIngredientes.getColumnModel().getColumn(4).setPreferredWidth(80);
+        tablaIngredientes.getColumnModel().getColumn(5).setPreferredWidth(80);
 
-        tablaIngredientes.getColumnModel().getColumn(4).setCellRenderer(new BotonEliminarRenderer());
-        configurarBotonEliminarEnTabla();
+        tablaIngredientes.getColumnModel().getColumn(4).setCellRenderer(new BotonEditarRenderer());
+        tablaIngredientes.getColumnModel().getColumn(5).setCellRenderer(new BotonEliminarRenderer());
+
+        configurarBotonesEnTabla();
 
         JScrollPane scrollTabla = new JScrollPane(tablaIngredientes);
         scrollTabla.setPreferredSize(new Dimension(800, 160));
-        scrollTabla.setMinimumSize(new Dimension(800, 120)); 
+        scrollTabla.setMinimumSize(new Dimension(800, 120));
         scrollTabla.getViewport().setBackground(Color.WHITE);
         panelTabla.add(scrollTabla, BorderLayout.CENTER);
 
@@ -202,13 +229,12 @@ public class PanelFormularioProducto extends JPanel {
         centroContenedor.add(panelFormulario, BorderLayout.NORTH);
         centroContenedor.add(panelTabla, BorderLayout.CENTER);
 
-        // Botones
         JPanel panelSur = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 20));
         panelSur.setOpaque(false);
 
         JButton btnGuardar = crearBotonAccion("Guardar", new Color(110, 220, 110));
         JButton btnLimpiar = crearBotonAccion("Limpiar", new Color(70, 160, 220));
-        btnLimpiar.setVisible(!modoEdicion); // Oculta el botón limpiar si es modo edición
+        btnLimpiar.setVisible(!modoEdicion);
         JButton btnRegresar = crearBotonAccion("Regresar", new Color(255, 80, 50));
 
         btnRegresar.addActionListener(e -> coordinador.mostrarPanelOpcionProducto());
@@ -238,29 +264,23 @@ public class PanelFormularioProducto extends JPanel {
                 productoDTO.setNombre(txtNombre.getText().trim());
                 productoDTO.setPrecio(Double.parseDouble(txtPrecio.getText().trim()));
                 productoDTO.setDescripcion(txtDescripcion.getText().trim());
-                productoDTO.setTipo(TipoProducto.valueOf(
-                        cbTipo.getSelectedItem().toString().toUpperCase()));
+                productoDTO.setTipo(TipoProducto.valueOf(cbTipo.getSelectedItem().toString().toUpperCase()));
                 productoDTO.setEstado(cbEstado.getSelectedItem().toString().equals("Activo"));
                 productoDTO.setIngredientes(listaTemporalIngredientes);
 
                 if (modoEdicion) {
                     ProductoBO.getInstance().editarProducto(productoDTO);
-                    JOptionPane.showMessageDialog(this, "producto editado bien");
+                    JOptionPane.showMessageDialog(this, "Producto editado correctamente.");
                 } else {
                     ProductoBO.getInstance().registrarProducto(productoDTO);
-                    JOptionPane.showMessageDialog(this, "producto agregado bien");
+                    JOptionPane.showMessageDialog(this, "Producto registrado correctamente.");
                 }
-
                 coordinador.mostrarPanelOpcionProducto();
 
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "El precio debe ser un número válido",
-                        "Error de formato", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "El precio debe ser un número válido", "Error de formato", JOptionPane.ERROR_MESSAGE);
             } catch (NegocioException | PersistenciaException ex) {
-                JOptionPane.showMessageDialog(this,
-                        ex.getMessage(),
-                        "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -278,7 +298,6 @@ public class PanelFormularioProducto extends JPanel {
 
         panelFondo.add(scrollPrincipal, BorderLayout.CENTER);
         panelFondo.add(panelSur, BorderLayout.SOUTH);
-        
         add(panelFondo, BorderLayout.CENTER);
     }
 
@@ -296,6 +315,17 @@ public class PanelFormularioProducto extends JPanel {
     }
 
     public void agregarIngredienteDesdeDialogo(IngredienteDTO ingrediente, float cantidad) {
+        boolean yaExiste = listaTemporalIngredientes.stream()
+                .anyMatch(pi -> pi.getIdIngrediente().equals(ingrediente.getId()));
+
+        if (yaExiste) {
+            JOptionPane.showMessageDialog(this,
+                "El ingrediente '" + ingrediente.getNombre() + "' ya fue añadido.\nPuedes editar su cantidad con el botón Editar.",
+                "Ingrediente duplicado",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         ProductoIngredienteDTO pi = new ProductoIngredienteDTO(
                 ingrediente.getId(),
                 ingrediente.getNombre(),
@@ -318,10 +348,12 @@ public class PanelFormularioProducto extends JPanel {
 
         if (productoDTO.getImagen() != null && !productoDTO.getImagen().isEmpty()) {
             lblRutaImagen.setText(new File(productoDTO.getImagen()).getName());
-            ImageIcon icon = new ImageIcon(productoDTO.getImagen());
-            Image img = icon.getImage().getScaledInstance(75, 75, Image.SCALE_SMOOTH);
-            lblPreviewImagen.setIcon(new ImageIcon(img));
-            lblPreviewImagen.setText("");
+            ImageIcon icon = cargarImagen(productoDTO.getImagen());
+            if (icon != null) {
+                Image img = icon.getImage().getScaledInstance(75, 75, Image.SCALE_SMOOTH);
+                lblPreviewImagen.setIcon(new ImageIcon(img));
+                lblPreviewImagen.setText("");
+            }
         }
 
         actualizarTablaIngredientes();
@@ -331,29 +363,73 @@ public class PanelFormularioProducto extends JPanel {
         modeloIngredientes.setRowCount(0);
         for (ProductoIngredienteDTO pi : listaTemporalIngredientes) {
             String unidad = pi.getUnidadMedida() != null ? pi.getUnidadMedida() : "-";
-            String stock = (pi.getStock() != null) ? String.valueOf(pi.getStock()) : "-";
+            String stock = pi.getStock() != null ? String.valueOf(pi.getStock()) : "-";
             modeloIngredientes.addRow(new Object[]{
                 pi.getNombreIngrediente(),
                 unidad,
                 stock,
                 pi.getCantidadRequerida(),
+                "editar",
                 "eliminar"
             });
         }
     }
 
-    private void configurarBotonEliminarEnTabla() {
+    private void configurarBotonesEnTabla() {
         tablaIngredientes.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int columna = tablaIngredientes.getColumnModel().getColumnIndexAtX(e.getX());
                 int fila = e.getY() / tablaIngredientes.getRowHeight();
-                if (fila >= 0 && fila < tablaIngredientes.getRowCount() && columna == 4) {
+
+                if (fila < 0 || fila >= tablaIngredientes.getRowCount()) return;
+
+                if (columna == 4) {
+                    ProductoIngredienteDTO pi = listaTemporalIngredientes.get(fila);
+                    String input = JOptionPane.showInputDialog(
+                        PanelFormularioProducto.this,
+                        "Nueva cantidad para '" + pi.getNombreIngrediente() + "':",
+                        pi.getCantidadRequerida()
+                    );
+                    if (input != null && !input.trim().isEmpty()) {
+                        try {
+                            double nuevaCantidad = Double.parseDouble(input.trim());
+                            if (nuevaCantidad <= 0) {
+                                JOptionPane.showMessageDialog(PanelFormularioProducto.this,
+                                    "La cantidad debe ser mayor a cero.", "Valor inválido", JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+                            pi.setCantidadRequerida(nuevaCantidad);
+                            actualizarTablaIngredientes();
+                        } catch (NumberFormatException ex) {
+                            JOptionPane.showMessageDialog(PanelFormularioProducto.this,
+                                "Ingresa un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
+
+                if (columna == 5) {
                     listaTemporalIngredientes.remove(fila);
                     actualizarTablaIngredientes();
                 }
             }
         });
+    }
+
+    class BotonEditarRenderer extends JButton implements TableCellRenderer {
+        public BotonEditarRenderer() {
+            setOpaque(true);
+            setBackground(new Color(70, 160, 220));
+            setForeground(Color.WHITE);
+            setText("editar");
+            setFont(new Font("Segoe UI", Font.BOLD, 12));
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+        }
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            return this;
+        }
     }
 
     class BotonEliminarRenderer extends JButton implements TableCellRenderer {
