@@ -96,7 +96,7 @@ public class PanelBuscarIngrediente extends JDialog {
                 return;
             }
             try {
-                List<IngredienteDTO> resultados = IngredienteBO.getInstance().buscarIngredientes(busqueda);
+                List<IngredienteDTO> resultados = IngredienteBO.getInstance().buscarIngredientes(busqueda, "");
                 if (resultados == null || resultados.isEmpty()) {
                     JOptionPane.showMessageDialog(this,
                         "No se encontró ningún ingrediente con ese nombre.",

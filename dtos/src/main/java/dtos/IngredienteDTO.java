@@ -11,19 +11,22 @@ import entidades.UnidadMedida;
  * @author Gael Galaviz
  */
 public class IngredienteDTO {
+
     private Long id;
     private String nombre;
     private UnidadMedida unidadMedida;
     private Double stock;
+    private String imagen;
 
     public IngredienteDTO() {
     }
 
-    public IngredienteDTO(Long id, String nombre, UnidadMedida unidadMedida, Double stock) {
+    public IngredienteDTO(Long id, String nombre, UnidadMedida unidadMedida, Double stock, String imagen) {
         this.id = id;
         this.nombre = nombre;
         this.unidadMedida = unidadMedida;
         this.stock = stock;
+        this.imagen = imagen;
     }
 
     public Long getId() {
@@ -57,5 +60,13 @@ public class IngredienteDTO {
     public void setStock(Double stock) {
         this.stock = stock;
     }
-    
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
+
 }
