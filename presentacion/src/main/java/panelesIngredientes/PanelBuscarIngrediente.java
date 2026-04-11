@@ -109,7 +109,6 @@ public class PanelBuscarIngrediente extends JDialog {
                 DialogSeleccionarIngrediente dialogo = new DialogSeleccionarIngrediente(padre, resultados);
                 dialogo.setVisible(true);
 
-                // FIX: usa referencia directa al formulario
                 if (dialogo.getIngredienteSeleccionado() != null) {
                     formulario.agregarIngredienteDesdeDialogo(
                         dialogo.getIngredienteSeleccionado(),
