@@ -36,10 +36,10 @@ public class Ingrediente implements Serializable {
     @Column(name = "imagen", length = 255)
     private String imagen;
 
-    @OneToMany(mappedBy = "ingrediente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ingrediente")
     private List<ProductoIngrediente> productosQueLoUsan;
 
-    // --- Constructores ---
+    // constructores
     public Ingrediente() {
     }
 

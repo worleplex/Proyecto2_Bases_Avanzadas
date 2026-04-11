@@ -41,7 +41,7 @@ public class Cliente implements Serializable {
     private LocalDate fechaRegistro;
     
     // Relación con Comanda 1 a muchos
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "cliente")
     private List<Comanda> comandas; // esto le puse nuevo
 
     public Cliente() {

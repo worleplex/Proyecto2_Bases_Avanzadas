@@ -24,7 +24,7 @@ public class Mesero extends Empleado implements Serializable {
     @Column(name = "numero_empleado", length = 20)
     private String numeroEmpleado;
 
-    @OneToMany(mappedBy = "mesero", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "mesero")
     private List<Comanda> comandas;
 
     public Mesero() {

@@ -47,7 +47,7 @@ public class Comanda implements Serializable {
     @JoinColumn(name = "id_cliente") // Es nullable por defecto para los "Clientes Generales"
     private Cliente cliente;
 
-    @OneToMany(mappedBy = "comanda", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "comanda", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     private List<DetalleComanda> detalles;
 
     public Comanda() {
