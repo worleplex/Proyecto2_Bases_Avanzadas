@@ -93,6 +93,10 @@ public class PanelMenuAdmin extends JPanel {
         buttonProductos.addActionListener(e -> {
             coordinador.mostrarPanelOpcionProducto();
         });
+        
+        buttonIngredientes.addActionListener(e -> {
+            coordinador.mostrarPanelCatalogoIngredientes();
+        });
 
         panelFondo.add(labelTitulo, BorderLayout.NORTH);
         panelFondo.add(panelBotones, BorderLayout.CENTER);

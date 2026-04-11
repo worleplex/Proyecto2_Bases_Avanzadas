@@ -9,6 +9,7 @@ import com.mycompany.presentacion.paneles.panelesInicio.*;
 import com.mycompany.presentacion.paneles.panelesClientes.*;
 import entidades.ClienteFrecuente;
 import javax.swing.*;
+import panelesIngredientes.PanelCatalogoIngredientes;
 import panelesProductos.PanelBuscarProducto;
 import panelesProductos.PanelFormularioProducto;
 import panelesProductos.PanelOpcionProducto;
@@ -147,5 +148,9 @@ public class Coordinador {
         panelSeleccionarID = new PanelSeleccionarID(this, accion);
         cambiarPanel(panelSeleccionarID);
     }
+    public void mostrarPanelCatalogoIngredientes() {
+        cambiarPanel(new PanelCatalogoIngredientes(this));
+    }
+    
     
 }
