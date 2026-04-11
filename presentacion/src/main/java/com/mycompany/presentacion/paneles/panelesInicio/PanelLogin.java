@@ -1,6 +1,7 @@
 package com.mycompany.presentacion.paneles.panelesInicio;
 
 import com.mycompany.presentacion.controlador.Coordinador;
+import com.mycompany.presentacion.paneles.PanelesComandas.PanelElegirMesa;
 import dtos.EmpleadoDTO;
 import excepciones.NegocioException;
 
@@ -141,10 +142,12 @@ public class PanelLogin extends JPanel {
             limpiarCampos();
 
             if ("ADMIN".equals(empleadoLogueado.getRol())) {
-                coordinador.cambiarTituloFrame("Admin: " + usuario);
+                coordinador.tituloPersonaLogeada("Admin: " + usuario);
+                coordinador.setRolActivo(empleadoLogueado.getRol());
                 coordinador.mostrarPanelMenuAdmin();
             } else {
-                coordinador.cambiarTituloFrame("Mesero: " + usuario);
+                coordinador.tituloPersonaLogeada("Mesero: " + usuario);
+                coordinador.setRolActivo(empleadoLogueado.getRol());
                 coordinador.mostrarPanelMenuMesero();
             }
 

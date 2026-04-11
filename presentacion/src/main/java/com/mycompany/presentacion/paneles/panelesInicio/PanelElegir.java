@@ -50,12 +50,13 @@ public class PanelElegir extends JPanel {
         BotonDegradado btnAdmin = new BotonDegradado("SOY ADMINISTRADOR");
 
         btnMesero.addActionListener((ActionEvent e) -> {
-            coordinador.cambiarTituloIniciarSistema();
+            coordinador.cambiarTitulo("Bienvenido mesero");
+            coordinador.setRolActivo("mesero");
             coordinador.mostrarPanelMenuMesero();
         });
 
         btnAdmin.addActionListener((ActionEvent e) -> {
-            coordinador.cambiarTituloIniciarSistema();
+            coordinador.cambiarTitulo("Bienvenido al sistema");
             coordinador.mostrarPanelLogin();
         });
 

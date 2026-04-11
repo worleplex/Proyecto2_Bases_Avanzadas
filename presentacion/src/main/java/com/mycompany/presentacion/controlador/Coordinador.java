@@ -1,24 +1,26 @@
 package com.mycompany.presentacion.controlador;
 
-import dtos.ProductoDTO;
-import com.mycompany.presentacion.paneles.panelesClientes.PanelEditarCliente;
-import com.mycompany.presentacion.paneles.panelesClientes.PanelConsultarClientes;
-import com.mycompany.presentacion.paneles.panelesClientes.PanelEliminarClienteFrecuente;
-import com.mycompany.presentacion.paneles.PanelesReporte.PanelMenuReportes;
 import com.mycompany.presentacion.paneles.panelesInicio.*;
 import com.mycompany.presentacion.paneles.panelesClientes.*;
+import com.mycompany.presentacion.paneles.PanelesReporte.*;
+import com.mycompany.presentacion.paneles.panelesInicio.*;
+import com.mycompany.presentacion.paneles.PanelesComandas.*;
+import dtos.EmpleadoDTO;
+import dtos.ProductoDTO;
 import entidades.ClienteFrecuente;
-import javax.swing.*;
+import org.jfree.chart.title.Title;
 import panelesIngredientes.PanelCatalogoIngredientes;
 import panelesProductos.PanelBuscarProducto;
 import panelesProductos.PanelFormularioProducto;
 import panelesProductos.PanelOpcionProducto;
+import javax.swing.*;
 
 /**
  * @author Luis
  * clase auxiliar que se encarga de la navegacion de las pantallas
  */
 public class Coordinador {
+    private String rolActivo;
     FramePrincipal framePrincipal;
     PanelLogin panelLogin;
     PanelElegir panelElegir;
@@ -34,8 +36,14 @@ public class Coordinador {
     PanelOpcionProducto panelOpcionProducto;
     PanelBuscarProducto panelBuscarProducto;
     PanelFormularioProducto panelFormularioProducto;
+    PanelElegirMesa panelElegirMesa;
+    PanelCrearComanda panelCrearComanda;
 
     public Coordinador() {
+    }
+
+    public Coordinador(String rol) {
+        this.rolActivo = rol;
     }
 
     public void iniciarSistema() {
@@ -45,12 +53,17 @@ public class Coordinador {
         framePrincipal.setVisible(true);
     }
 
-    public void cambiarTituloFrame(String nombre) {
+    public void tituloPersonaLogeada(String nombre) {
         framePrincipal.setTitle("Bienvenido al sistema " + nombre);
     }
 
-    public void cambiarTituloIniciarSistema() {
-        framePrincipal.setTitle("Bienvenido al sistema");
+
+    /**
+     * Cambia el titulo del frame princial
+     * @param titulo titulo que se desea que se muestre al hacer una accion en las pantallas
+     * */
+    public void cambiarTitulo(String titulo) {
+        framePrincipal.setTitle(titulo);
     }
 
     public void cambiarPanel(JPanel panel) {
@@ -63,7 +76,7 @@ public class Coordinador {
         if (panelLogin == null) {
             panelLogin = new PanelLogin(this);
         }
-        panelLogin.mostrar();
+        panelLogin.mostrar(); // FIX: limpia campos y pide foco siempre
         cambiarPanel(panelLogin);
     }
 
@@ -78,7 +91,7 @@ public class Coordinador {
         if (panelMenuAdmin == null) {
             panelMenuAdmin = new PanelMenuAdmin(this);
         }
-        cambiarPanel(panelMenuAdmin);
+        cambiarPanel(panelMenuAdmin); // FIX: cambiarPanel fuera del if
     }
 
     public void mostrarPanelMenuMesero() {
@@ -123,7 +136,7 @@ public class Coordinador {
         }
         cambiarPanel(panelOpcionProducto);
     }
-    
+
     public void mostrarPanelFormularioProducto(boolean modoEdicion, ProductoDTO productoDTO) {
         panelFormularioProducto = new PanelFormularioProducto(this, modoEdicion, productoDTO);
         cambiarPanel(panelFormularioProducto);
@@ -148,9 +161,31 @@ public class Coordinador {
         panelSeleccionarID = new PanelSeleccionarID(this, accion);
         cambiarPanel(panelSeleccionarID);
     }
+
     public void mostrarPanelCatalogoIngredientes() {
         cambiarPanel(new PanelCatalogoIngredientes(this));
     }
-    
-    
+
+
+    public void mostrarPanelElegirMesa(){
+        if(panelElegirMesa == null){
+            panelElegirMesa = new PanelElegirMesa(this);
+        }
+        cambiarPanel(panelElegirMesa);
+    }
+
+    public void mostrarPanelCrearComanda(){
+        if(panelCrearComanda == null){
+            panelCrearComanda = new PanelCrearComanda(this);
+        }
+        cambiarPanel(panelCrearComanda);
+    }
+
+    public String getRolActivo() {
+        return rolActivo;
+    }
+
+    public void setRolActivo(String rolActivo) {
+        this.rolActivo = rolActivo;
+    }
 }

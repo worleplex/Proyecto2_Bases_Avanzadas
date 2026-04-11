@@ -61,7 +61,14 @@ public class PanelMenuMesero extends JPanel {
         buttonRegresar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                regresar(new PanelElegir(coordinador));
+                coordinador.mostrarPanelElegir();
+            }
+        });
+
+        buttonComandas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                coordinador.mostrarPanelElegirMesa();
             }
         });
 

@@ -11,15 +11,6 @@ public class PanelMenuAdmin extends JPanel {
     private final Coordinador coordinador;
     private Image imagen;
 
-    public void cambiarPanel(JPanel panel){
-        JFrame v = (JFrame) SwingUtilities.getWindowAncestor(this);
-        if (v != null) {
-            v.setContentPane(panel);
-            v.revalidate();
-            v.repaint();
-        }
-    }
-
     public PanelMenuAdmin(Coordinador coordinador) {
         this.coordinador = coordinador;
 
@@ -78,16 +69,21 @@ public class PanelMenuAdmin extends JPanel {
         panelSur.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
         panelSur.add(buttonCerrarSesion);
 
+        buttonComandas.addActionListener(e -> {
+            coordinador.mostrarPanelElegirMesa();
+        });
+
         buttonCliente.addActionListener(e -> {
-            cambiarPanel(new PanelMenuClientes(coordinador));
+            coordinador.mostrarPanelMenuClientes();
         });
         
         buttonReportes.addActionListener(e -> {
-            cambiarPanel(new PanelMenuReportes(coordinador));
+            coordinador.mostrarPanelMenuReportes();
         });
 
         buttonCerrarSesion.addActionListener(e -> {
-            coordinador.mostrarPanelElegir();
+            coordinador.cambiarTitulo("Bienvenido al sistema");
+            coordinador.mostrarPanelLogin();
         });
         
         buttonProductos.addActionListener(e -> {

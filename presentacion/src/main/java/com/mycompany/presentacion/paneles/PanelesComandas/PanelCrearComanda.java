@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class PanelCrearComanda extends JPanel {
     private final Coordinador coordinador;
@@ -117,6 +119,13 @@ public class PanelCrearComanda extends JPanel {
         gbc.gridy = 4;
         gbc.insets = new Insets(0, 0, 90, 0);
         panelIzquierda.add(buttonRegresar, gbc);
+
+        buttonRegresar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               coordinador.mostrarPanelElegirMesa();
+            }
+        });
 
         //Panel derecha
         DefaultTableModel modeloCuenta = new DefaultTableModel(){
