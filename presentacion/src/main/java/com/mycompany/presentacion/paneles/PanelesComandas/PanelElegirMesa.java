@@ -2,6 +2,7 @@ package com.mycompany.presentacion.paneles.PanelesComandas;
 
 import com.mycompany.presentacion.controlador.Coordinador;
 import dtos.EmpleadoDTO;
+import net.sf.jasperreports.engine.export.Grid;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -15,9 +16,6 @@ import java.awt.event.MouseEvent;
 public class PanelElegirMesa extends JPanel {
     private final Coordinador coordinador;
     private Image imagen;
-    private EmpleadoDTO empleadoLogueado;
-
-
 
     public PanelElegirMesa(Coordinador coordinador){
         this.coordinador = coordinador;
@@ -28,10 +26,14 @@ public class PanelElegirMesa extends JPanel {
     public void mostrar(){
         coordinador.cambiarTitulo("Menu de seleccion de mesas");
         setOpaque(false);
-
         setLayout(new BorderLayout());
 
-        DefaultTableModel modelo = new DefaultTableModel();
+        DefaultTableModel modelo = new DefaultTableModel(){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
 
         // 5 columnas
         modelo.addColumn("");
@@ -47,7 +49,7 @@ public class PanelElegirMesa extends JPanel {
         modelo.addRow(new Object[]{"Mesa 16", "Mesa 17", "Mesa 18", "Mesa 19", "Mesa 20"});
 
         JTable tabla = new JTable(modelo);
-        tabla.setRowHeight(140);
+        tabla.setRowHeight(140); //Esto se encarga del tamaño de cada fila
         JScrollPane scrollPane = new JScrollPane(tabla);
         scrollPane.setPreferredSize(new Dimension(800, 500));
 
@@ -58,24 +60,40 @@ public class PanelElegirMesa extends JPanel {
         header.setBackground(new Color(255, 204, 204));
         header.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
-        tabla.getColumnModel().getColumn(0).setPreferredWidth(100);
-
         JPanel panelNorte = new JPanel();
         panelNorte.setOpaque(false);
+
         JPanel panelCentro = new JPanel();
         panelCentro.setOpaque(false);
+
         JPanel panelSur = new JPanel();
         panelSur.setOpaque(false);
+        panelSur.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(20, 20, 30, 20);
 
         JLabel labelTitulo = new JLabel("Seleccion de mesa");
         labelTitulo.setFont(new Font("arial", Font.BOLD, 45));
         labelTitulo.setForeground(Color.WHITE);
 
         JButton buttonRegresar = new JButton("Regresar");
+        JButton buttonModificar = new JButton("Modificar");
+        JButton buttonBuscar = new JButton("Buscar");
 
         panelNorte.add(labelTitulo);
         panelCentro.add(scrollPane);
-        panelSur.add(buttonRegresar);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panelSur.add(buttonRegresar, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        panelSur.add(buttonModificar, gbc);
+
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        panelSur.add(buttonBuscar, gbc);
         add(panelNorte, BorderLayout.NORTH);
         add(panelCentro, BorderLayout.CENTER);
         add(panelSur, BorderLayout.SOUTH);
@@ -104,13 +122,11 @@ public class PanelElegirMesa extends JPanel {
 
     private void crearFondo() {
         // Intentamos cargar la imagen desde la raiz de resources
-
         java.net.URL url = getClass().getResource("/FondoInicio.png");
         if (url != null) {
             this.imagen = new ImageIcon(url).getImage();
         }
     }
-
 
     @Override
     protected void paintComponent(Graphics g) {
