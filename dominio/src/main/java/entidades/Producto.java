@@ -5,6 +5,7 @@
 package entidades;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 
@@ -46,7 +47,15 @@ public class Producto implements Serializable {
 
     @OneToMany(mappedBy = "producto")
     private List<DetalleComanda> detallesComanda;
-
+    
+    public void anadirIngredienteRequerido(ProductoIngrediente detalle) {
+        if (this.ingredientesRequeridos == null) {
+            this.ingredientesRequeridos = new ArrayList<>();
+        }
+        this.ingredientesRequeridos.add(detalle);
+        detalle.setProducto(this); 
+    }
+    
     public Producto() {
     }
 
