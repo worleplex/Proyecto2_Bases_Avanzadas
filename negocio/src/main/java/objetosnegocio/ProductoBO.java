@@ -5,11 +5,18 @@
 package objetosnegocio;
 
 import adaptadores.ProductoAdapter;
+import static adaptadores.ProductoAdapter.*;
+import daos.IngredienteDAO;
 import daos.ProductoDAO;
 import dtos.ProductoDTO;
+import dtos.ProductoIngredienteDTO;
+import entidades.Ingrediente;
 import entidades.Producto;
+import entidades.ProductoIngrediente;
 import excepciones.NegocioException;
 import excepciones.PersistenciaException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -19,9 +26,11 @@ public class ProductoBO {
     
     private static ProductoBO instancia;
     private ProductoDAO productoDAO;
+    private IngredienteDAO ingredienteDAO; 
 
     private ProductoBO() {
         this.productoDAO = new ProductoDAO();
+        this.ingredienteDAO = IngredienteDAO.getInstance();
     }
 
     public static ProductoBO getInstance() {
@@ -34,59 +43,50 @@ public class ProductoBO {
     public ProductoDTO registrarProducto(ProductoDTO productoDTO) throws NegocioException, PersistenciaException {
         try {
             Producto productoExistente = productoDAO.obtenerPorNombre(productoDTO.getNombre());
-            // aqui la validacion que platique con la profe maye
+            
             if (productoExistente != null) {
                 throw new NegocioException("Ya existe un producto registrado con el nombre: " + productoDTO.getNombre());
             }
-            // obligar a tener al menos 1 ingrediente
             if (productoDTO.getIngredientes() == null || productoDTO.getIngredientes().isEmpty()) {
                 throw new NegocioException("El producto debe contener por lo menos un ingrediente asociado");
             }
-            // validaciones basicas
             if (productoDTO.getPrecio() == null || productoDTO.getPrecio() <= 0) {
                 throw new NegocioException("El precio debe ser mayor a cero");
             }
             
-            Producto entidad = ProductoAdapter.aEntidad(productoDTO);
-            java.util.List<entidades.ProductoIngrediente> listaIngredientes = new java.util.ArrayList<>();
+            Producto entidad = aEntidad(productoDTO);
 
-            for (dtos.ProductoIngredienteDTO piDTO : productoDTO.getIngredientes()) {
-                entidades.ProductoIngrediente pi = new entidades.ProductoIngrediente();
-                entidades.Ingrediente ingrediente = new entidades.Ingrediente();
-                ingrediente.setId(piDTO.getIdIngrediente());
-                
-                pi.setIngrediente(ingrediente);
+            for (ProductoIngredienteDTO piDTO : productoDTO.getIngredientes()) {
+                Ingrediente ingredienteReal = ingredienteDAO.obtenerPorId(piDTO.getIdIngrediente());
+                if (ingredienteReal == null) {
+                    throw new NegocioException("Error: Un ingrediente seleccionado ya no existe en el sistema");
+                }
+
+                ProductoIngrediente pi = new ProductoIngrediente();
+                pi.setIngrediente(ingredienteReal);
                 pi.setCantidadRequerida(piDTO.getCantidadRequerida());
-                // el dato andaba mal hai
-                pi.setProducto(entidad);
-                listaIngredientes.add(pi);
+                
+                entidad.anadirIngredienteRequerido(pi);
             }
 
-            entidad.setIngredientesRequeridos(listaIngredientes);
             Producto productoGuardado = productoDAO.guardar(entidad);
+            return aDTO(productoGuardado);
 
-            return ProductoAdapter.aDTO(productoGuardado);
         } catch (PersistenciaException e) {
             throw new NegocioException("Error en la base de datos: " + e.getMessage());
         }
     }
     
-    /**
-     * * @param productoDTO
-     * @return
-     * @throws NegocioException 
-     */
     public ProductoDTO editarProducto(ProductoDTO productoDTO) throws NegocioException {
         try {
             if (productoDTO.getId() == null) {
                 throw new NegocioException("El ID del producto no puede ser nulo para editar");
             }
-
+            
             Producto productoExistente = productoDAO.obtenerPorNombre(productoDTO.getNombre());
             if (productoExistente != null && !productoExistente.getId().equals(productoDTO.getId())) {
                 throw new NegocioException("Ya existe OTRO producto registrado con el nombre: " + productoDTO.getNombre());
             }
-            
             if (productoDTO.getPrecio() == null || productoDTO.getPrecio() <= 0) {
                 throw new NegocioException("El precio debe ser mayor a cero");
             }
@@ -98,7 +98,7 @@ public class ProductoBO {
             if (entidadBD == null) {
                 throw new NegocioException("No se encontró el producto a editar en la BD");
             }
-            
+
             entidadBD.setNombre(productoDTO.getNombre());
             entidadBD.setPrecio(productoDTO.getPrecio());
             entidadBD.setDescripcion(productoDTO.getDescripcion());
@@ -106,52 +106,28 @@ public class ProductoBO {
             entidadBD.setEstado(productoDTO.getEstado());
             entidadBD.setImagen(productoDTO.getImagen());
 
-            java.util.List<entidades.ProductoIngrediente> listaBD = entidadBD.getIngredientesRequeridos();
+            List<ProductoIngrediente> listaBD = entidadBD.getIngredientesRequeridos();
             if (listaBD == null) {
-                listaBD = new java.util.ArrayList<>();
+                listaBD = new ArrayList<>();
                 entidadBD.setIngredientesRequeridos(listaBD);
             }
+            
+            listaBD.clear();
 
-            java.util.Iterator<entidades.ProductoIngrediente> iterador = listaBD.iterator();
-            while (iterador.hasNext()) {
-                entidades.ProductoIngrediente piBD = iterador.next();
-                boolean existeEnPantalla = false;
+            for (ProductoIngredienteDTO piDTO : productoDTO.getIngredientes()) {
+                Ingrediente ingredienteReal = ingredienteDAO.obtenerPorId(piDTO.getIdIngrediente());
+                if (ingredienteReal == null) {
+                    throw new NegocioException("Error: Un ingrediente seleccionado ya no existe en el sistema");
+                }
+
+                ProductoIngrediente pi = new ProductoIngrediente();
+                pi.setIngrediente(ingredienteReal);
+                pi.setCantidadRequerida(piDTO.getCantidadRequerida());
                 
-                for (dtos.ProductoIngredienteDTO piDTO : productoDTO.getIngredientes()) {
-                    if (piBD.getIngrediente().getId().equals(piDTO.getIdIngrediente())) {
-                        piBD.setCantidadRequerida(piDTO.getCantidadRequerida());
-                        existeEnPantalla = true;
-                        break;
-                    }
-                }
-                if (!existeEnPantalla) {
-                    iterador.remove();
-                }
-            }
-
-            for (dtos.ProductoIngredienteDTO piDTO : productoDTO.getIngredientes()) {
-                boolean esNuevo = true;
-                for (entidades.ProductoIngrediente piBD : listaBD) {
-                    if (piBD.getIngrediente().getId().equals(piDTO.getIdIngrediente())) {
-                        esNuevo = false;
-                        break;
-                    }
-                }
-                if (esNuevo) {
-                    entidades.ProductoIngrediente nuevoPi = new entidades.ProductoIngrediente();
-                    entidades.Ingrediente ingrediente = new entidades.Ingrediente();
-                    ingrediente.setId(piDTO.getIdIngrediente());
-                    
-                    nuevoPi.setIngrediente(ingrediente);
-                    nuevoPi.setCantidadRequerida(piDTO.getCantidadRequerida());
-                    nuevoPi.setProducto(entidadBD);
-                    
-                    listaBD.add(nuevoPi);
-                }
+                entidadBD.anadirIngredienteRequerido(pi);
             }
 
             Producto productoActualizado = productoDAO.actualizar(entidadBD);
-            
             return ProductoAdapter.aDTO(productoActualizado);
 
         } catch (PersistenciaException e) {
@@ -159,11 +135,6 @@ public class ProductoBO {
         }
     }
 
-    /**
-     * * @param idProducto
-     * @param nuevoEstado
-     * @throws NegocioException 
-     */
     public void cambiarEstado(Long idProducto, boolean nuevoEstado) throws NegocioException {
         try {
             Producto producto = productoDAO.obtenerPorId(idProducto);
@@ -179,23 +150,17 @@ public class ProductoBO {
         }
     }
 
-    /**
-     * * @param filtro
-     * @return
-     * @throws NegocioException 
-     */
-    public java.util.List<ProductoDTO> buscarProductos(String filtro) throws NegocioException {
+    public List<ProductoDTO> buscarProductos(String filtro) throws NegocioException {
         try {
-            java.util.List<Producto> listaEntidades = productoDAO.buscarProductos(filtro);
-            java.util.List<ProductoDTO> listaDTOs = new java.util.ArrayList<>();
+            List<Producto> listaEntidades = productoDAO.buscarProductos(filtro);
+            List<ProductoDTO> listaDTOs = new ArrayList<>();
             
             for (Producto p : listaEntidades) {
-                listaDTOs.add(ProductoAdapter.aDTO(p));
+                listaDTOs.add(aDTO(p));
             }
             return listaDTOs;
         } catch (PersistenciaException e) {
             throw new NegocioException("Error al buscar productos: " + e.getMessage());
         }
     }
-    
 }
