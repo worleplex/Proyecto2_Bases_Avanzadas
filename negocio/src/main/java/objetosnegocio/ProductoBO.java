@@ -6,6 +6,8 @@ package objetosnegocio;
 
 import adaptadores.ProductoAdapter;
 import static adaptadores.ProductoAdapter.*;
+
+import com.mycompany.persistencia.Persistencia;
 import daos.IngredienteDAO;
 import daos.ProductoDAO;
 import dtos.ProductoDTO;
@@ -13,6 +15,7 @@ import dtos.ProductoIngredienteDTO;
 import entidades.Ingrediente;
 import entidades.Producto;
 import entidades.ProductoIngrediente;
+import entidades.TipoProducto;
 import excepciones.NegocioException;
 import excepciones.PersistenciaException;
 import java.util.ArrayList;
@@ -225,4 +228,38 @@ public class ProductoBO {
             throw new NegocioException("Error al buscar productos: " + e.getMessage());
         }
     }
+
+    public List<ProductoDTO> obtenerTodos() throws NegocioException{
+        try{
+            List<Producto> listaEntidades = productoDAO.obtenerTodos();
+            List<ProductoDTO> listaDTOs = new ArrayList<>();
+            for (Producto p : listaEntidades) {
+                listaDTOs.add(aDTO(p));
+            }
+
+            return listaDTOs;
+        }
+        catch(PersistenciaException e){
+            LOG.log(Level.SEVERE, "Error al buscar productos: ", e.getMessage());
+            throw new NegocioException("Error al buscar productos: " + e.getMessage());
+        }
+    }
+
+    public List<ProductoDTO> buscarPorTipo(TipoProducto tipo) throws NegocioException{
+        try{
+            List<Producto> listaProductos = productoDAO.obtenerPorTipo(tipo);
+            List<ProductoDTO> listaDTOs = new ArrayList<>();
+
+            for(Producto p : listaProductos){
+                listaDTOs.add(aDTO(p));
+            }
+
+            return listaDTOs;
+        }
+        catch (PersistenciaException e) {
+            LOG.log(Level.SEVERE, "Error al buscar productos: ", e.getMessage());
+            throw new NegocioException("Error al buscar productos: " + e.getMessage());
+        }
+    }
+
 }

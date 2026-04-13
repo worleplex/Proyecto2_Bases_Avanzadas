@@ -6,6 +6,7 @@ package daos;
 
 import com.mycompany.persistencia.Persistencia.ConexionBD;
 import entidades.Producto;
+import entidades.TipoProducto;
 import excepciones.PersistenciaException;
 import java.util.List;
 import java.util.logging.Level;
@@ -228,4 +229,18 @@ public class ProductoDAO {
             em.close();
         }
     }
+
+    public List<Producto> obtenerTodos() throws PersistenciaException {
+        EntityManager em = conexion.ConexionBD.crearConexion();
+        List<Producto> productos = em.createQuery("SELECT p FROM Producto p", Producto.class).getResultList();
+        return productos;
+    }
+
+    public List<Producto> obtenerPorTipo(TipoProducto tipo) throws PersistenciaException {
+        EntityManager em = conexion.ConexionBD.crearConexion();
+        return em.createQuery("SELECT p FROM Producto p WHERE p.tipo = :tipo", Producto.class)
+                .setParameter("tipo", tipo)
+                .getResultList();
+    }
+
 }

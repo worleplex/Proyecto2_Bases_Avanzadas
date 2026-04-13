@@ -2,18 +2,22 @@ package com.mycompany.presentacion.paneles.PanelesComandas;
 
 import com.mycompany.presentacion.controlador.Coordinador;
 import com.mycompany.presentacion.controlador.CoordinadorNegocio;
+import dtos.ProductoDTO;
 import entidades.Producto;
 import entidades.TipoProducto;
+import excepciones.NegocioException;
+import excepciones.PersistenciaException;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.List;
+
+import static adaptadores.ProductoAdapter.aDTO;
+import static adaptadores.ProductoAdapter.aEntidad;
 
 
 public class PanelCrearComanda extends JPanel {
@@ -21,13 +25,13 @@ public class PanelCrearComanda extends JPanel {
     private  CoordinadorNegocio coordinadorNegocio = new CoordinadorNegocio();
     private Image imagen;
 
-    public PanelCrearComanda(Coordinador coordinador) {
+    public PanelCrearComanda(Coordinador coordinador) throws NegocioException {
         this.coordinador = coordinador;
         mostrar();
 
     }
 
-    public void mostrar(){
+    public void mostrar() throws NegocioException {
         crearFondo();
 
         coordinador.cambiarTitulo("Creacion de comanda");
@@ -73,7 +77,7 @@ public class PanelCrearComanda extends JPanel {
         labelBusqueda.setForeground(Color.WHITE);
         JTextField textfieldBusqueda = new JTextField(20);
 
-        DefaultTableModel modeloProductos = new DefaultTableModel(){
+        DefaultTableModel modeloProductos = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -132,12 +136,20 @@ public class PanelCrearComanda extends JPanel {
         textfieldBusqueda.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                if(textfieldBusqueda.getText().isEmpty()){
-                    llenarTablaProductos(tablaProductos);
-                }
-                else{
-                    List<Producto> productos = coordinadorNegocio.buscarProductoNombre(textfieldBusqueda.getText());
-                    llenarTabla(tablaProductos, productos);
+                try {
+                    if (textfieldBusqueda.getText().isEmpty()) {
+                        llenarTablaProductos(tablaProductos);
+                    } else {
+                        List<ProductoDTO> productos = coordinadorNegocio.buscarProductoNombre(textfieldBusqueda.getText());
+                        List<Producto> listaProductos = new ArrayList<>();
+
+                        for (ProductoDTO p : productos) {
+                            listaProductos.add(aEntidad(p));
+                        }
+
+                        llenarTabla(tablaProductos, listaProductos);
+                    }
+                } catch (NegocioException ex) {
                 }
             }
         });
@@ -147,13 +159,20 @@ public class PanelCrearComanda extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 String tipoSeleccionado = filtro.getSelectedItem().toString().toUpperCase();
 
-                if(tipoSeleccionado.toLowerCase().equalsIgnoreCase("Todos")){
-                    llenarTablaProductos(tablaProductos);
+                if (tipoSeleccionado.toLowerCase().equalsIgnoreCase("Todos")) {
+                    try {
+                        llenarTablaProductos(tablaProductos);
+                    } catch (NegocioException ex) {
+                        throw new RuntimeException(ex);
+                    }
 
-                }
-                else{
-                    TipoProducto tipo = TipoProducto.valueOf(tipoSeleccionado);
-                    llenarTablaTipoProductos(tablaProductos, tipo);
+                } else {
+                    try {
+                        TipoProducto tipo = TipoProducto.valueOf(tipoSeleccionado);
+                        llenarTablaTipoProductos(tablaProductos, tipo);
+                    } catch (NegocioException ex) {
+                        throw new RuntimeException(ex);
+                    }
 
                 }
 
@@ -163,12 +182,13 @@ public class PanelCrearComanda extends JPanel {
         buttonRegresar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-               coordinador.mostrarPanelElegirMesa();
+                coordinador.mostrarPanelElegirMesa();
             }
         });
 
+
         //Panel derecha
-        DefaultTableModel modeloCuenta = new DefaultTableModel(){
+        DefaultTableModel modeloCuenta = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -179,7 +199,12 @@ public class PanelCrearComanda extends JPanel {
         modeloCuenta.addColumn("Subtotal");
         modeloCuenta.addColumn("Comentarios");
 
-        JTable tablaCuenta = new JTable(modeloCuenta);
+        JTable tablaCuenta = new JTable(modeloCuenta){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 3;
+            }
+        };
         tablaCuenta.setRowHeight(40);
         JScrollPane scrollPaneCuenta = new JScrollPane(tablaCuenta);
         scrollPaneCuenta.setPreferredSize(new Dimension(450, 270));
@@ -195,12 +220,76 @@ public class PanelCrearComanda extends JPanel {
         labelCuenta.setForeground(Color.WHITE);
         labelCuenta.setFont(new Font("arial", Font.BOLD, 20));
 
-        JLabel labelTotal = new JLabel("Total: 90.00");
+        JLabel labelTotal = new JLabel("Total: ");
         labelTotal.setForeground(Color.WHITE);
         labelTotal.setFont(new Font("arial", Font.BOLD, 20));
 
         JButton buttonEliminar = new JButton("Eliminar");
         JButton buttonConfirmar = new JButton("Confirmar comanda");
+
+        buttonEliminar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    int filaSeleccionadaP = tablaProductos.getSelectedRow();
+                    int filaSeleccionadaC = tablaCuenta.getSelectedRow();
+
+                    if(filaSeleccionadaC == -1){
+                        JOptionPane.showMessageDialog(null, "Debe seleccionar un producto para eliminarlo");
+                    }
+
+                    DefaultTableModel modeloCuenta = (DefaultTableModel) tablaCuenta.getModel();
+                    int cantidadActual = (int) modeloCuenta.getValueAt(filaSeleccionadaC, 1);
+
+                    if (cantidadActual > 1) {
+                        // Si hay más de uno se resta 1
+                        modeloCuenta.setValueAt(cantidadActual - 1, filaSeleccionadaC, 1);
+                        Object subtotal = tablaProductos.getValueAt(filaSeleccionadaP, 2);
+
+                        double precioUnitario = Double.parseDouble(subtotal.toString());
+                        double calcularSubtotal = Double.parseDouble(tablaCuenta.getValueAt(filaSeleccionadaC,2).toString());
+
+                        modeloCuenta.setValueAt(calcularSubtotal - precioUnitario,filaSeleccionadaC, 2);
+
+                    } else {
+                        // Si solo queda 1 se va a eliminar la fila completa
+                        modeloCuenta.removeRow(filaSeleccionadaC);
+                    }
+                }
+                catch (ArrayIndexOutOfBoundsException ex){
+                    JOptionPane.showMessageDialog(null, "Se produjo un error al eliminar el producto");
+                }
+            }
+        });
+
+        tablaProductos.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int fila = tablaProductos.getSelectedRow();
+
+                Object nombre = tablaProductos.getValueAt(fila, 0);
+                Object subtotal = tablaProductos.getValueAt(fila, 2);
+
+                DefaultTableModel modeloComanda = (DefaultTableModel) tablaCuenta.getModel();
+
+                for (int i = 0; i < modeloComanda.getRowCount(); i++) {
+                    if (modeloComanda.getValueAt(i, 0).equals(nombre)) {
+                        int divisor = 1;
+                        int cantidadActual = Integer.parseInt(modeloComanda.getValueAt(i, 1).toString());
+                        modeloComanda.setValueAt(cantidadActual + 1, i, 1);
+
+                        double precioUnitario = Double.parseDouble(subtotal.toString());
+                        double calcularSubtotal = Double.parseDouble(modeloComanda.getValueAt(i, 2).toString());
+
+                        modeloComanda.setValueAt(calcularSubtotal + precioUnitario, i, 2);
+
+                        return;
+                    }
+                }
+
+                modeloComanda.addRow(new Object[]{nombre, 1, subtotal, ""});
+            }
+        });
 
         gbc.insets = new Insets(-45, 50, 60, 40);
         gbc.gridx = 0;
@@ -257,6 +346,9 @@ public class PanelCrearComanda extends JPanel {
         }
     }
 
+    public long calcularTotalCuenta(){
+      return 2;
+    }
     public void llenarTabla(JTable tabla, List<Producto> lista){
         DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
         modelo.setRowCount(0);
@@ -270,13 +362,18 @@ public class PanelCrearComanda extends JPanel {
         }
     }
 
-    private void llenarTablaProductos(JTable tabla) {
+    private void llenarTablaProductos(JTable tabla) throws NegocioException {
         DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
         modelo.setRowCount(0);
 
-        List<Producto> productos = coordinadorNegocio.obtenerProductos();
+        List<ProductoDTO> productos = coordinadorNegocio.obtenerProductos();
+        List<Producto> listaProductos = new ArrayList<>();
 
-        for (Producto p : productos) {
+        for(ProductoDTO p : productos){
+            listaProductos.add(aEntidad(p));
+        }
+
+        for (Producto p : listaProductos) {
             modelo.addRow(new Object[]{
                     p.getNombre(),
                     p.getTipo(),
@@ -285,13 +382,18 @@ public class PanelCrearComanda extends JPanel {
         }
     }
 
-    private void llenarTablaTipoProductos(JTable tabla, TipoProducto tipo){
+    private void llenarTablaTipoProductos(JTable tabla, TipoProducto tipo) throws NegocioException {
         DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
         modelo.setRowCount(0);
 
-        List<Producto> productos = coordinadorNegocio.obtenerProductosTipo(tipo);
+        List<ProductoDTO> productos = coordinadorNegocio.obtenerProductosTipo(tipo);
+        List<Producto> listaProductos = new ArrayList<>();
 
-        for (Producto p : productos) {
+        for(ProductoDTO p : productos){
+            listaProductos.add(aEntidad(p));
+        }
+
+        for (Producto p : listaProductos) {
             modelo.addRow(new Object[]{
                     p.getNombre(),
                     p.getTipo(),
