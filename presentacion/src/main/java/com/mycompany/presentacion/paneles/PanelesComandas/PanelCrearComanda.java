@@ -1,6 +1,9 @@
 package com.mycompany.presentacion.paneles.PanelesComandas;
 
 import com.mycompany.presentacion.controlador.Coordinador;
+import com.mycompany.presentacion.controlador.CoordinadorNegocio;
+import entidades.Producto;
+import entidades.TipoProducto;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -8,14 +11,20 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.List;
+
 
 public class PanelCrearComanda extends JPanel {
     private final Coordinador coordinador;
+    private  CoordinadorNegocio coordinadorNegocio = new CoordinadorNegocio();
     private Image imagen;
 
     public PanelCrearComanda(Coordinador coordinador) {
         this.coordinador = coordinador;
         mostrar();
+
     }
 
     public void mostrar(){
@@ -39,8 +48,8 @@ public class PanelCrearComanda extends JPanel {
         JPanel panelSur = new JPanel();
         panelSur.setOpaque(false);
         GridBagConstraints gbc = new GridBagConstraints();
-
-        JLabel labelTitulo = new JLabel("Mesa 1"); //Logica para que al seleccionar la mesa el titulo sea la mesa seleccionada pendiente
+        System.out.println(coordinadorNegocio.getMesaActual());
+        JLabel labelTitulo = new JLabel("Mesa seleccionada"); //Logica para que al seleccionar la mesa el titulo sea la mesa seleccionada pendiente
         labelTitulo.setFont(new Font("arial", Font.BOLD, 45));
         labelTitulo.setForeground(Color.WHITE);
 
@@ -56,7 +65,7 @@ public class PanelCrearComanda extends JPanel {
         labelFiltrar.setFont(new Font("arial", Font.BOLD, 20));
         labelFiltrar.setForeground(Color.WHITE);
 
-        String[] opciones = {"Todos", "Platillos", "Bebida", "Postre"};
+        String[] opciones = {"Todos", "Platillo", "Bebida", "Postre"};
         JComboBox<String> filtro = new JComboBox<>(opciones);
 
         JLabel labelBusqueda = new JLabel("Buscar Productos");
@@ -75,7 +84,6 @@ public class PanelCrearComanda extends JPanel {
         modeloProductos.addColumn("Tipo");
         modeloProductos.addColumn("Precio");
 
-        modeloProductos.addRow(new Object[]{"Tacos de asada",  "platillo",  "30.00"});
         JTable tablaProductos = new JTable(modeloProductos);
         tablaProductos.setRowHeight(35);
         JScrollPane scrollPaneProductos = new JScrollPane(tablaProductos);
@@ -83,6 +91,7 @@ public class PanelCrearComanda extends JPanel {
 
         tablaProductos.setBackground(new Color(255, 204, 204));
         tablaProductos.setSelectionBackground(new Color(255, 153, 153));
+        llenarTablaProductos(tablaProductos); //Esto es para que cunado se abra la pantalla se llene la tabla listo para elegir
 
         JTableHeader header = tablaProductos.getTableHeader();
         header.setBackground(new Color(255, 204, 204));
@@ -120,6 +129,37 @@ public class PanelCrearComanda extends JPanel {
         gbc.insets = new Insets(0, 0, 90, 0);
         panelIzquierda.add(buttonRegresar, gbc);
 
+        textfieldBusqueda.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if(textfieldBusqueda.getText().isEmpty()){
+                    llenarTablaProductos(tablaProductos);
+                }
+                else{
+                    List<Producto> productos = coordinadorNegocio.buscarProductoNombre(textfieldBusqueda.getText());
+                    llenarTabla(tablaProductos, productos);
+                }
+            }
+        });
+
+        filtro.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String tipoSeleccionado = filtro.getSelectedItem().toString().toUpperCase();
+
+                if(tipoSeleccionado.toLowerCase().equalsIgnoreCase("Todos")){
+                    llenarTablaProductos(tablaProductos);
+
+                }
+                else{
+                    TipoProducto tipo = TipoProducto.valueOf(tipoSeleccionado);
+                    llenarTablaTipoProductos(tablaProductos, tipo);
+
+                }
+
+            }
+        });
+
         buttonRegresar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -139,7 +179,6 @@ public class PanelCrearComanda extends JPanel {
         modeloCuenta.addColumn("Subtotal");
         modeloCuenta.addColumn("Comentarios");
 
-        modeloCuenta.addRow(new Object[]{"Taco de asada",  "3",  "90.00", "La carne termino medio"});
         JTable tablaCuenta = new JTable(modeloCuenta);
         tablaCuenta.setRowHeight(40);
         JScrollPane scrollPaneCuenta = new JScrollPane(tablaCuenta);
@@ -215,6 +254,49 @@ public class PanelCrearComanda extends JPanel {
         java.net.URL url = getClass().getResource("/FondoInicio.png");
         if (url != null) {
             this.imagen = new ImageIcon(url).getImage();
+        }
+    }
+
+    public void llenarTabla(JTable tabla, List<Producto> lista){
+        DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
+        modelo.setRowCount(0);
+
+        for(Producto p: lista ){
+            modelo.addRow(new Object[]{
+                    p.getNombre(),
+                    p.getTipo(),
+                    p.getPrecio()
+            });
+        }
+    }
+
+    private void llenarTablaProductos(JTable tabla) {
+        DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
+        modelo.setRowCount(0);
+
+        List<Producto> productos = coordinadorNegocio.obtenerProductos();
+
+        for (Producto p : productos) {
+            modelo.addRow(new Object[]{
+                    p.getNombre(),
+                    p.getTipo(),
+                    p.getPrecio()
+            });
+        }
+    }
+
+    private void llenarTablaTipoProductos(JTable tabla, TipoProducto tipo){
+        DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
+        modelo.setRowCount(0);
+
+        List<Producto> productos = coordinadorNegocio.obtenerProductosTipo(tipo);
+
+        for (Producto p : productos) {
+            modelo.addRow(new Object[]{
+                    p.getNombre(),
+                    p.getTipo(),
+                    p.getPrecio()
+            });
         }
     }
 

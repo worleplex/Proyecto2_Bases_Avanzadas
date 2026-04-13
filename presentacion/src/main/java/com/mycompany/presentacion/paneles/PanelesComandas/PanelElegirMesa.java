@@ -1,6 +1,7 @@
 package com.mycompany.presentacion.paneles.PanelesComandas;
 
 import com.mycompany.presentacion.controlador.Coordinador;
+import com.mycompany.presentacion.controlador.CoordinadorNegocio;
 import dtos.EmpleadoDTO;
 import net.sf.jasperreports.engine.export.Grid;
 
@@ -15,6 +16,7 @@ import java.awt.event.MouseEvent;
 
 public class PanelElegirMesa extends JPanel {
     private final Coordinador coordinador;
+    private CoordinadorNegocio coordinadorNegocio = new CoordinadorNegocio();
     private Image imagen;
 
     public PanelElegirMesa(Coordinador coordinador){
@@ -101,6 +103,12 @@ public class PanelElegirMesa extends JPanel {
         tabla.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                int fila = tabla.rowAtPoint(e.getPoint());
+                int columna = tabla.columnAtPoint(e.getPoint());
+
+                String[] numMesa = tabla.getValueAt(fila, columna).toString().split(" ");
+                long nMesa = Long.parseLong(numMesa[1]);
+                coordinadorNegocio.setMesaActual(numMesa[1]);
                 coordinador.mostrarPanelCrearComanda();
             }
         });
