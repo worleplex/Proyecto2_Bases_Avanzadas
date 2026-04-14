@@ -35,7 +35,7 @@ public class FramePrincipal extends JFrame {
         setTitle("Pantalla de Eleccion");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        PanelElegir panelElegir = new PanelElegir(coordinador);
-        add(panelElegir, BorderLayout.CENTER);
+        PanelLogin panelLogin = new PanelLogin(coordinador);
+        add(panelLogin, BorderLayout.CENTER);
     }
 }

@@ -270,10 +270,10 @@ public class PanelFormularioProducto extends JPanel {
 
                 if (modoEdicion) {
                     ProductoBO.getInstance().editarProducto(productoDTO);
-                    JOptionPane.showMessageDialog(this, "Producto editado correctamente.");
+                    JOptionPane.showMessageDialog(this, "Producto editado correctamente");
                 } else {
                     ProductoBO.getInstance().registrarProducto(productoDTO);
-                    JOptionPane.showMessageDialog(this, "Producto registrado correctamente.");
+                    JOptionPane.showMessageDialog(this, "Producto registrado correctamente");
                 }
                 coordinador.mostrarPanelOpcionProducto();
 

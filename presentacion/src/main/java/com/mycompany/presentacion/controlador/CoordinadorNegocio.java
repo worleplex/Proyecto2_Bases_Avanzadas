@@ -1,12 +1,6 @@
 package com.mycompany.presentacion.controlador;
 
 import daos.MesaDAO;
-import daos.ProductoDAO;
-import entidades.Mesa;
-import entidades.Producto;
-import entidades.TipoProducto;
-
-import java.util.List;
 
 public class CoordinadorNegocio {
     String mesaActual;
@@ -24,17 +18,17 @@ public class CoordinadorNegocio {
         return mesaDAO.mesaOcupada(numero).isEstado();
     }
 
-    public List<Producto> obtenerProductos() {
-        return mesaDAO.obtenerTodos();
-    }
-
-    public List<Producto> obtenerProductosTipo(TipoProducto tipo){
-        return mesaDAO.obtenerPorTipo(tipo);
-    }
-
-    public List<Producto> buscarProductoNombre(String nombre){
-        return mesaDAO.buscarProductoNombre(nombre);
-    }
+//    public List<Producto> obtenerProductos() {
+//        return mesaDAO.obtenerTodos();
+//    }
+//
+//    public List<Producto> obtenerProductosTipo(TipoProducto tipo){
+//        return mesaDAO.obtenerPorTipo(tipo);
+//    }
+//
+//    public List<Producto> buscarProductoNombre(String nombre){
+//        return mesaDAO.buscarProductoNombre(nombre);
+//    }
 
     public String getMesaActual() {
         return mesaActual;

@@ -3,12 +3,10 @@ package com.mycompany.presentacion.controlador;
 import com.mycompany.presentacion.paneles.panelesInicio.*;
 import com.mycompany.presentacion.paneles.panelesClientes.*;
 import com.mycompany.presentacion.paneles.PanelesReporte.*;
-import com.mycompany.presentacion.paneles.panelesInicio.*;
 import com.mycompany.presentacion.paneles.PanelesComandas.*;
-import dtos.EmpleadoDTO;
 import dtos.ProductoDTO;
 import entidades.ClienteFrecuente;
-import org.jfree.chart.title.Title;
+import excepciones.NegocioException;
 import panelesIngredientes.PanelCatalogoIngredientes;
 import panelesProductos.PanelBuscarProducto;
 import panelesProductos.PanelFormularioProducto;
@@ -16,14 +14,16 @@ import panelesProductos.PanelOpcionProducto;
 import javax.swing.*;
 
 /**
+ * Clase auxiliar que se encarga de la navegación entre pantallas.
+ * Centraliza la creación y cambio de paneles del sistema.
+ *
  * @author Luis
- * clase auxiliar que se encarga de la navegacion de las pantallas
  */
 public class Coordinador {
+
     private String rolActivo;
     FramePrincipal framePrincipal;
     PanelLogin panelLogin;
-    PanelElegir panelElegir;
     PanelMenuMesero panelMenuMesero;
     PanelMenuAdmin panelMenuAdmin;
     PanelConsultarClientes panelConsultarClientes;
@@ -37,7 +37,6 @@ public class Coordinador {
     PanelBuscarProducto panelBuscarProducto;
     PanelFormularioProducto panelFormularioProducto;
     PanelElegirMesa panelElegirMesa;
-    PanelCrearComanda panelCrearComanda;
 
     public Coordinador() {
     }
@@ -57,11 +56,6 @@ public class Coordinador {
         framePrincipal.setTitle("Bienvenido al sistema " + nombre);
     }
 
-
-    /**
-     * Cambia el titulo del frame princial
-     * @param titulo titulo que se desea que se muestre al hacer una accion en las pantallas
-     * */
     public void cambiarTitulo(String titulo) {
         framePrincipal.setTitle(titulo);
     }
@@ -76,22 +70,16 @@ public class Coordinador {
         if (panelLogin == null) {
             panelLogin = new PanelLogin(this);
         }
-        panelLogin.mostrar(); // FIX: limpia campos y pide foco siempre
+        panelLogin.mostrar();
         cambiarPanel(panelLogin);
     }
 
-    public void mostrarPanelElegir() {
-        if (panelElegir == null) {
-            panelElegir = new PanelElegir(this);
-        }
-        cambiarPanel(panelElegir);
-    }
 
     public void mostrarPanelMenuAdmin() {
         if (panelMenuAdmin == null) {
             panelMenuAdmin = new PanelMenuAdmin(this);
         }
-        cambiarPanel(panelMenuAdmin); // FIX: cambiarPanel fuera del if
+        cambiarPanel(panelMenuAdmin);
     }
 
     public void mostrarPanelMenuMesero() {
@@ -129,7 +117,6 @@ public class Coordinador {
         cambiarPanel(panelRegistrarCliente);
     }
 
-    // intento de julian
     public void mostrarPanelOpcionProducto() {
         if (panelOpcionProducto == null) {
             panelOpcionProducto = new PanelOpcionProducto(this);
@@ -166,19 +153,15 @@ public class Coordinador {
         cambiarPanel(new PanelCatalogoIngredientes(this));
     }
 
-
-    public void mostrarPanelElegirMesa(){
-        if(panelElegirMesa == null){
+    public void mostrarPanelElegirMesa() {
+        if (panelElegirMesa == null) {
             panelElegirMesa = new PanelElegirMesa(this);
         }
         cambiarPanel(panelElegirMesa);
     }
 
-    public void mostrarPanelCrearComanda(){
-        if(panelCrearComanda == null){
-            panelCrearComanda = new PanelCrearComanda(this);
-        }
-        cambiarPanel(panelCrearComanda);
+    public void mostrarPanelCrearComanda(CoordinadorNegocio coordinadorNegocio) throws NegocioException {
+        cambiarPanel(new PanelCrearComanda(this, coordinadorNegocio));
     }
 
     public String getRolActivo() {

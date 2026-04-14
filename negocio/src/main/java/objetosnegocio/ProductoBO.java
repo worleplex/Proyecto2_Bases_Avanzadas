@@ -7,7 +7,6 @@ package objetosnegocio;
 import adaptadores.ProductoAdapter;
 import static adaptadores.ProductoAdapter.*;
 
-import com.mycompany.persistencia.Persistencia;
 import daos.IngredienteDAO;
 import daos.ProductoDAO;
 import dtos.ProductoDTO;
