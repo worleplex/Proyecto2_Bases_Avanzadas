@@ -17,9 +17,10 @@ import javax.persistence.EntityManager;
  */
 public class insertsMasivos {
     
+    private static final String LLAVE_SECRETA = "MiLlaveSuperSecreta123";
+    
     /**
-     * 
-     * @param nombreArchivo
+     * * @param nombreArchivo
      * @return 
      */
     private static String getRuta(String nombreArchivo) {
@@ -37,16 +38,15 @@ public class insertsMasivos {
         System.out.println("INSERCIÓN DE DATOS INICIALES");
 
         try {
-           em.getTransaction().begin();
-            // los empleados
-            Admin admin = new Admin("Maye Tolano", "Maye", "1234");
+            em.getTransaction().begin();
+            Admin admin = new Admin("Maye Tolano", "Maye", hashear("1234"));
             em.persist(admin);
 
-            Mesero mesero1 = new Mesero("Luis Ortiz", "luis", "4321", "Vespertino", "M-001");
+            Mesero mesero1 = new Mesero("Luis Ortiz", "luis", hashear("4321"), "Vespertino", "M-001");
             em.persist(mesero1);
-            Mesero mesero2 = new Mesero("Julian Izaguirre", "julian", "0000", "Matutino", "M-002");
+
+            Mesero mesero2 = new Mesero("Julian Izaguirre", "julian", hashear("0000"), "Matutino", "M-002");
             em.persist(mesero2);
-            // los ingredientes
 
             // Para Vaso de Agua
             Ingrediente agua = new Ingrediente("Agua", UnidadMedida.MILILITRO, 10000.0, getRuta("agua.png"));
@@ -119,7 +119,6 @@ public class insertsMasivos {
             em.persist(new ProductoIngrediente(2.0,   quesadilla, tortillaHarina));
             em.persist(new ProductoIngrediente(100.0, quesadilla, queso));
 
-            //Insert de las 20 mesas mediante un ciclo por que me dio weba hacerlo manual
             em.persist(new Mesa("1", true));
             em.persist(new Mesa("2", true));
             em.persist(new Mesa("3", true));
@@ -140,7 +139,25 @@ public class insertsMasivos {
             em.persist(new Mesa("19", true));
             em.persist(new Mesa("20", true));
 
+            ClienteFrecuente cliente1 = new ClienteFrecuente();
+            cliente1.setNombres("Juan");
+            cliente1.setApellido_paterno("Pérez");
+            cliente1.setApellido_materno("López");
+            cliente1.setCorreo("juan.perez@gmail.com");
+            cliente1.setTelefono(encriptarTelefono("6441234567")); 
+            cliente1.setPuntos(150.0);
+            cliente1.setFechaRegistro(LocalDate.now());
+            em.persist(cliente1);
 
+            ClienteFrecuente cliente2 = new ClienteFrecuente();
+            cliente2.setNombres("María");
+            cliente2.setApellido_paterno("González");
+            cliente2.setApellido_materno("Ruiz");
+            cliente2.setCorreo("maria.g@hotmail.com");
+            cliente2.setTelefono(encriptarTelefono("6449876543")); 
+            cliente2.setPuntos(300.0);
+            cliente2.setFechaRegistro(LocalDate.now());
+            em.persist(cliente2);
 
 
             em.getTransaction().commit();
@@ -154,6 +171,35 @@ public class insertsMasivos {
             e.printStackTrace();
         } finally {
             em.close();
+        }
+    }
+
+    private static String hashear(String passwordPlana) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(passwordPlana.getBytes("UTF-8"));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (Exception ex) {
+            throw new RuntimeException("Error al hashear", ex);
+        }
+    }
+    
+    private static String encriptarTelefono(String telefonoPlano) {
+        if (telefonoPlano == null || telefonoPlano.isEmpty()) return telefonoPlano;
+        try {
+            java.security.Key aesKey = new javax.crypto.spec.SecretKeySpec(java.util.Arrays.copyOf(LLAVE_SECRETA.getBytes("UTF-8"), 16), "AES");
+            javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES");
+            cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, aesKey);
+            byte[] encriptado = cipher.doFinal(telefonoPlano.getBytes("UTF-8"));
+            return java.util.Base64.getEncoder().encodeToString(encriptado);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al encriptar el teléfono", e);
         }
     }
     

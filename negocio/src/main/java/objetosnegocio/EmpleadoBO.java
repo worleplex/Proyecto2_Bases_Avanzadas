@@ -44,7 +44,32 @@ public class EmpleadoBO {
         }
         return instancia;
     }
+    
+    /**
+     * hasheala contraseña en formato SHA-256 de un solo sentido.
+     * @param passwordPlana
+     * @return 
+     */
+    public String hashearContrasena(String passwordPlana) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(passwordPlana.getBytes("UTF-8"));
+            StringBuilder hexString = new StringBuilder();
 
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (Exception ex) {
+            throw new RuntimeException("Error al hashear la contraseña", ex);
+        }
+    }
+    
+    
     /**
      * Autentica a un empleado verificando su username y contraseña.
      * Valida que ningún campo esté vacío antes de consultar la BD.
@@ -54,20 +79,13 @@ public class EmpleadoBO {
      * @return EmpleadoDTO con los datos del empleado autenticado
      * @throws NegocioException si los campos están vacíos o las credenciales son incorrectas
      */
-    public EmpleadoDTO iniciarSesion(String username, String password) throws NegocioException {
-        LOG.log(Level.INFO, "Intento de inicio de sesión para username: {0}", username);
-        if (username == null || username.trim().isEmpty()) {
-            throw new NegocioException("error el name de usuario no puede estar vacio");
+    public EmpleadoDTO iniciarSesion(String usuario, String contrasenaPlana) throws NegocioException {
+        String contrasenaHasheada = hashearContrasena(contrasenaPlana);
+        Empleado empleadoBD = empleadoDAO.buscarPorContras(usuario, contrasenaHasheada);
+        
+        if (empleadoBD == null) {
+            throw new NegocioException("Usuario o contraseña incorrectos");
         }
-        if (password == null || password.trim().isEmpty()) {
-            throw new NegocioException("error no has ingresado tu contra");
-        }
-        Empleado entidad = empleadoDAO.buscarPorContras(username, password);
-        if (entidad == null) {
-            LOG.log(Level.WARNING, "Credenciales incorrectas para username: {0}", username);
-            throw new NegocioException("usuario o contra incorrectos intentale de nuevo");
-        }
-        LOG.log(Level.INFO, "Inicio de sesión exitoso para: {0}", username);
-        return EmpleadoAdapter.entidadADTO(entidad);
+        return EmpleadoAdapter.entidadADTO(empleadoBD);
     }
 }

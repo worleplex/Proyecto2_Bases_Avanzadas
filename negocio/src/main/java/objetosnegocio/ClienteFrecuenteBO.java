@@ -20,10 +20,10 @@ import java.util.logging.Logger;
  * @author julian izaguirre
  */
 public class ClienteFrecuenteBO {
-
     private static final Logger LOG = Logger.getLogger(ClienteFrecuenteBO.class.getName());
     private static ClienteFrecuenteBO instancia;
     private final ClienteFrecuenteDAO clienteDAO;
+    private static final String LLAVE_SECRETA = "MiLlaveSuperSecreta123";
 
     /**
      * Constructor privado para garantizar el patrón Singleton.
@@ -77,6 +77,7 @@ public class ClienteFrecuenteBO {
 
     /**
      * Valida y guarda un nuevo cliente frecuente en la base de datos.
+     * Intercepta el teléfono para encriptarlo antes de guardarlo.
      *
      * @param clienteDTO datos del cliente frecuente a guardar
      * @throws NegocioException si la validación falla o ocurre un error al guardar
@@ -85,6 +86,9 @@ public class ClienteFrecuenteBO {
         LOG.log(Level.INFO, "Intentando guardar cliente frecuente: {0}", clienteDTO.getNombres());
         try {
             validarDatosCliente(clienteDTO);
+            LOG.log(Level.INFO, "Encriptando el teléfono de {0} por seguridad antes de guardarlo en BD.", clienteDTO.getNombres());
+            clienteDTO.setTelefono(encriptarTelefono(clienteDTO.getTelefono()));
+            
             ClienteFrecuente entidad = ClienteFrecuenteAdapter.dtoAEntidad(clienteDTO);
             clienteDAO.guardar(entidad);
             LOG.log(Level.INFO, "Cliente frecuente guardado correctamente: {0}", clienteDTO.getNombres());
@@ -98,6 +102,7 @@ public class ClienteFrecuenteBO {
 
     /**
      * Valida y actualiza los datos de un cliente frecuente existente.
+     * Intercepta el teléfono para encriptarlo antes de actualizarlo.
      *
      * @param clienteDTO datos actualizados del cliente frecuente
      * @throws NegocioException si la validación falla o ocurre un error al editar
@@ -106,6 +111,9 @@ public class ClienteFrecuenteBO {
         LOG.log(Level.INFO, "Editando cliente frecuente con ID: {0}", clienteDTO.getId());
         try {
             validarDatosCliente(clienteDTO);
+            LOG.log(Level.INFO, "Encriptando el teléfono actualizado del cliente ID: {0}", clienteDTO.getId());
+            clienteDTO.setTelefono(encriptarTelefono(clienteDTO.getTelefono()));
+            
             ClienteFrecuente entidad = ClienteFrecuenteAdapter.dtoAEntidad(clienteDTO);
             clienteDAO.editar(entidad);
             LOG.log(Level.INFO, "Cliente frecuente editado correctamente, ID: {0}", clienteDTO.getId());
@@ -119,6 +127,7 @@ public class ClienteFrecuenteBO {
 
     /**
      * Busca un cliente frecuente por su ID.
+     * Intercepta el teléfono encriptado de la BD y lo desencripta para la interfaz.
      *
      * @param id identificador único del cliente frecuente
      * @return ClienteFrecuenteDTO con los datos del cliente encontrado
@@ -128,17 +137,21 @@ public class ClienteFrecuenteBO {
         LOG.log(Level.INFO, "Buscando cliente frecuente con ID: {0}", id);
         try {
             ClienteFrecuente entidad = clienteDAO.buscarPorId(id);
+            ClienteFrecuenteDTO dto = ClienteFrecuenteAdapter.entidadADTO(entidad);
+            LOG.log(Level.FINE, "Desencriptando teléfono del cliente ID: {0} para la interfaz.", id);
+            dto.setTelefono(desencriptarTelefono(dto.getTelefono()));
+            
             LOG.log(Level.INFO, "Cliente frecuente encontrado con ID: {0}", id);
-            return ClienteFrecuenteAdapter.entidadADTO(entidad);
+            return dto;
         } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Error al buscar cliente frecuente con ID {0}: {1}",
-                new Object[]{id, e.getMessage()});
+            LOG.log(Level.SEVERE, "Error al buscar cliente frecuente con ID {0}: {1}", new Object[]{id, e.getMessage()});
             throw new NegocioException("Error al buscar el cliente", e);
         }
     }
 
     /**
      * Obtiene la lista completa de clientes frecuentes registrados.
+     * Desencripta los teléfonos de todos los clientes antes de enviarlos a la tabla.
      *
      * @return lista de ClienteFrecuenteDTO con todos los clientes frecuentes
      * @throws NegocioException si ocurre un error al consultar la BD
@@ -147,8 +160,15 @@ public class ClienteFrecuenteBO {
         LOG.info("Obteniendo todos los clientes frecuentes");
         try {
             List<ClienteFrecuente> entidades = clienteDAO.buscarTodos();
+            List<ClienteFrecuenteDTO> listaDTOs = ClienteFrecuenteAdapter.listaEntidadADTO(entidades);
+
+            LOG.log(Level.FINE, "Desencriptando la lista de teléfonos de clientes frecuentes...");
+            for (ClienteFrecuenteDTO dto : listaDTOs) {
+                dto.setTelefono(desencriptarTelefono(dto.getTelefono()));
+            }
+            
             LOG.log(Level.INFO, "Se obtuvieron {0} clientes frecuentes", entidades.size());
-            return ClienteFrecuenteAdapter.listaEntidadADTO(entidades);
+            return listaDTOs;
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Error al obtener lista de clientes frecuentes: {0}", e.getMessage());
             throw new NegocioException("Error al obtener la lista de clientes", e);
@@ -157,15 +177,9 @@ public class ClienteFrecuenteBO {
 
     /**
      * Actualiza los puntos de fidelidad de un cliente frecuente.
-     * Los puntos no pueden ser negativos.
-     *
-     * @param idCliente ID del cliente a actualizar
-     * @param nuevosPuntos nuevo valor de puntos de fidelidad
-     * @throws NegocioException si los puntos son negativos o ocurre un error
      */
     public void actualizarPuntos(Long idCliente, Double nuevosPuntos) throws NegocioException {
-        LOG.log(Level.INFO, "Actualizando puntos del cliente ID {0} a {1}",
-            new Object[]{idCliente, nuevosPuntos});
+        LOG.log(Level.INFO, "Actualizando puntos del cliente ID {0} a {1}", new Object[]{idCliente, nuevosPuntos});
         try {
             if (nuevosPuntos < 0) {
                 throw new NegocioException("Los puntos no pueden ser negativos");
@@ -182,9 +196,6 @@ public class ClienteFrecuenteBO {
 
     /**
      * Elimina un cliente frecuente por su ID.
-     *
-     * @param id identificador único del cliente a eliminar
-     * @throws NegocioException si no se encuentra el cliente o ocurre un error al eliminar
      */
     public void eliminarCliente(Long id) throws NegocioException {
         LOG.log(Level.INFO, "Eliminando cliente frecuente con ID: {0}", id);
@@ -200,6 +211,49 @@ public class ClienteFrecuenteBO {
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Error al eliminar cliente frecuente: {0}", e.getMessage());
             throw new NegocioException("Error al eliminar el cliente frecuente: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Encripta un número de teléfono en texto plano utilizando el algoritmo AES.
+     * Esto permite que el número se guarde de forma segura en la base de datos pero pueda ser recuperado después.
+     *
+     * @param telefonoPlano El número de teléfono normal 
+     * @return El número de teléfono encriptado en Base64, o el mismo texto si es nulo
+     */
+    private String encriptarTelefono(String telefonoPlano) {
+        if (telefonoPlano == null || telefonoPlano.isEmpty()) return telefonoPlano;
+        try {
+            LOG.log(Level.FINER, "Aplicando algoritmo AES para encriptar teléfono");
+            java.security.Key aesKey = new javax.crypto.spec.SecretKeySpec(java.util.Arrays.copyOf(LLAVE_SECRETA.getBytes("UTF-8"), 16), "AES");
+            javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES");
+            cipher.init(javax.crypto.Cipher.ENCRYPT_MODE, aesKey);
+            byte[] encriptado = cipher.doFinal(telefonoPlano.getBytes("UTF-8"));
+            return java.util.Base64.getEncoder().encodeToString(encriptado);
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Error de seguridad al encriptar teléfono: {0}", e.getMessage());
+            throw new RuntimeException("Error al encriptar el teléfono", e);
+        }
+    }
+    
+    /**
+     * Desencripta un número de teléfono previamente encriptado con AES devolviéndolo a su estado original legible.
+     * Se usa cuando la interfaz necesita mostrar los datos al usuario
+     *
+     * @param telefonoEncriptado La cadena encriptada en Base64 obtenida de la BD
+     * @return El número de teléfono original, o el mismo texto si falla la desencriptación (compatibilidad hacia atrás)
+     */
+    private String desencriptarTelefono(String telefonoEncriptado) {
+        if (telefonoEncriptado == null || telefonoEncriptado.isEmpty()) return telefonoEncriptado;
+        try {
+            java.security.Key aesKey = new javax.crypto.spec.SecretKeySpec(java.util.Arrays.copyOf(LLAVE_SECRETA.getBytes("UTF-8"), 16), "AES");
+            javax.crypto.Cipher cipher = javax.crypto.Cipher.getInstance("AES");
+            cipher.init(javax.crypto.Cipher.DECRYPT_MODE, aesKey);
+            byte[] desencriptado = cipher.doFinal(java.util.Base64.getDecoder().decode(telefonoEncriptado));
+            return new String(desencriptado, "UTF-8");
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "No se pudo desencriptar el teléfono (Puede que no estuviera encriptado) devolviendo original");
+            return telefonoEncriptado; 
         }
     }
 }
