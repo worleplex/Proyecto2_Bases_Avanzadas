@@ -150,7 +150,7 @@ public class Coordinador {
     }
 
     public void mostrarPanelCatalogoIngredientes() {
-        cambiarPanel(new PanelCatalogoIngredientes(this));
+        cambiarPanel(new PanelCatalogoIngredientes(this,null));
     }
 
     public void mostrarPanelElegirMesa() {

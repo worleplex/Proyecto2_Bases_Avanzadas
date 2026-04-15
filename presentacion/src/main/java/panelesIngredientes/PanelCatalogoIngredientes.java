@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package panelesIngredientes;
+
 import com.mycompany.presentacion.controlador.Coordinador;
 import java.util.List; 
 import dtos.IngredienteDTO;
@@ -12,9 +13,14 @@ import java.io.File;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import objetosnegocio.IngredienteBO;
+import panelesProductos.PanelFormularioProducto;
+import utilidades.UIUtils;
+
 /**
  * Panel de interfaz grafica que muestra el catalogo completo de ingredientes.
+ * Tambien funciona en modo "Seleccion" cuando es llamado desde el Formulario de Productos.
  * @author Gael Galaviz
  */
 public class PanelCatalogoIngredientes extends JPanel {
@@ -24,32 +30,27 @@ public class PanelCatalogoIngredientes extends JPanel {
     private JTextField txtFiltro;
     private JComboBox<String> cbUnidadFiltro;
     private JButton btnBuscar;
-    private Image imagenFondo;
     private final Coordinador coordinador;
+    private final PanelFormularioProducto formularioPadre;
+
     /**
-     * Constructor que inicializa el panel del catalogo.
+     * Constructor que inicializa el panel del catalogo
+     * @param coordinador El coordinador general
+     * @param formularioPadre El panel que lo llamó (null si viene del menú principal)
      */
-    public PanelCatalogoIngredientes(Coordinador coordinador) {
+    public PanelCatalogoIngredientes(Coordinador coordinador, PanelFormularioProducto formularioPadre) {
         this.coordinador = coordinador;
-        cargarFondo();
+        this.formularioPadre = formularioPadre; 
         setLayout(new BorderLayout());
         inicializarComponentes();
         actualizarTabla("", "");
     }
-    /**
-     * Carga la imagen de fondo.
-     */
-    private void cargarFondo() {
-        java.net.URL url = getClass().getResource("/FondoInicio.png");
-        if (url != null) {
-            this.imagenFondo = new ImageIcon(url).getImage();
-        }
-    }
-    /**
-     * Inicializa todos los componentes del panel.
-     */
+
     private void inicializarComponentes() {
-        JLabel labelTitulo = new JLabel("Catalogo de Ingredientes", SwingConstants.CENTER);
+        JPanel panelPrincipal = UIUtils.crearPanelFondo();
+        panelPrincipal.setLayout(new BorderLayout());
+
+        JLabel labelTitulo = new JLabel(formularioPadre == null ? "Catálogo de Ingredientes" : "Seleccione un Ingrediente", SwingConstants.CENTER);
         labelTitulo.setFont(new Font("Segoe UI", Font.BOLD, 45));
         labelTitulo.setForeground(Color.WHITE);
         labelTitulo.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
@@ -72,16 +73,23 @@ public class PanelCatalogoIngredientes extends JPanel {
         cbUnidadFiltro.setPreferredSize(new Dimension(130, 35));
 
         btnBuscar = crearBoton("Buscar", new Color(51, 153, 255));
-        JButton btnNuevo = crearBoton("Nuevo Ingrediente", new Color(102, 204, 102));
-
+        
         panelFiltros.add(lblNombre);
         panelFiltros.add(txtFiltro);
         panelFiltros.add(lblUnidad);
         panelFiltros.add(cbUnidadFiltro);
         panelFiltros.add(btnBuscar);
-        panelFiltros.add(btnNuevo);
 
-        modelo = new DefaultTableModel(new Object[]{"ID", "Nombre", "Stock", "Unidad", "Imagen"}, 0) {
+        JButton btnNuevo = crearBoton("Nuevo Ingrediente", new Color(102, 204, 102));
+        if (formularioPadre == null) {
+            panelFiltros.add(btnNuevo);
+        }
+
+        String[] columnas = formularioPadre != null 
+                ? new String[]{"ID", "Nombre", "Stock", "Unidad", "Imagen", "Acción"}
+                : new String[]{"ID", "Nombre", "Stock", "Unidad", "Imagen"};
+
+        modelo = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
                 return false;
@@ -91,6 +99,63 @@ public class PanelCatalogoIngredientes extends JPanel {
         tabla = new JTable(modelo);
         tabla.setRowHeight(60);
         configurarRendererImagen();
+        
+        if (formularioPadre != null) {
+            tabla.getColumnModel().getColumn(5).setCellRenderer(new BotonAnadirRenderer());
+        }
+        
+        tabla.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (formularioPadre != null) {
+                    int fila = tabla.getSelectedRow();
+                    int col = tabla.getColumnModel().getColumnIndexAtX(e.getX());
+                    
+                    if (fila != -1 && (e.getClickCount() == 2 || col == 5)) {
+                        try {
+                            Long id = (Long) modelo.getValueAt(fila, 0);
+                            String nom = (String) modelo.getValueAt(fila, 1);
+                            Double stock = (Double) modelo.getValueAt(fila, 2);
+                            String uni = (String) modelo.getValueAt(fila, 3);
+                            String img = (String) modelo.getValueAt(fila, 4);
+
+                            IngredienteDTO ingDTO = new IngredienteDTO();
+                            ingDTO.setId(id);
+                            ingDTO.setNombre(nom);
+                            ingDTO.setStock(stock);
+                            ingDTO.setImagen(img);
+                            if (uni != null && !uni.isEmpty() && !uni.equals("-")) {
+                                ingDTO.setUnidadMedida(entidades.UnidadMedida.valueOf(uni));
+                            }
+
+                            SpinnerNumberModel spinnerModel = new SpinnerNumberModel(1.0, 0.1, 10000.0, 0.5);
+                            JSpinner spinner = new JSpinner(spinnerModel);
+                            spinner.setFont(new Font("Segoe UI", Font.BOLD, 18));
+                            
+                            Object[] mensaje = {
+                                "¿Cuánta cantidad de " + nom + " quieres añadir a la receta?",
+                                spinner
+                            };
+
+                            int opcion = JOptionPane.showConfirmDialog(PanelCatalogoIngredientes.this, 
+                                    mensaje, "Añadir Ingrediente", 
+                                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+                            if (opcion == JOptionPane.OK_OPTION) {
+                                float cantidadSeleccionada = ((Double) spinner.getValue()).floatValue();
+                                boolean seAgregoBien = formularioPadre.agregarIngredienteDesdeDialogo(ingDTO, cantidadSeleccionada);
+                                if (seAgregoBien) {
+                                    coordinador.cambiarPanel(formularioPadre);
+                                }
+                            }
+                            
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(null, "Error al seleccionar: " + ex.getMessage());
+                        }
+                    }
+                }
+            }
+        });
 
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBorder(BorderFactory.createEmptyBorder(0, 50, 10, 50));
@@ -109,39 +174,46 @@ public class PanelCatalogoIngredientes extends JPanel {
         btnRegresar.setBackground(new Color(105, 105, 105));
         btnRegresar.setForeground(Color.WHITE);
         btnRegresar.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        btnRegresar.addActionListener(e -> coordinador.mostrarPanelMenuAdmin());
+        btnRegresar.addActionListener(e -> {
+            if (formularioPadre != null) {
+                coordinador.cambiarPanel(formularioPadre);
+            } else {
+                coordinador.mostrarPanelMenuAdmin();
+            }
+        });
 
         JPanel panelAcciones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 0));
         panelAcciones.setOpaque(false);
 
-        JButton btnStock = crearBoton("Ajustar Stock", new Color(255, 180, 50));
-        JButton btnEliminar = crearBoton("Eliminar", new Color(255, 80, 50));
-
-        panelAcciones.add(btnStock);
-        panelAcciones.add(btnEliminar);
+        if (formularioPadre == null) {
+            JButton btnStock = crearBoton("Ajustar Stock", new Color(255, 180, 50));
+            JButton btnEliminar = crearBoton("Eliminar", new Color(255, 80, 50));
+            btnStock.addActionListener(e -> ajustarStock());
+            btnEliminar.addActionListener(e -> eliminarSeleccionado());
+            panelAcciones.add(btnStock);
+            panelAcciones.add(btnEliminar);
+        } else {
+            JLabel aviso = new JLabel("Clic en Añadir para mandar el ingrediente a la receta");
+            aviso.setForeground(new Color(200, 255, 200));
+            aviso.setFont(new Font("Segoe UI", Font.ITALIC, 16));
+            panelAcciones.add(aviso);
+        }
 
         panelSur.add(btnRegresar, BorderLayout.WEST);
         panelSur.add(panelAcciones, BorderLayout.EAST);
 
-        add(labelTitulo, BorderLayout.NORTH);
-        add(panelContenedorCentro, BorderLayout.CENTER);
-        add(panelSur, BorderLayout.SOUTH);
+        panelPrincipal.add(labelTitulo, BorderLayout.NORTH);
+        panelPrincipal.add(panelContenedorCentro, BorderLayout.CENTER);
+        panelPrincipal.add(panelSur, BorderLayout.SOUTH);
+
+        add(panelPrincipal, BorderLayout.CENTER);
 
         btnBuscar.addActionListener(e -> {
             String u = cbUnidadFiltro.getSelectedItem().toString();
             actualizarTabla(txtFiltro.getText().trim(), u.equals("Todas") ? "" : u);
         });
-
-        btnNuevo.addActionListener(e -> abrirFormulario(null));
-
-        btnStock.addActionListener(e -> ajustarStock());
-
-        btnEliminar.addActionListener(e -> eliminarSeleccionado());
     }
 
-    /**
-     * Configura el renderizador personalizado para la columna de imagenes.
-     */
     private void configurarRendererImagen() {
         tabla.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
@@ -182,10 +254,7 @@ public class PanelCatalogoIngredientes extends JPanel {
             }
         });
     }
-    /**
-     * Muestra un cuadro de dialogo para sumar o restar cantidad al stock del
-     * ingrediente seleccionado en la tabla.
-     */
+
     private void ajustarStock() {
         int fila = tabla.getSelectedRow();
         if (fila != -1) {
@@ -202,31 +271,32 @@ public class PanelCatalogoIngredientes extends JPanel {
                 }
             }
         } else {
-            JOptionPane.showMessageDialog(this, "Seleccione un ingrediente.");
+            JOptionPane.showMessageDialog(this, "Seleccione un ingrediente");
         }
     }
-    /**
-     * 
-     */
+
     public void actualizarTabla(String nombre, String unidad) {
         try {
             modelo.setRowCount(0);
             List<IngredienteDTO> lista = IngredienteBO.getInstance().buscarIngredientes(nombre, unidad);
             for (IngredienteDTO i : lista) {
-                modelo.addRow(new Object[]{i.getId(), i.getNombre(), i.getStock(), i.getUnidadMedida(), i.getImagen()});
+                String uniStr = i.getUnidadMedida() != null ? i.getUnidadMedida().toString() : "";
+                
+                if (formularioPadre != null) {
+                    modelo.addRow(new Object[]{i.getId(), i.getNombre(), i.getStock(), uniStr, i.getImagen(), "Añadir"});
+                } else {
+                    modelo.addRow(new Object[]{i.getId(), i.getNombre(), i.getStock(), uniStr, i.getImagen()});
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    /**
-     * Elimina el ingrediente seleccionado de la tabla tras una confirmacion.
-     */
+
     private void eliminarSeleccionado() {
         int fila = tabla.getSelectedRow();
         if (fila != -1) {
             Long id = (Long) modelo.getValueAt(fila, 0);
-            String nombre = (String) modelo.getValueAt(fila, 1);
             int conf = JOptionPane.showConfirmDialog(this, "¿Seguro que desea eliminarlo?");
             if (conf == JOptionPane.YES_OPTION) {
                 try {
@@ -240,18 +310,7 @@ public class PanelCatalogoIngredientes extends JPanel {
             JOptionPane.showMessageDialog(this, "Seleccione un ingrediente.");
         }
     }
-    /**
-     * Abre el dialogo de formulario para registrar un nuevo ingrediente o
-     * editar uno existente.
-     */
-    private void abrirFormulario(IngredienteDTO dto) {
-        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
-        new DialogFormularioIngrediente(frame, dto).setVisible(true);
-        btnBuscar.doClick();
-    }
-    /**
-     * Crea un boton estilizado con el esquema.
-     */
+    
     private JButton crearBoton(String t, Color c) {
         JButton b = new JButton(t);
         b.setPreferredSize(new Dimension(180, 40));
@@ -261,15 +320,20 @@ public class PanelCatalogoIngredientes extends JPanel {
         b.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return b;
     }
-    /**
-     * Dibujo para renderizar la imagen de fondo.
-     * 
-     */
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (imagenFondo != null) {
-            g.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
+
+    class BotonAnadirRenderer extends JButton implements TableCellRenderer {
+        public BotonAnadirRenderer() {
+            setOpaque(true);
+            setBackground(new Color(100, 200, 100)); // Verde
+            setForeground(Color.WHITE);
+            setText("Añadir");
+            setFont(new Font("Segoe UI", Font.BOLD, 12));
+            setCursor(new Cursor(Cursor.HAND_CURSOR));
+        }
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            return this;
         }
     }
 }

@@ -5,7 +5,9 @@
 package daos;
 
 import com.mycompany.persistencia.Persistencia.ConexionBD;
+import entidades.Ingrediente;
 import entidades.Producto;
+import entidades.ProductoIngrediente;
 import entidades.TipoProducto;
 import excepciones.PersistenciaException;
 import java.util.List;
@@ -61,13 +63,28 @@ public class ProductoDAO {
         EntityManager em = ConexionBD.crearConexion();
         try {
             em.getTransaction().begin();
+            if (producto.getIngredientesRequeridos() != null) {
+                for (ProductoIngrediente pi : producto.getIngredientesRequeridos()) {
+                    if (pi.getIngrediente() != null && pi.getIngrediente().getId() != null) {
+                        Ingrediente ingredienteManaged = em.find(Ingrediente.class, pi.getIngrediente().getId());
+                        if (ingredienteManaged == null) {
+                            throw new PersistenciaException(
+                                "No existe ingrediente con ID: " + pi.getIngrediente().getId());
+                        }
+                        pi.setIngrediente(ingredienteManaged);
+                    }
+                }
+            }
+
             em.persist(producto);
             em.getTransaction().commit();
             LOG.log(Level.INFO, "Producto guardado con ID: {0}", producto.getId());
             return producto;
+        } catch (PersistenciaException e) {
+            throw e;
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Error al guardar producto: {0}", e.getMessage());
-            em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
             throw new PersistenciaException("Error al guardar el producto en la BD: " + e.getMessage());
         } finally {
             em.close();
@@ -87,13 +104,27 @@ public class ProductoDAO {
         EntityManager em = ConexionBD.crearConexion();
         try {
             em.getTransaction().begin();
+            if (producto.getIngredientesRequeridos() != null) {
+                for (ProductoIngrediente pi : producto.getIngredientesRequeridos()) {
+                    if (pi.getIngrediente() != null && pi.getIngrediente().getId() != null) {
+                        Ingrediente ingredienteManaged = em.find(Ingrediente.class,pi.getIngrediente().getId());
+                        if (ingredienteManaged == null) {
+                            throw new PersistenciaException("No existe ingrediente con ID: " + pi.getIngrediente().getId());
+                        }
+                        pi.setIngrediente(ingredienteManaged);
+                    }
+                }
+            }
+
             Producto actualizado = em.merge(producto);
             em.getTransaction().commit();
             LOG.log(Level.INFO, "Producto actualizado correctamente: {0}", producto.getNombre());
             return actualizado;
+        } catch (PersistenciaException e) {
+            throw e;
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Error al actualizar producto: {0}", e.getMessage());
-            em.getTransaction().rollback();
+            if (em.getTransaction().isActive()) em.getTransaction().rollback();
             throw new PersistenciaException("Error al actualizar el producto: " + e.getMessage());
         } finally {
             em.close();

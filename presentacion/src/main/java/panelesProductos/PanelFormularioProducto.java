@@ -8,9 +8,6 @@ import entidades.TipoProducto;
 import excepciones.NegocioException;
 import excepciones.PersistenciaException;
 import objetosnegocio.ProductoBO;
-import panelesIngredientes.PanelBuscarIngrediente;
-import utilidades.UIUtils;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -23,7 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static utilidades.UIUtils.crearPanelFondo;
+import panelesIngredientes.PanelCatalogoIngredientes; 
+import utilidades.UIUtils;
 
 /**
  * Panel para registrar o editar un producto del restaurante.
@@ -222,9 +220,8 @@ public class PanelFormularioProducto extends JPanel {
         btnLimpiar.addActionListener(e -> limpiarCampos());
 
         btnAnadirIngrediente.addActionListener(e -> {
-            JFrame padre = (JFrame) SwingUtilities.getWindowAncestor(this);
-            PanelBuscarIngrediente dialogo = new PanelBuscarIngrediente(padre, this);
-            dialogo.setVisible(true);
+            PanelCatalogoIngredientes catalogoSeleccion = new PanelCatalogoIngredientes(coordinador, this);
+            coordinador.cambiarPanel(catalogoSeleccion);
         });
 
         btnGuardar.addActionListener(e -> guardar());
@@ -302,13 +299,13 @@ public class PanelFormularioProducto extends JPanel {
         LOG.info("Campos del formulario limpiados");
     }
 
-    public void agregarIngredienteDesdeDialogo(IngredienteDTO ingrediente, float cantidad) {
+    public boolean agregarIngredienteDesdeDialogo(IngredienteDTO ingrediente, float cantidad) {
         if (ingrediente.getStock() != null && cantidad > ingrediente.getStock()) {
             JOptionPane.showMessageDialog(this,
                 "No puedes requerir " + cantidad + " " + (ingrediente.getUnidadMedida() != null ? ingrediente.getUnidadMedida() : "") + ".\n" +
-                "Solo hay " + ingrediente.getStock() + " en inventario",
+                "Solo hay " + ingrediente.getStock() + " en inventario.",
                 "Stock Insuficiente", JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
         
         boolean yaExiste = listaTemporalIngredientes.stream()
@@ -318,7 +315,7 @@ public class PanelFormularioProducto extends JPanel {
             JOptionPane.showMessageDialog(this,
                 "El ingrediente '" + ingrediente.getNombre() + "' ya fue añadido\nEdita su cantidad con el botón Editar",
                 "Ingrediente duplicado", JOptionPane.WARNING_MESSAGE);
-            return;
+            return false;
         }
 
         ProductoIngredienteDTO pi = new ProductoIngredienteDTO(
@@ -328,6 +325,8 @@ public class PanelFormularioProducto extends JPanel {
         listaTemporalIngredientes.add(pi);
         actualizarTablaIngredientes();
         LOG.log(Level.INFO, "Ingrediente añadido: {0}", ingrediente.getNombre());
+        
+        return true;
     }
 
     private void cargarDatosEnFormulario() {

@@ -78,22 +78,16 @@ public class ProductoBO {
             }
             if (productoDTO.getPrecio() == null || productoDTO.getPrecio() <= 0) {
                 throw new NegocioException("El precio debe ser mayor a cero");
-            } 
-            
+            }
+
             Producto entidad = aEntidad(productoDTO);
 
             for (ProductoIngredienteDTO piDTO : productoDTO.getIngredientes()) {
                 Ingrediente ingredienteReal = ingredienteDAO.obtenerPorId(piDTO.getIdIngrediente());
                 if (ingredienteReal == null) {
-                    throw new NegocioException("Error: Un ingrediente seleccionado ya no existe en el sistema");
+                    throw new NegocioException("El ingrediente con ID " + piDTO.getIdIngrediente() + " no existe");
                 }
-                
-                if (piDTO.getCantidadRequerida() > ingredienteReal.getStock()) {
-                    throw new NegocioException("Stock insuficiente para el ingrediente: " + ingredienteReal.getNombre() + 
-                                               " Requerido: " + piDTO.getCantidadRequerida() + 
-                                               ", Disponible: " + ingredienteReal.getStock());
-                }
-                
+
                 ProductoIngrediente pi = new ProductoIngrediente();
                 pi.setIngrediente(ingredienteReal);
                 pi.setCantidadRequerida(piDTO.getCantidadRequerida());
@@ -114,7 +108,8 @@ public class ProductoBO {
 
     /**
      * Valida y actualiza los datos de un producto existente incluyendo sus ingredientes.
-     * Limpia los ingredientes anteriores y los reemplaza con los del formulario.
+     * Realiza un "Smart Merge" para conservar los IDs de las relaciones existentes
+     * y solo actualizar sus cantidades, evitando saltos en el autoincrementable.
      *
      * @param productoDTO datos actualizados del producto
      * @return ProductoDTO con el producto actualizado
@@ -136,7 +131,7 @@ public class ProductoBO {
             if (productoDTO.getIngredientes() == null || productoDTO.getIngredientes().isEmpty()) {
                 throw new NegocioException("El producto debe contener por lo menos un ingrediente asociado");
             }
-
+            
             Producto entidadBD = productoDAO.obtenerPorId(productoDTO.getId());
             if (entidadBD == null) {
                 throw new NegocioException("No se encontro el producto a editar en la BD");
@@ -154,26 +149,43 @@ public class ProductoBO {
                 listaBD = new ArrayList<>();
                 entidadBD.setIngredientesRequeridos(listaBD);
             }
-            listaBD.clear();
+
+            List<Long> idsDelFormulario = new ArrayList<>();
+            for (ProductoIngredienteDTO piDTO : productoDTO.getIngredientes()) {
+                idsDelFormulario.add(piDTO.getIdIngrediente());
+            }
+
+            listaBD.removeIf(pi -> !idsDelFormulario.contains(pi.getIngrediente().getId()));
 
             for (ProductoIngredienteDTO piDTO : productoDTO.getIngredientes()) {
                 Ingrediente ingredienteReal = ingredienteDAO.obtenerPorId(piDTO.getIdIngrediente());
                 if (ingredienteReal == null) {
-                    throw new NegocioException("error un ingrediente seleccionado ya no existe en el sistema");
+                    throw new NegocioException("Error: un ingrediente seleccionado ya no existe en el sistema");
                 }
                 
                 if (piDTO.getCantidadRequerida() > ingredienteReal.getStock()) {
                     throw new NegocioException("Stock insuficiente para el ingrediente: " + ingredienteReal.getNombre() + 
-                                               " Requerido: " + piDTO.getCantidadRequerida() + 
+                                               ". Requerido: " + piDTO.getCantidadRequerida() + 
                                                ", Disponible: " + ingredienteReal.getStock());
                 }
                 
-                ProductoIngrediente pi = new ProductoIngrediente();
-                pi.setIngrediente(ingredienteReal);
-                pi.setCantidadRequerida(piDTO.getCantidadRequerida());
-                entidadBD.anadirIngredienteRequerido(pi);
-            }
+                ProductoIngrediente piExistente = null;
+                for (ProductoIngrediente piViejo : listaBD) {
+                    if (piViejo.getIngrediente().getId().equals(ingredienteReal.getId())) {
+                        piExistente = piViejo;
+                        break;
+                    }
+                }
 
+                if (piExistente != null) {
+                    piExistente.setCantidadRequerida(piDTO.getCantidadRequerida());
+                } else {
+                    ProductoIngrediente piNuevo = new ProductoIngrediente();
+                    piNuevo.setIngrediente(ingredienteReal);
+                    piNuevo.setCantidadRequerida(piDTO.getCantidadRequerida());
+                    entidadBD.anadirIngredienteRequerido(piNuevo);
+                }
+            }
             Producto productoActualizado = productoDAO.actualizar(entidadBD);
             LOG.log(Level.INFO, "Producto editado correctamente, ID: {0}", productoDTO.getId());
             return ProductoAdapter.aDTO(productoActualizado);
