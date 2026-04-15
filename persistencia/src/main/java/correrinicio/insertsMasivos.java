@@ -24,7 +24,6 @@ public class insertsMasivos {
      */
     private static String getRuta(String nombreArchivo) {
         java.net.URL url = insertsMasivos.class.getResource("/" + nombreArchivo);
-        // Solo guarda "/nombre.png", no la ruta absoluta
         return url != null ? "/" + nombreArchivo : null;
     }
     

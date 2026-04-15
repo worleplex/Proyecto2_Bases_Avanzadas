@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="ReporteComandas" pageWidth="842" pageHeight="595" orientation="Landscape"
+              columnWidth="802" leftMargin="20" rightMargin="20" topMargin="0" bottomMargin="0"
+              uuid="b2c3d4e5-f6a7-8901-2345-678901bcdef0">
+
+    <field name="folio"         class="java.lang.String"/>
+    <field name="estado"        class="java.lang.String"/>
+    <field name="numeroMesa"    class="java.lang.String"/>
+    <field name="fechaHora"     class="java.lang.String"/>
+    <field name="nombreCliente" class="java.lang.String"/>
+    <field name="nombreMesero"  class="java.lang.String"/>
+    <field name="total"         class="java.lang.Double"/>
+
+    <variable name="totalGeneral" class="java.lang.Double" calculation="Sum">
+        <variableExpression><![CDATA[$F{total} != null ? $F{total} : 0.0]]></variableExpression>
+    </variable>
+
+    <background>
+        <band height="595" splitType="Stretch">
+            <image scaleImage="FillFrame">
+                <reportElement x="0" y="0" width="842" height="595" uuid="11111111-1111-1111-1111-111111111111"/>
+                <imageExpression><![CDATA["https://i.ibb.co/zhCmybbx/Fondo-Inicio.png"]]></imageExpression>
+            </image>
+        </band>
+    </background>
+
+    <title>
+        <band height="80">
+            <staticText>
+                <reportElement x="0" y="10" width="802" height="40" forecolor="#FFFFFF" uuid="22222222-2222-2222-2222-222222222222"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="Monospaced" size="26" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Reporte de Comandas]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="580" y="55" width="222" height="20" forecolor="#FFFFFF" uuid="33333333-3333-3333-3333-333333333333"/>
+                <textElement textAlignment="Right">
+                    <font fontName="Monospaced" size="11" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Generado: " + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date())]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="30">
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="0"   y="0" width="130" height="30" uuid="44444444-0001-4444-4444-444444444444"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Folio]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="130" y="0" width="80"  height="30" uuid="44444444-0002-4444-4444-444444444444"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Estado]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="210" y="0" width="50"  height="30" uuid="44444444-0003-4444-4444-444444444444"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Mesa]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="260" y="0" width="130" height="30" uuid="44444444-0004-4444-4444-444444444444"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Fecha y Hora]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="390" y="0" width="160" height="30" uuid="44444444-0005-4444-4444-444444444444"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Cliente]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="550" y="0" width="152" height="30" uuid="44444444-0006-4444-4444-444444444444"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Mesero]]></text>
+            </staticText>
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="702" y="0" width="100" height="30" uuid="44444444-0007-4444-4444-444444444444"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Total]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="28">
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="0"   y="0" width="130" height="28" uuid="55555555-0001-5555-5555-555555555555"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9"/></textElement>
+                <textFieldExpression><![CDATA[$F{folio}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="130" y="0" width="80"  height="28" uuid="55555555-0002-5555-5555-555555555555"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9"/></textElement>
+                <textFieldExpression><![CDATA[$F{estado}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="210" y="0" width="50"  height="28" uuid="55555555-0003-5555-5555-555555555555"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9"/></textElement>
+                <textFieldExpression><![CDATA[$F{numeroMesa}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="260" y="0" width="130" height="28" uuid="55555555-0004-5555-5555-555555555555"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9"/></textElement>
+                <textFieldExpression><![CDATA[$F{fechaHora}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="390" y="0" width="160" height="28" uuid="55555555-0005-5555-5555-555555555555"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9"/></textElement>
+                <textFieldExpression><![CDATA[$F{nombreCliente}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="550" y="0" width="152" height="28" uuid="55555555-0006-5555-5555-555555555555"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9"/></textElement>
+                <textFieldExpression><![CDATA[$F{nombreMesero}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" backcolor="#FFCCCC" x="702" y="0" width="100" height="28" uuid="55555555-0007-5555-5555-555555555555"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="9"/></textElement>
+                <textFieldExpression><![CDATA[String.format("$%.2f", $F{total} != null ? $F{total} : 0.0)]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="30">
+            <textField>
+                <reportElement x="600" y="5" width="150" height="20" forecolor="#FFFFFF" uuid="77777777-0001-7777-7777-777777777777"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="Monospaced" size="11" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Página " + $V{PAGE_NUMBER} + " de "]]></textFieldExpression>
+            </textField>
+            <textField evaluationTime="Report">
+                <reportElement x="750" y="5" width="52" height="20" forecolor="#FFFFFF" uuid="77777777-0002-7777-7777-777777777777"/>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font fontName="Monospaced" size="11" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+
+    <summary>
+        <band height="40">
+            <staticText>
+                <reportElement mode="Opaque" backcolor="#FFAAAA" x="550" y="5" width="152" height="28" forecolor="#000000" uuid="66666666-0001-6666-6666-666666666666"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font fontName="Monospaced" size="12" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Total General:]]></text>
+            </staticText>
+            <textField>
+                <reportElement mode="Opaque" backcolor="#FFAAAA" x="702" y="5" width="100" height="28" uuid="66666666-0002-6666-6666-666666666666"/>
+                <box><pen lineWidth="0.5" lineColor="#FFFFFF"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="Monospaced" size="12" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[String.format("$%.2f", $V{totalGeneral})]]></textFieldExpression>
+            </textField>
+        </band>
+    </summary>
+
+</jasperReport>

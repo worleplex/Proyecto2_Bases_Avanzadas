@@ -36,6 +36,12 @@
             <version>6.20.6</version>
         </dependency>
         
+        <dependency>
+            <groupId>com.toedter</groupId>
+            <artifactId>jcalendar</artifactId>
+            <version>1.4</version>
+        </dependency>
+        
     </dependencies>
     <properties>
         <maven.compiler.release>24</maven.compiler.release>

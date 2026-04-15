@@ -5,28 +5,26 @@
 package com.mycompany.presentacion.paneles.panelesClientes;
 
 import com.mycompany.presentacion.controlador.Coordinador;
+import utilidades.UIUtils;
 import javax.swing.*;
 import java.awt.*;
 
 /**
- *
  * @author Gael Galaviz
- * Clase que muestra el menu principal de opciones para
- * Clientes.
+ * Clase que muestra el menu principal de opciones para Clientes.
  */
- 
 public class PanelMenuClientes extends JPanel {
     private final Coordinador coordinador;
+    
     public PanelMenuClientes(Coordinador coordinador) {
         this.coordinador = coordinador;
         construir();
     }
-    /**
-     * Configura el diseño visual y los botones del menu.
-     */
+
     private void construir() {
         setLayout(new BorderLayout());
-        JPanel fondo = crearFondo();
+        
+        JPanel fondo = UIUtils.crearPanelFondo();
         fondo.setLayout(new BorderLayout());
 
         JLabel titulo = new JLabel("Clientes", SwingConstants.CENTER);
@@ -34,11 +32,20 @@ public class PanelMenuClientes extends JPanel {
         titulo.setForeground(Color.WHITE);
         titulo.setBorder(BorderFactory.createEmptyBorder(50, 0, 30, 0));
 
-        JButton btnRegistrar = crearBoton("Registrar Cliente");
-        JButton btnEditar = crearBoton("Editar Cliente");
-        JButton btnEliminar = crearBoton("Eliminar Cliente");
-        JButton btnBuscador = crearBoton("Consultar Clientes");
-        JButton buttonRegresar = new JButton("Regresar");
+        JButton btnRegistrar = UIUtils.crearBotonAccion("Registrar Cliente", Color.WHITE);
+        btnRegistrar.setForeground(Color.BLACK);
+        
+        JButton btnEditar = UIUtils.crearBotonAccion("Editar Cliente", Color.WHITE);
+        btnEditar.setForeground(Color.BLACK);
+        
+        JButton btnEliminar = UIUtils.crearBotonAccion("Eliminar Cliente", Color.WHITE);
+        btnEliminar.setForeground(Color.BLACK);
+        
+        JButton btnBuscador = UIUtils.crearBotonAccion("Consultar Clientes", Color.WHITE);
+        btnBuscador.setForeground(Color.BLACK);
+        
+        JButton buttonRegresar = UIUtils.crearBotonAccion("Regresar", new Color(105, 105, 105));
+        buttonRegresar.setPreferredSize(new Dimension(200, 45));
 
         JPanel panelSur = new JPanel();
         panelSur.setOpaque(false);
@@ -51,6 +58,7 @@ public class PanelMenuClientes extends JPanel {
         panelBotones.add(btnEditar);
         panelBotones.add(btnEliminar);
         panelBotones.add(btnBuscador);
+        
         panelSur.add(buttonRegresar);
 
         fondo.add(titulo, BorderLayout.NORTH);
@@ -63,55 +71,5 @@ public class PanelMenuClientes extends JPanel {
         btnEliminar.addActionListener(e -> coordinador.mostrarPanelSeleccionarID("eliminar"));
         btnBuscador.addActionListener(e -> coordinador.mostrarPanelConsultarCliente());
         buttonRegresar.addActionListener(e -> coordinador.mostrarPanelMenuAdmin());
-    }
-    
-    private JButton crearBoton(String texto) {
-        JButton btn = new JButton(texto);
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        btn.setBackground(Color.WHITE);
-        btn.setForeground(Color.BLACK);
-        btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setPreferredSize(new Dimension(0, 45));
-        return btn;
-    }
-    /**
-     * Crea el fondo con la imagen
-     */
-    private JPanel crearFondo() {
-        java.net.URL url = getClass().getResource("/FondoInicio.png");
-
-        ImageIcon icono;
-        if (url != null) {
-            icono = new ImageIcon(url);
-        } else {
-            System.err.println("Error: No se encontro FondoInicio.png en la raiz de resources");
-            icono = new ImageIcon();
-        }
-
-        Image imagen = icono.getImage();
-
-        JPanel p = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-
-                if (imagen != null && imagen.getWidth(null) > 0) {
-                    Graphics2D g2 = (Graphics2D) g;
-                    // Calidad de renderizado
-                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-                    g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                    g2.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
-                } else {
-                    g.setColor(new Color(30, 30, 30));
-                    g.fillRect(0, 0, getWidth(), getHeight());
-                }
-            }
-        };
-
-        p.setOpaque(false);
-        return p;
     }
 }

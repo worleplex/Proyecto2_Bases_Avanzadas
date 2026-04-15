@@ -1,10 +1,14 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.mycompany.presentacion.paneles.panelesClientes;
 
 import com.mycompany.presentacion.controlador.Coordinador;
 import dtos.ClienteFrecuenteDTO;
 import excepciones.NegocioException;
+import utilidades.UIUtils;
 import java.util.List;
-import java.awt.RenderingHints;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import objetosnegocio.ClienteFrecuenteBO;
@@ -14,7 +18,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 /**
- *
  * @author Gael Galaviz / julian izaguirre
  * Clase que muestra la lista completa de clientes con filtros avanzados
  */
@@ -32,7 +35,8 @@ public class PanelConsultarClientes extends JPanel {
 
     private void construir() {
         setLayout(new BorderLayout());
-        JPanel fondo = crearFondo();
+        
+        JPanel fondo = UIUtils.crearPanelFondo();
         fondo.setLayout(new BorderLayout());
 
         JLabel t = new JLabel("Consultar clientes", SwingConstants.CENTER);
@@ -44,7 +48,6 @@ public class PanelConsultarClientes extends JPanel {
         panelCentral.setOpaque(false);
         panelCentral.setBorder(BorderFactory.createEmptyBorder(0, 40, 20, 40));
 
-        // la tablilla
         modelo = new DefaultTableModel(new Object[]{
             "Nombre", "Apellido paterno", "Apellido materno", "Correo electrónico", "Teléfono", "Puntos de fidelidad"
         }, 0);
@@ -68,28 +71,25 @@ public class PanelConsultarClientes extends JPanel {
         panelFiltros.setOpaque(false);
         panelFiltros.setPreferredSize(new Dimension(300, 0)); 
 
-        // Filtro Nombre
-        panelFiltros.add(crearEtiquetaFiltro("Filtrar por nombre:"));
+        panelFiltros.add(UIUtils.crearEtiquetaGris("Filtrar por nombre:"));
         txtFiltroNombre = new JTextField();
         aplicarPlaceholder(txtFiltroNombre, "ingresar el nombre del cliente");
         panelFiltros.add(txtFiltroNombre);
         panelFiltros.add(Box.createVerticalStrut(20)); 
 
-        // Filtro Teléfono
-        panelFiltros.add(crearEtiquetaFiltro("Filtrar por Teléfono:"));
+        panelFiltros.add(UIUtils.crearEtiquetaGris("Filtrar por Teléfono:"));
         txtFiltroTelefono = new JTextField();
         aplicarPlaceholder(txtFiltroTelefono, "ingresar el telefono");
         panelFiltros.add(txtFiltroTelefono);
         panelFiltros.add(Box.createVerticalStrut(20)); 
 
-        // Filtro Correo
-        panelFiltros.add(crearEtiquetaFiltro("Filtrar por Correo:"));
+        panelFiltros.add(UIUtils.crearEtiquetaGris("Filtrar por Correo:"));
         txtFiltroCorreo = new JTextField();
         aplicarPlaceholder(txtFiltroCorreo, "ingrese el correo");
         panelFiltros.add(txtFiltroCorreo);
         panelFiltros.add(Box.createVerticalStrut(30));
 
-        JButton btnBuscar = boton("ver informacion", new Color(110, 220, 110));
+        JButton btnBuscar = UIUtils.crearBotonAccion("Ver informacion", new Color(110, 220, 110));
         btnBuscar.setForeground(Color.BLACK);
         btnBuscar.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         btnBuscar.addActionListener(e -> cargarDatos());
@@ -100,9 +100,9 @@ public class PanelConsultarClientes extends JPanel {
         JPanel panelSur = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panelSur.setOpaque(false);
         panelSur.setBorder(BorderFactory.createEmptyBorder(0, 40, 30, 0));
-        JButton btnR = boton("Regresar", new Color(255, 80, 50));
+        
+        JButton btnR = UIUtils.crearBotonAccion("Regresar", new Color(255, 80, 50));
         btnR.setPreferredSize(new Dimension(200, 45));
-        btnR.setFont(new Font("Segoe UI", Font.BOLD, 18));
         btnR.addActionListener(e -> coordinador.mostrarPanelMenuClientes());
         panelSur.add(btnR);
 
@@ -110,13 +110,10 @@ public class PanelConsultarClientes extends JPanel {
         fondo.add(panelCentral, BorderLayout.CENTER);
         fondo.add(panelSur, BorderLayout.SOUTH);
         add(fondo, BorderLayout.CENTER);
+        
         cargarDatos();
     }
 
-    /**
-     * Solicita al BO la lista de clientes aplica los filtros si están escritos
-     * y dibuja los resultados en la tabla
-     */
     private void cargarDatos() {
         try {
             modelo.setRowCount(0);
@@ -151,13 +148,9 @@ public class PanelConsultarClientes extends JPanel {
         }
     }
 
-
     private String obtenerTextoFiltro(JTextField campo, String placeholder) {
         String texto = campo.getText().trim();
-        if (texto.equals(placeholder)) {
-            return ""; 
-        }
-        return texto;
+        return texto.equals(placeholder) ? "" : texto;
     }
 
     private void aplicarPlaceholder(JTextField campo, String placeholder) {
@@ -182,62 +175,5 @@ public class PanelConsultarClientes extends JPanel {
                 }
             }
         });
-    }
-
-    private JLabel crearEtiquetaFiltro(String texto) {
-        JLabel lbl = new JLabel(texto, SwingConstants.CENTER);
-        lbl.setOpaque(true);
-        lbl.setBackground(new Color(77, 184, 255));
-        lbl.setForeground(Color.WHITE);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lbl.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        lbl.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-        return lbl;
-    }
-
-    private JButton boton(String t, Color c) {
-        JButton b = new JButton(t);
-        b.setBackground(c);
-        b.setForeground(Color.WHITE);
-        b.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        b.setFocusPainted(false);
-        b.setBorderPainted(false);
-        return b;
-    }
-
-    private JPanel crearFondo() {
-        java.net.URL url = getClass().getResource("/FondoInicio.png");
-
-        ImageIcon icono;
-        if (url != null) {
-            icono = new ImageIcon(url);
-        } else {
-            System.err.println("Error: No se encontro FondoInicio.png en la raiz de resources");
-            icono = new ImageIcon();
-        }
-
-        Image imagen = icono.getImage();
-
-        JPanel p = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-
-                if (imagen != null && imagen.getWidth(null) > 0) {
-                    Graphics2D g2 = (Graphics2D) g;
-                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-                    g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                    g2.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
-                } else {
-                    g.setColor(new Color(30, 30, 30));
-                    g.fillRect(0, 0, getWidth(), getHeight());
-                }
-            }
-        };
-
-        p.setOpaque(false);
-        return p;
     }
 }

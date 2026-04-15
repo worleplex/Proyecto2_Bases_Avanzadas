@@ -169,7 +169,5 @@ public class ClienteBO {
             LOG.log(Level.SEVERE, "Error al buscar cliente general: {0}", e.getMessage());
             throw new PersistenciaException("Error al buscar al cliente" + e.getMessage());
         }
-
-
     }
 }

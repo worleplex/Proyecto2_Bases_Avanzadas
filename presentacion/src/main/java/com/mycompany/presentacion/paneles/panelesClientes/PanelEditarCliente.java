@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.mycompany.presentacion.paneles.panelesClientes;
 
 import adaptadores.ClienteFrecuenteAdapter;
@@ -5,20 +9,20 @@ import com.mycompany.presentacion.controlador.Coordinador;
 import dtos.ClienteFrecuenteDTO;
 import entidades.ClienteFrecuente;
 import excepciones.NegocioException;
+import utilidades.UIUtils;
 import javax.swing.*;
 import java.awt.*;
 import objetosnegocio.ClienteFrecuenteBO;
 
 /**
- *
  * @author Gael Galaviz
  * Clase para modificar los datos de un cliente existente.
  */
 public class PanelEditarCliente extends JPanel {
     private final Coordinador coordinador;
-    private ClienteFrecuente cliente; // Datos actuales del cliente
+    private ClienteFrecuente cliente; 
     private JTextField txtNombre, txtApPaterno, txtApMaterno, txtCorreo, txtTelefono;
-    private ClienteFrecuenteBO bo =  ClienteFrecuenteBO.getInstance();
+    private ClienteFrecuenteBO bo = ClienteFrecuenteBO.getInstance();
 
     public PanelEditarCliente(Coordinador coordinador, ClienteFrecuente cliente) {
         this.coordinador = coordinador;
@@ -28,7 +32,7 @@ public class PanelEditarCliente extends JPanel {
 
     private void construir() {
         setLayout(new BorderLayout());
-        JPanel fondo = crearFondo();
+        JPanel fondo = UIUtils.crearPanelFondo();
         fondo.setLayout(new BorderLayout());
 
         JLabel t = new JLabel("Editar Cliente", SwingConstants.CENTER);
@@ -46,21 +50,22 @@ public class PanelEditarCliente extends JPanel {
         txtCorreo = new JTextField(cliente.getCorreo());
         txtTelefono = new JTextField(cliente.getTelefono());
 
-        pC.add(etiqueta("Nombre:"));
+        pC.add(UIUtils.crearEtiquetaGris("Nombre:"));
         pC.add(txtNombre);
-        pC.add(etiqueta("Ap. Paterno:"));
+        pC.add(UIUtils.crearEtiquetaGris("Ap. Paterno:"));
         pC.add(txtApPaterno);
-        pC.add(etiqueta("Ap. Materno:"));
+        pC.add(UIUtils.crearEtiquetaGris("Ap. Materno:"));
         pC.add(txtApMaterno);
-        pC.add(etiqueta("Correo:"));
+        pC.add(UIUtils.crearEtiquetaGris("Correo:"));
         pC.add(txtCorreo);
-        pC.add(etiqueta("Telefono:"));
+        pC.add(UIUtils.crearEtiquetaGris("Telefono:"));
         pC.add(txtTelefono);
 
         JPanel pB = new JPanel(new FlowLayout());
         pB.setOpaque(false);
-        JButton btnG = botonVerde("Actualizar");
-        JButton btnC = botonRojo("Cancelar");
+        
+        JButton btnG = UIUtils.crearBotonAccion("Actualizar", new Color(46, 180, 100));
+        JButton btnC = UIUtils.crearBotonAccion("Cancelar", new Color(200, 50, 30));
 
         btnG.addActionListener(e -> actualizar());
         btnC.addActionListener(e -> coordinador.mostrarPanelMenuClientes());
@@ -74,9 +79,6 @@ public class PanelEditarCliente extends JPanel {
         add(fondo, BorderLayout.CENTER);
     }
 
-    /**
-     * Toma los nuevos datos de los campos y actualiza al cliente.
-     */
     private void actualizar() {
         try {
             cliente.setNombres(txtNombre.getText());
@@ -86,77 +88,12 @@ public class PanelEditarCliente extends JPanel {
             cliente.setTelefono(txtTelefono.getText());
 
             ClienteFrecuenteDTO dto = ClienteFrecuenteAdapter.entidadADTO(cliente);
-
-            // ¡Corrección! Usamos editarCliente en lugar de guardarCliente
             bo.editarCliente(dto);
 
-            JOptionPane.showMessageDialog(this, "Datos actualizados correctamente.");
+            JOptionPane.showMessageDialog(this, "Datos actualizados correctamente");
             coordinador.mostrarPanelMenuClientes();
         } catch (NegocioException ex) {
             JOptionPane.showMessageDialog(this, "Error al actualizar: " + ex.getMessage());
         }
-    }
-
-    private JLabel etiqueta(String t) {
-        JLabel l = new JLabel(t);
-        l.setForeground(Color.WHITE);
-        l.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        return l;
-    }
-
-    private JButton botonVerde(String t) {
-        return boton(t, new Color(46, 180, 100));
-    }
-
-    private JButton botonRojo(String t) {
-        return boton(t, new Color(200, 50, 30));
-    }
-
-    private JButton boton(String t, Color c) {
-        JButton b = new JButton(t);
-        b.setBackground(c);
-        b.setForeground(Color.WHITE);
-        b.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        b.setPreferredSize(new Dimension(120, 38));
-        return b;
-    }
-
-    private JPanel crearFondo() {
-        // Intentamos cargar la imagen desde la raiz de resources
-        java.net.URL url = getClass().getResource("/FondoInicio.png");
-
-        ImageIcon icono;
-        if (url != null) {
-            icono = new ImageIcon(url);
-            // Si no encuentra, mandamos un error a la consola para saber
-        } else {
-            System.err.println("Error: No se encontro FondoInicio.png en la raiz de resources");
-            icono = new ImageIcon();
-        }
-
-        Image imagen = icono.getImage();
-
-        JPanel p = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-
-                if (imagen != null && imagen.getWidth(null) > 0) {
-                    Graphics2D g2 = (Graphics2D) g;
-                    // Calidad de renderizado
-                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-                    g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                    g2.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
-                } else {
-                    g.setColor(new Color(30, 30, 30));
-                    g.fillRect(0, 0, getWidth(), getHeight());
-                }
-            }
-        };
-
-        p.setOpaque(false);
-        return p;
     }
 }
