@@ -78,8 +78,8 @@ public class ProductoBO {
             }
             if (productoDTO.getPrecio() == null || productoDTO.getPrecio() <= 0) {
                 throw new NegocioException("El precio debe ser mayor a cero");
-            }
-
+            } 
+            
             Producto entidad = aEntidad(productoDTO);
 
             for (ProductoIngredienteDTO piDTO : productoDTO.getIngredientes()) {
@@ -87,6 +87,13 @@ public class ProductoBO {
                 if (ingredienteReal == null) {
                     throw new NegocioException("Error: Un ingrediente seleccionado ya no existe en el sistema");
                 }
+                
+                if (piDTO.getCantidadRequerida() > ingredienteReal.getStock()) {
+                    throw new NegocioException("Stock insuficiente para el ingrediente: " + ingredienteReal.getNombre() + 
+                                               " Requerido: " + piDTO.getCantidadRequerida() + 
+                                               ", Disponible: " + ingredienteReal.getStock());
+                }
+                
                 ProductoIngrediente pi = new ProductoIngrediente();
                 pi.setIngrediente(ingredienteReal);
                 pi.setCantidadRequerida(piDTO.getCantidadRequerida());
@@ -154,6 +161,13 @@ public class ProductoBO {
                 if (ingredienteReal == null) {
                     throw new NegocioException("error un ingrediente seleccionado ya no existe en el sistema");
                 }
+                
+                if (piDTO.getCantidadRequerida() > ingredienteReal.getStock()) {
+                    throw new NegocioException("Stock insuficiente para el ingrediente: " + ingredienteReal.getNombre() + 
+                                               " Requerido: " + piDTO.getCantidadRequerida() + 
+                                               ", Disponible: " + ingredienteReal.getStock());
+                }
+                
                 ProductoIngrediente pi = new ProductoIngrediente();
                 pi.setIngrediente(ingredienteReal);
                 pi.setCantidadRequerida(piDTO.getCantidadRequerida());

@@ -180,7 +180,7 @@ public class ProductoDAO {
         LOG.log(Level.INFO, "Buscando producto por ID: {0}", id);
         EntityManager em = ConexionBD.crearConexion();
         try {
-            String jpql = "slect p from Producto p "
+            String jpql = "select p from Producto p "
                     + "left join fetch p.ingredientesRequeridos pi "
                     + "left join fetch pi.ingrediente "
                     + "where p.id = :id";
@@ -229,18 +229,53 @@ public class ProductoDAO {
             em.close();
         }
     }
-
+    // esto 
+    /**
+     * Obtiene todos los productos registrados en la BD.
+     *
+     * @return lista completa de productos
+     * @throws PersistenciaException si ocurre un error en la consulta
+     */
     public List<Producto> obtenerTodos() throws PersistenciaException {
-        EntityManager em = conexion.ConexionBD.crearConexion();
-        List<Producto> productos = em.createQuery("SELECT p FROM Producto p", Producto.class).getResultList();
-        return productos;
+        LOG.info("Obteniendo todos los productos");
+        EntityManager em = ConexionBD.crearConexion();
+        try {
+            List<Producto> productos = em.createQuery(
+                "select p from Producto p", Producto.class).getResultList();
+            LOG.log(Level.INFO, "Se obtuvieron {0} productos", productos.size());
+            return productos;
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Error al obtener todos los productos: {0}", e.getMessage());
+            throw new PersistenciaException("Error al obtener todos los productos: " + e.getMessage());
+        } finally {
+            em.close();
+        }
     }
 
+    /**
+     * Obtiene todos los productos filtrados por tipo.
+     *
+     * @param tipo tipo de producto a filtrar (PLATILLO, BEBIDA, POSTRE)
+     * @return lista de productos del tipo indicado
+     * @throws PersistenciaException si ocurre un error en la consulta
+     */
     public List<Producto> obtenerPorTipo(TipoProducto tipo) throws PersistenciaException {
-        EntityManager em = conexion.ConexionBD.crearConexion();
-        return em.createQuery("SELECT p FROM Producto p WHERE p.tipo = :tipo", Producto.class)
+        LOG.log(Level.INFO, "Obteniendo productos por tipo: {0}", tipo);
+        EntityManager em = ConexionBD.crearConexion();
+        try {
+            List<Producto> productos = em.createQuery(
+                "select p from Producto p where p.tipo = :tipo", Producto.class)
                 .setParameter("tipo", tipo)
                 .getResultList();
+            LOG.log(Level.INFO, "Se encontraron {0} productos de tipo {1}",
+                new Object[]{productos.size(), tipo});
+            return productos;
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Error al obtener productos por tipo: {0}", e.getMessage());
+            throw new PersistenciaException("Error al obtener productos por tipo: " + e.getMessage());
+        } finally {
+            em.close();
+        }
     }
 
 }

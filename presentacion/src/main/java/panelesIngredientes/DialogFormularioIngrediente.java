@@ -12,6 +12,8 @@ import java.io.File;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import objetosnegocio.IngredienteBO;
+import utilidades.UIUtils; // <-- Asegúrate de que apunte a tu paquete de utilidades
+
 /**
  * Dialogo de interfaz grafica para el registro y edicion de ingredientes.
  * Permite capturar nombre, stock, unidad de medida y una imagen representativa.
@@ -22,43 +24,29 @@ public class DialogFormularioIngrediente extends JDialog {
     private JTextField txtNombre, txtStock;
     private JComboBox<String> cbUnidad;
     private JLabel lblPreview;
-    private Image imagenFondo;
     private String rutaImagenSeleccionada = "/imagenes/ingredientes/default.png"; 
     private IngredienteDTO ingredienteEditando;
-    // Constructor que inicializa el dialogo.
+
     public DialogFormularioIngrediente(Frame parent, IngredienteDTO dto) {
         super(parent, true);
         this.ingredienteEditando = dto;
         setUndecorated(true);
         setSize(1000, 650); 
         setLocationRelativeTo(parent);
-        cargarFondo();
+        
         initComponents();
         if (dto != null) {
             llenarDatos();
         }
     }
-    /**
-     * Carga la imagen de fondo utilizada para el panel
-     */ 
-    private void cargarFondo() {
-        java.net.URL url = getClass().getResource("/FondoInicio.png");
-        if (url != null) {
-            this.imagenFondo = new ImageIcon(url).getImage();
-        }
-    }
+
     /**
      * Inicializa y posiciona todos los componentes
      */
     private void initComponents() {
-        JPanel content = new JPanel(null) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                if (imagenFondo != null) {
-                    g.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
-                }
-            }
-        };
+        JPanel content = UIUtils.crearPanelFondo();
+        
+        content.setLayout(null); 
 
         JLabel titulo = new JLabel(ingredienteEditando == null ? "Registro de Ingrediente" : "Editar Ingrediente", SwingConstants.CENTER);
         titulo.setFont(new Font("Segoe UI", Font.BOLD, 40));
@@ -69,9 +57,7 @@ public class DialogFormularioIngrediente extends JDialog {
         txtNombre = crearCampo(content, "Nombre del ingrediente:", 120);
         txtStock = crearCampo(content, "Cantidad en Stock:", 200);
 
-        JLabel lblUnidad = new JLabel("Unidad de Medida:", SwingConstants.CENTER);
-        lblUnidad.setOpaque(true);
-        lblUnidad.setBackground(new Color(220, 220, 220));
+        JLabel lblUnidad = UIUtils.crearEtiquetaGris("Unidad de Medida:");
         lblUnidad.setBounds(50, 280, 300, 40);
         content.add(lblUnidad);
 
@@ -79,13 +65,11 @@ public class DialogFormularioIngrediente extends JDialog {
         cbUnidad.setBounds(370, 280, 550, 40);
         content.add(cbUnidad);
 
-        JLabel lblImagenTitulo = new JLabel("Imagen (Opcional):", SwingConstants.CENTER);
-        lblImagenTitulo.setOpaque(true);
-        lblImagenTitulo.setBackground(new Color(220, 220, 220));
+        JLabel lblImagenTitulo = UIUtils.crearEtiquetaGris("Imagen (Opcional):");
         lblImagenTitulo.setBounds(50, 360, 300, 40);
         content.add(lblImagenTitulo);
 
-        JButton btnSeleccionarImg = new JButton("Seleccionar");
+        JButton btnSeleccionarImg = UIUtils.crearBotonAccion("Seleccionar", new Color(105, 105, 105));
         btnSeleccionarImg.setBounds(370, 360, 200, 40);
         btnSeleccionarImg.addActionListener(e -> seleccionarImagen());
         content.add(btnSeleccionarImg);
@@ -96,16 +80,11 @@ public class DialogFormularioIngrediente extends JDialog {
         lblPreview.setBounds(590, 335, 100, 100);
         content.add(lblPreview);
 
-        
-        JButton btnGuardar = new JButton("Guardar");
-        btnGuardar.setBackground(new Color(102, 204, 102));
-        btnGuardar.setForeground(Color.WHITE);
+        JButton btnGuardar = UIUtils.crearBotonAccion("Guardar", new Color(102, 204, 102));
         btnGuardar.setBounds(250, 530, 200, 50);
         btnGuardar.addActionListener(e -> guardar());
 
-        JButton btnRegresar = new JButton("Regresar");
-        btnRegresar.setBackground(new Color(255, 102, 51));
-        btnRegresar.setForeground(Color.WHITE);
+        JButton btnRegresar = UIUtils.crearBotonAccion("Regresar", new Color(255, 102, 51));
         btnRegresar.setBounds(500, 530, 200, 50);
         btnRegresar.addActionListener(e -> dispose());
 
@@ -113,13 +92,12 @@ public class DialogFormularioIngrediente extends JDialog {
         content.add(btnRegresar);
         setContentPane(content);
     }
-   /** 
-    * Metodo auxiliar para crear etiquetas y campos de texto.
+
+   /** * Metodo auxiliar para crear etiquetas y campos de texto.
     */
     private JTextField crearCampo(JPanel p, String texto, int y) {
-        JLabel lbl = new JLabel(texto, SwingConstants.CENTER);
-        lbl.setOpaque(true);
-        lbl.setBackground(new Color(220, 220, 220));
+        // Aprovechamos tu utilería aquí adentro también
+        JLabel lbl = UIUtils.crearEtiquetaGris(texto);
         lbl.setBounds(50, y, 300, 40);
         p.add(lbl);
 
@@ -128,6 +106,7 @@ public class DialogFormularioIngrediente extends JDialog {
         p.add(txt);
         return txt;
     }
+
     /**
      * Abre un selector de archivos para permitir al usuario
      * elegir una imagen desde su equipo.
@@ -148,8 +127,8 @@ public class DialogFormularioIngrediente extends JDialog {
             lblPreview.setText("");
         }
     }
-    /** 
-     * Valida la informacion del formulario y persiste los cambios.
+
+    /** * Valida la informacion del formulario y persiste los cambios.
      */
     private void guardar() {
         try {
@@ -158,7 +137,7 @@ public class DialogFormularioIngrediente extends JDialog {
             String unidadStr = (String) cbUnidad.getSelectedItem();
 
             if (nombre.isEmpty() || stockStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos.");
+                JOptionPane.showMessageDialog(this, "Por favor, llene todos los campos");
                 return;
             }
 
@@ -166,11 +145,11 @@ public class DialogFormularioIngrediente extends JDialog {
             try {
                 stock = Double.parseDouble(stockStr);
                 if (stock < 0) {
-                    JOptionPane.showMessageDialog(this, "El stock no puede ser menor a cero.");
+                    JOptionPane.showMessageDialog(this, "El stock no puede ser menor a cero");
                     return;
                 }
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "El stock debe ser un numero valido.");
+                JOptionPane.showMessageDialog(this, "El stock debe ser un numero valido");
                 return;
             }
 
@@ -197,6 +176,7 @@ public class DialogFormularioIngrediente extends JDialog {
             JOptionPane.showMessageDialog(this, "Error inesperado: " + ex.getMessage());
         }
     }
+
     /**
      * Carga los datos de un ingrediente existente en los campos del formulario
      * cuando el dialogo se abre en modo de edicion.

@@ -8,50 +8,28 @@ import com.mycompany.presentacion.controlador.Coordinador;
 import dtos.ProductoDTO;
 import excepciones.NegocioException;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import javax.swing.*;
 import java.util.List;
 import objetosnegocio.ProductoBO;
+import utilidades.UIUtils;
 
 /**
  *
  * @author julian izaguirre
  */
 public class PanelBuscarProducto extends JPanel {
-    
     private final Coordinador coordinador;
-    private Image imagen;
     private JTextField txtBuscar;
 
     public PanelBuscarProducto(Coordinador coordinador) {
         this.coordinador = coordinador;
-        java.net.URL url = getClass().getResource("/FondoInicio.png");
-        if (url != null) {
-            this.imagen = new ImageIcon(url).getImage();
-        } else {
-            System.err.println("Error: No se encontro FondoInicio.png en la raiz de resources");
-        }
         inicializarComponentes();
     }
 
     private void inicializarComponentes() {
         setLayout(new BorderLayout());
 
-        JPanel panelFondo = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (imagen != null) {
-                    Graphics2D g2 = (Graphics2D) g;
-                    g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-                    g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.drawImage(imagen, 0, 0, getWidth(), getHeight(), null);
-                }
-            }
-        };
-        panelFondo.setOpaque(false);
+        JPanel panelFondo = UIUtils.crearPanelFondo();
 
         JPanel panelCentro = new JPanel(new GridBagLayout());
         panelCentro.setOpaque(false);
@@ -71,7 +49,8 @@ public class PanelBuscarProducto extends JPanel {
         txtBuscar = new JTextField();
         txtBuscar.setPreferredSize(new Dimension(350, 50));
         txtBuscar.setFont(new Font("Segoe UI", Font.PLAIN, 20));
-        aplicarPlaceholder(txtBuscar, "nombre del producto");
+         
+        UIUtils.aplicarPlaceholder(txtBuscar, "nombre del producto");
         
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.NONE; 
@@ -80,8 +59,8 @@ public class PanelBuscarProducto extends JPanel {
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 0));
         panelBotones.setOpaque(false);
 
-        JButton btnContinuar = crearBotonAccion("continuar", new Color(100, 200, 100)); 
-        JButton btnRegresar = crearBotonAccion("Regresar", new Color(255, 80, 50)); 
+        JButton btnContinuar = UIUtils.crearBotonAccion("continuar", new Color(100, 200, 100)); 
+        JButton btnRegresar = UIUtils.crearBotonAccion("Regresar", new Color(255, 80, 50)); 
 
         panelBotones.add(btnContinuar);
         panelBotones.add(btnRegresar);
@@ -90,9 +69,8 @@ public class PanelBuscarProducto extends JPanel {
         gbc.insets = new Insets(30, 10, 10, 10);
         panelCentro.add(panelBotones, gbc);
 
-        btnRegresar.addActionListener(e -> {
-            coordinador.mostrarPanelOpcionProducto();
-        });
+        // Acciones
+        btnRegresar.addActionListener(e -> coordinador.mostrarPanelOpcionProducto());
 
         btnContinuar.addActionListener(e -> {
             String busqueda = txtBuscar.getText().trim();
@@ -102,25 +80,21 @@ public class PanelBuscarProducto extends JPanel {
             }
             try {
                 List<ProductoDTO> resultados = ProductoBO.getInstance().buscarProductos(busqueda);
-                // no tiene
                 if (resultados == null || resultados.isEmpty()) {
                     JOptionPane.showMessageDialog(this,"no hay ningun producto con ese name","Sin resultados",JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                // va directo
                 if (resultados.size() == 1) {
                     coordinador.mostrarPanelFormularioProducto(true, resultados.get(0));
                     return;
                 }
-                // elige maye
-                String[] opciones = resultados.stream().map(ProductoDTO::getNombre).toArray(String[]::new);
                 
+                String[] opciones = resultados.stream().map(ProductoDTO::getNombre).toArray(String[]::new);
                 String seleccionado = (String) JOptionPane.showInputDialog(this,"Se encontraron varios productos, seleccione uno:", "Seleccionar Producto",
                         JOptionPane.PLAIN_MESSAGE, null,opciones,opciones[0]);
-                // cancelar
-                if (seleccionado == null) {
-                    return;
-                } 
+                
+                if (seleccionado == null) return;
+                
                 ProductoDTO productoSeleccionado = resultados.stream().filter(p -> p.getNombre().equals(seleccionado))
                         .findFirst().orElse(null);
 
@@ -134,39 +108,5 @@ public class PanelBuscarProducto extends JPanel {
 
         panelFondo.add(panelCentro, BorderLayout.CENTER);
         add(panelFondo, BorderLayout.CENTER);
-    }
-
-    private JButton crearBotonAccion(String texto, Color colorFondo) {
-        JButton btn = new JButton(texto);
-        btn.setPreferredSize(new Dimension(180, 45));
-        btn.setBackground(colorFondo);
-        btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return btn;
-    }
-
-    private void aplicarPlaceholder(JTextField campo, String placeholder) {
-        campo.setText(placeholder);
-        campo.setForeground(Color.GRAY);
-        campo.setHorizontalAlignment(JTextField.CENTER);
-        
-        campo.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                if (campo.getText().equals(placeholder)) {
-                    campo.setText("");
-                    campo.setForeground(Color.BLACK);
-                }
-            }
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (campo.getText().isEmpty()) {
-                    campo.setForeground(Color.GRAY);
-                    campo.setText(placeholder);
-                }
-            }
-        });
     }
 }
