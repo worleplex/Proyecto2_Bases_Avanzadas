@@ -5,10 +5,15 @@
 package objetosnegocio;
 
 import adaptadores.ClienteAdapter;
+import adaptadores.ClienteFrecuenteAdapter;
 import daos.ClienteDAO;
 import dtos.ClienteDTO;
+import dtos.ClienteFrecuenteDTO;
 import entidades.Cliente;
+import entidades.ClienteFrecuente;
 import excepciones.NegocioException;
+import excepciones.PersistenciaException;
+
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -147,5 +152,24 @@ public class ClienteBO {
             LOG.log(Level.SEVERE, "Error al eliminar cliente general: {0}", e.getMessage());
             throw new NegocioException("Error al eliminar el cliente general: " + e.getMessage(), e);
         }
+    }
+
+    public ClienteFrecuenteDTO buscarCliente(String nombre) throws PersistenciaException {
+        LOG.log(Level.INFO, "Buscando al cliente con el nombre: {0}", nombre);
+        try {
+            if(nombre.isEmpty()){
+                LOG.log(Level.SEVERE, "Para buscar a un cliente debe escribir un nombre");
+            }
+
+            ClienteFrecuente clienteEncontrar = clienteDAO.buscarPorNombre(nombre);
+            ClienteFrecuenteDTO clienteEncontrado = ClienteFrecuenteAdapter.entidadADTO(clienteEncontrar);
+
+            return clienteEncontrado;
+        } catch (PersistenciaException e) {
+            LOG.log(Level.SEVERE, "Error al buscar cliente general: {0}", e.getMessage());
+            throw new PersistenciaException("Error al buscar al cliente" + e.getMessage());
+        }
+
+
     }
 }

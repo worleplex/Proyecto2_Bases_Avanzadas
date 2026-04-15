@@ -6,6 +6,9 @@ package daos;
 
 import com.mycompany.persistencia.Persistencia.ConexionBD;
 import entidades.Cliente;
+import entidades.ClienteFrecuente;
+import excepciones.PersistenciaException;
+
 import java.util.List;
 import javax.persistence.EntityManager;
 
@@ -128,6 +131,21 @@ public class ClienteDAO {
             String jpql = "SELECT c FROM Cliente c";
             return em.createQuery(jpql, Cliente.class).getResultList();
         } finally {
+            em.close();
+        }
+    }
+
+    public ClienteFrecuente buscarPorNombre(String nombre) throws PersistenciaException{
+        EntityManager em = ConexionBD.crearConexion();
+        try {
+            String jpql = "SELECT c FROM Cliente c WHERE c.nombres = :nombre";
+            return em.createQuery(jpql, ClienteFrecuente.class)
+                    .setParameter("nombre", nombre)
+                    .getSingleResult();
+        } catch (Exception e) {
+            throw new PersistenciaException("Error al consultar el cliente: " + e.getMessage());
+        }
+        finally {
             em.close();
         }
     }
