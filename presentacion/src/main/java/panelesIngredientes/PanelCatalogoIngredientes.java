@@ -82,6 +82,8 @@ public class PanelCatalogoIngredientes extends JPanel {
 
         JButton btnNuevo = crearBoton("Nuevo Ingrediente", new Color(102, 204, 102));
         if (formularioPadre == null) {
+            btnNuevo.addActionListener(e -> abrirFormularioRegistro()); 
+        
             panelFiltros.add(btnNuevo);
         }
 
@@ -310,6 +312,12 @@ public class PanelCatalogoIngredientes extends JPanel {
         }else {
             JOptionPane.showMessageDialog(this, "Seleccione un ingrediente.");
         }
+    }
+    private void abrirFormularioRegistro() {
+        Frame parent = (Frame) SwingUtilities.getWindowAncestor(this);
+        DialogFormularioIngrediente dialogo = new DialogFormularioIngrediente(parent, null);
+        dialogo.setVisible(true);
+        btnBuscar.doClick();
     }
     
     private JButton crearBoton(String t, Color c) {
