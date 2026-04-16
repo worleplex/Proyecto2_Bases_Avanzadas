@@ -6,6 +6,7 @@ package objetosnegocio;
 
 import adaptadores.ComandaAdapter;
 import daos.ComandaDAO;
+import dtos.ComandaDTO;
 import dtos.ReporteComandaDTO;
 import entidades.Comanda;
 import excepciones.NegocioException;
@@ -96,6 +97,58 @@ public class ComandaBO {
         } catch (PersistenciaException ex) {
             LOG.log(Level.SEVERE, "Error de BD al filtrar comandas: {0}", ex.getMessage());
             throw new NegocioException("Error al filtrar comandas: " + ex.getMessage());
+        }
+    }
+
+    public ComandaDTO crearComanda(ComandaDTO comanda)throws NegocioException{
+        try{
+            LOG.info("Creando la comanda");
+            if(comanda.getIdCliente() == null){
+                LOG.severe("La comanda debe estar asociada a un cliente");
+                throw new NegocioException("Cliente invalido");
+            }
+            if(comanda.getIdMesero() == null){
+                LOG.severe("La comanda debe estar asociada a un mesero");
+                throw new NegocioException("Mesero invalido");
+            }
+            if(comanda.getIdMesa() == null){
+                LOG.severe("La comanda debe estar asociada a una mesa");
+                throw new NegocioException("Mesero invalido");
+            }
+
+            ComandaDTO comandaDTO = comandaDAO.crearComanda(comanda);
+
+            return comandaDTO;
+        } catch (Exception e) {
+            throw new NegocioException("Error al crear la comanda: " + e.getMessage());
+        }
+    }
+
+    public ComandaDTO modificarComanda(ComandaDTO comanda) throws NegocioException {
+        try{
+            LOG.info("Creando la comanda");
+
+            ComandaDTO comandaModificada = comandaDAO.modificarComanda(comanda);
+            return comandaModificada;
+        }
+        catch (Exception e) {
+            throw new NegocioException("Error al modificar la comanda" + e.getMessage());
+        }
+    }
+
+    public ComandaDTO buscarPorFolio(String folio)throws NegocioException{
+        try{
+            LOG.info("Buscando comanda");
+
+            if(!folio.matches("^OB-\\d{8}-\\d{3}$")){
+                LOG.severe("Error en el folio escrito");
+                throw new NegocioException("Error al consultar");
+            }
+
+            ComandaDTO comandaEncontrada = comandaDAO.buscarPorFolio(folio);
+            return comandaEncontrada;
+        } catch (Exception e) {
+            throw new NegocioException("Error al buscar");
         }
     }
 }

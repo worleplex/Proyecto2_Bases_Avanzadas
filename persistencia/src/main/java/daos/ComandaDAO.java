@@ -4,7 +4,9 @@
  */
 package daos;
 
+import com.mycompany.persistencia.Persistencia;
 import com.mycompany.persistencia.Persistencia.ConexionBD;
+import dtos.ComandaDTO;
 import entidades.Comanda;
 import excepciones.PersistenciaException;
 import java.time.LocalDate;
@@ -135,6 +137,67 @@ public class ComandaDAO {
             LOG.log(Level.SEVERE, "Error al filtrar comandas: {0}", e.getMessage());
             throw new PersistenciaException("Error al filtrar comandas: " + e.getMessage());
         } finally {
+            em.close();
+        }
+    }
+
+    public ComandaDTO crearComanda(ComandaDTO comanda) throws PersistenciaException {
+        EntityManager em = Persistencia.ConexionBD.crearConexion();
+        try {
+            LOG.log(Level.INFO, "Creando comanda: ", comanda.getFolio());
+            em.getTransaction().begin();
+            em.persist(comanda);
+            em.getTransaction().commit();
+            LOG.log(Level.INFO, "Comanda guardada con exito");
+            return comanda;
+        }
+        catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                LOG.log(Level.SEVERE, "Error al guardar la comanda: " + e.getMessage());
+                em.getTransaction().rollback();
+            }
+            throw new PersistenciaException("Error al guardar la comanda:" + e.getMessage());
+        }
+        finally {
+            em.close();
+        }
+    }
+
+    public ComandaDTO modificarComanda(ComandaDTO comanda) throws PersistenciaException {
+        EntityManager em = Persistencia.ConexionBD.crearConexion();
+        try {
+            LOG.log(Level.INFO, "Modificando comanda: {0}", comanda.getFolio());
+            em.getTransaction().begin();
+            ComandaDTO comandaModificada = em.merge(comanda);
+            em.getTransaction().commit();
+            LOG.log(Level.INFO, "Comanda modificada con exito");
+            return comandaModificada;
+        } catch (Exception e) {
+            if (em.getTransaction().isActive()) {
+                LOG.log(Level.SEVERE, "Error al modificar la comanda: {0}", e.getMessage());
+                em.getTransaction().rollback();
+            }
+            throw new PersistenciaException("Error al modificar la comanda: " + e.getMessage());
+        } finally {
+            em.close();
+        }
+    }
+
+    public ComandaDTO buscarPorFolio(String folio) throws PersistenciaException {
+        EntityManager em = Persistencia.ConexionBD.crearConexion();
+        try {
+            LOG.log(Level.INFO, "Buscando comanda con folio: {0}", folio);
+            String jpql = "SELECT c FROM Comanda c WHERE c.folio = :folio";
+            ComandaDTO comanda = em.createQuery(jpql, ComandaDTO.class)
+                    .setParameter("folio", folio)
+                    .getSingleResult();
+            LOG.log(Level.INFO, "Comanda encontrada con exito");
+            return comanda;
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "No se encontro ninguna comanda con el folio: {0}", folio);
+            throw new PersistenciaException("No se encontró ninguna comanda con el folio: " + folio);
+        }
+        finally {
             em.close();
         }
     }
