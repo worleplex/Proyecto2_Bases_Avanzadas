@@ -9,6 +9,8 @@ import entidades.Ingrediente;
 import entidades.UnidadMedida;
 import excepciones.PersistenciaException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
@@ -18,7 +20,7 @@ import javax.persistence.TypedQuery;
  * @author Gael Galaviz
  */
 public class IngredienteDAO {
-
+    private static final Logger LOG = Logger.getLogger(IngredienteDAO.class.getName());
     // singleton
     private static IngredienteDAO instancia;
 
@@ -166,35 +168,51 @@ public class IngredienteDAO {
             em.close();
         }
     }
-
+    
     /**
+     * Busca ingredientes filtrando dinámicamente por nombre y unidad de medida.
+     * Construye la consulta paso a paso para que MySQL haga todo el trabajo.
      *
-     * @param nombreParcial
-     * @return
-     * @throws PersistenciaException
+     * @param nombreParcial texto a buscar (puede ser null o vacío)
+     * @param unidad unidad de medida exacta (puede ser null)
+     * @return Lista de ingredientes filtrados
+     * @throws PersistenciaException si ocurre un error
      */
-    public List<Ingrediente> buscarPorNombre(String nombreParcial, String unidad) throws PersistenciaException {
+    public List<Ingrediente> buscarIngredientesFiltrados(String nombreParcial, UnidadMedida unidad) throws PersistenciaException {
+        LOG.log(Level.INFO, "Buscando ingredientes con filtros -> Nombre: {0}, Unidad: {1}", 
+                new Object[]{nombreParcial != null ? nombreParcial : "N/A", unidad != null ? unidad : "TODAS"});
         EntityManager em = ConexionBD.crearConexion();
         try {
-            String jpql = "select i from Ingrediente i where lower(i.nombre) like lower(:nombre)"
-                    + " and (:unidad is null or i.unidadMedida = :unidad)";
-            
-            TypedQuery<Ingrediente> query = em.createQuery(jpql, Ingrediente.class);
-            query.setParameter("nombre", "%" + nombreParcial + "%");
-            
-            if (unidad == null || unidad.trim().isEmpty()) {
-                query.setParameter("unidad", null); 
-            } else {
-                query.setParameter("unidad", entidades.UnidadMedida.valueOf(unidad.toUpperCase()));
+            StringBuilder jpql = new StringBuilder("SELECT i FROM Ingrediente i WHERE 1=1 ");
+            if (nombreParcial != null && !nombreParcial.trim().isEmpty()) {
+                jpql.append("AND LOWER(i.nombre) LIKE LOWER(:nombre) ");
+                LOG.info("Se aplicará filtro de Nombre");
             }
-            return query.getResultList();
+            if (unidad != null) {
+                jpql.append("AND i.unidadMedida = :unidad ");
+                LOG.info("Se aplicará filtro de Unidad de Medida");
+            }
+            jpql.append("ORDER BY i.nombre ASC");
+            TypedQuery<Ingrediente> query = em.createQuery(jpql.toString(), Ingrediente.class);
+            if (nombreParcial != null && !nombreParcial.trim().isEmpty()) {
+                query.setParameter("nombre", "%" + nombreParcial.trim() + "%");
+            }
+            if (unidad != null) {
+                query.setParameter("unidad", unidad);
+            }
+            
+            List<Ingrediente> resultados = query.getResultList();
+            LOG.log(Level.INFO, "Éxito: Se encontraron {0} ingredientes", resultados.size());
+            return resultados;
+            
         } catch (Exception e) {
-            throw new PersistenciaException("Error al buscar ingredientes por nombre: " + e.getMessage());
+            LOG.log(Level.SEVERE, "Error crítico al buscar ingredientes: {0}", e.getMessage());
+            throw new PersistenciaException("Error al buscar ingredientes filtrados: " + e.getMessage());
         } finally {
             if (em != null && em.isOpen()) {
                 em.close();
             }
         }
     }
-
+    
 }

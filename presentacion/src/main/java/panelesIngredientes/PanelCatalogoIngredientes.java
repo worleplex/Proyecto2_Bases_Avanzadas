@@ -278,7 +278,8 @@ public class PanelCatalogoIngredientes extends JPanel {
     public void actualizarTabla(String nombre, String unidad) {
         try {
             modelo.setRowCount(0);
-            List<IngredienteDTO> lista = IngredienteBO.getInstance().buscarIngredientes(nombre, unidad);
+            List<IngredienteDTO> lista = IngredienteBO.getInstance().buscarIngredientesFiltrados(nombre, unidad);
+            
             for (IngredienteDTO i : lista) {
                 String uniStr = i.getUnidadMedida() != null ? i.getUnidadMedida().toString() : "";
                 

@@ -12,13 +12,15 @@ import excepciones.NegocioException;
 import excepciones.PersistenciaException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Clase de Objeto de Negocio (BO) para gestionar la logica de los ingredientes.
  * @author Gael Galaviz
  */
 public class IngredienteBO {
-
+    private static final Logger LOG = Logger.getLogger(IngredienteBO.class.getName());
     // solo lo necesario
     private static IngredienteBO instancia;
     private IngredienteDAO ingredienteDAO;
@@ -111,23 +113,20 @@ public class IngredienteBO {
             throw new NegocioException("Error al obtener el ingrediente:" + e.getMessage());
         }
     }
+    
     /**
-     * Buscar ingredientes por nombre o unidad de medida.
-     * @param nombre de ingrediente.
-     * @param unidad filtro de unidad de medida.
-     * @return Lista de IngredienteDTO que coinciden los criterios.
-     * @throws NegocioException Si ocurre un error en la consultar.
-     * @throws PersistenciaException 
+     * Valida y solicita la búsqueda dinámica de ingredientes.
+     * Transforma el texto del ComboBox a su Enum correspondiente.
      */
-    public List<IngredienteDTO> buscarIngredientes(String nombre, String unidad) throws NegocioException, PersistenciaException {
+    public List<IngredienteDTO> buscarIngredientesFiltrados(String nombre, String unidadStr) throws NegocioException {
+        LOG.log(Level.INFO, "Solicitando ingredientes filtrados");
         try {
-            if (nombre == null) {
-                nombre = "";
+            entidades.UnidadMedida unidadEnum = null;
+            if (unidadStr != null && !unidadStr.trim().isEmpty() && !unidadStr.equalsIgnoreCase("Todas")) {
+                unidadEnum = entidades.UnidadMedida.valueOf(unidadStr.toUpperCase());
             }
-            if (unidad == null) {
-                unidad = "";
-            }
-            List<Ingrediente> ingredientesBD = ingredienteDAO.buscarPorNombre(nombre, unidad);
+
+            List<Ingrediente> ingredientesBD = ingredienteDAO.buscarIngredientesFiltrados(nombre, unidadEnum);
             List<IngredienteDTO> listaDTOs = new ArrayList<>();
 
             for (Ingrediente i : ingredientesBD) {
@@ -135,7 +134,12 @@ public class IngredienteBO {
             }
 
             return listaDTOs;
+            
+        } catch (IllegalArgumentException e) {
+            LOG.log(Level.SEVERE, "La unidad de medida seleccionada no es válida: {0}", unidadStr);
+            throw new NegocioException("Unidad de medida inválida");
         } catch (PersistenciaException e) {
+            LOG.log(Level.SEVERE, "Capa BO Error: {0}", e.getMessage());
             throw new NegocioException("Error al consultar los ingredientes: " + e.getMessage());
         }
     }
