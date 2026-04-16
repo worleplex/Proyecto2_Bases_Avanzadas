@@ -228,63 +228,32 @@ public class ProductoBO {
             throw new NegocioException("Error al cambiar el estado del producto: " + e.getMessage());
         }
     }
-
+    
     /**
-     * Busca productos cuyo nombre contenga el filtro proporcionado.
-     * Utilizado desde el buscador de productos en la presentación.
+     * Busca productos aplicando filtros combinados directamente en la base de datos.
+     * Si un filtro es null o vacío, se ignora.
      *
-     * @param filtro texto parcial para buscar en el nombre del producto
-     * @return lista de ProductoDTO que coinciden con el filtro
-     * @throws NegocioException si ocurre un error al consultar la BD
+     * @param nombre filtro de nombre parcial
+     * @param tipo filtro exacto de tipo (puede ser null)
+     * @param estado filtro exacto de estado activo/inactivo (puede ser null)
+     * @return lista de ProductoDTO que cumplen todos los criterios
+     * @throws NegocioException si ocurre un error de BD
      */
-    public List<ProductoDTO> buscarProductos(String filtro) throws NegocioException {
-        LOG.log(Level.INFO, "Buscando productos con filtro: {0}", filtro);
+    public List<ProductoDTO> buscarProductosFiltrados(String nombre, TipoProducto tipo, Boolean estado) throws NegocioException {
+        LOG.log(Level.INFO, "Solicitando productos filtrados");
         try {
-            List<Producto> listaEntidades = productoDAO.buscarProductos(filtro);
+            List<Producto> listaEntidades = productoDAO.buscarProductosFiltrados(nombre, tipo, estado);
             List<ProductoDTO> listaDTOs = new ArrayList<>();
             for (Producto p : listaEntidades) {
                 listaDTOs.add(aDTO(p));
             }
-            LOG.log(Level.INFO, "Se encontraron {0} productos con filtro '{1}'",
-                new Object[]{listaDTOs.size(), filtro});
+            
             return listaDTOs;
         } catch (PersistenciaException e) {
-            LOG.log(Level.SEVERE, "Error al buscar productos: {0}", e.getMessage());
-            throw new NegocioException("Error al buscar productos: " + e.getMessage());
+            LOG.log(Level.SEVERE, "Capa BO Error: {0}", e.getMessage());
+            throw new NegocioException("Error al obtener la lista de productos filtrados: " + e.getMessage());
         }
     }
-
-    public List<ProductoDTO> obtenerTodos() throws NegocioException{
-        try{
-            List<Producto> listaEntidades = productoDAO.obtenerTodos();
-            List<ProductoDTO> listaDTOs = new ArrayList<>();
-            for (Producto p : listaEntidades) {
-                listaDTOs.add(aDTO(p));
-            }
-
-            return listaDTOs;
-        }
-        catch(PersistenciaException e){
-            LOG.log(Level.SEVERE, "Error al buscar productos: ", e.getMessage());
-            throw new NegocioException("Error al buscar productos: " + e.getMessage());
-        }
-    }
-
-    public List<ProductoDTO> buscarPorTipo(TipoProducto tipo) throws NegocioException{
-        try{
-            List<Producto> listaProductos = productoDAO.obtenerPorTipo(tipo);
-            List<ProductoDTO> listaDTOs = new ArrayList<>();
-
-            for(Producto p : listaProductos){
-                listaDTOs.add(aDTO(p));
-            }
-
-            return listaDTOs;
-        }
-        catch (PersistenciaException e) {
-            LOG.log(Level.SEVERE, "Error al buscar productos: ", e.getMessage());
-            throw new NegocioException("Error al buscar productos: " + e.getMessage());
-        }
-    }
-
+    
+    
 }

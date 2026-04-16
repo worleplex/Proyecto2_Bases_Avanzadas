@@ -26,7 +26,8 @@ public class PanelReporteClientes extends JPanel {
     private final Coordinador coordinador;
     private JTable tabla;
     private DefaultTableModel modelo;
-    private JTextField txtFiltroVisitas, txtFiltroNombre;
+    private JTextField txtFiltroNombre;
+    private JSpinner spnVisitas;
     private ClienteFrecuenteBO bo = ClienteFrecuenteBO.getInstance();
 
     public PanelReporteClientes(Coordinador coordinador) {
@@ -67,9 +68,14 @@ public class PanelReporteClientes extends JPanel {
         panelFiltros.setLayout(new BoxLayout(panelFiltros, BoxLayout.Y_AXIS));
         panelFiltros.setOpaque(false);
         panelFiltros.setPreferredSize(new Dimension(300, 0));
-        panelFiltros.add(UIUtils.crearEtiquetaGris("Filtrar por numero de visitas:"));
-        txtFiltroVisitas = new JTextField(); aplicarPlaceholder(txtFiltroVisitas, "ingrese el numero de visitas");
-        panelFiltros.add(txtFiltroVisitas); panelFiltros.add(Box.createVerticalStrut(20));
+        //
+        panelFiltros.add(UIUtils.crearEtiquetaGris("Mínimo de visitas (0 = todos):"));
+        spnVisitas = new JSpinner(new SpinnerNumberModel(0, 0, 9999, 1));
+        spnVisitas.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        spnVisitas.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        panelFiltros.add(spnVisitas);
+        panelFiltros.add(Box.createVerticalStrut(20));
+        
 
         panelFiltros.add(UIUtils.crearEtiquetaGris("Filtrar por Nombre:"));
         txtFiltroNombre = new JTextField(); aplicarPlaceholder(txtFiltroNombre, "ingrese el nombre");
@@ -105,30 +111,27 @@ public class PanelReporteClientes extends JPanel {
 
     private void cargarDatos() {
         try {
-            modelo.setRowCount(0); 
-            List<ClienteFrecuenteDTO> listaCompleta = bo.obtenerTodosLosClientes();
-            
-            String fVisitas = obtenerTextoFiltro(txtFiltroVisitas, "ingrese el numero de visitas");
-            String fNombre = obtenerTextoFiltro(txtFiltroNombre, "ingrese el nombre").toLowerCase();
+            modelo.setRowCount(0);
+            String fNombre = obtenerTextoFiltro(txtFiltroNombre, "ingrese el nombre");
+            int minimoVisitas = (int) spnVisitas.getValue();
+            List<ClienteFrecuenteDTO> lista = bo.obtenerDatosReporteClientes(fNombre, minimoVisitas);
 
-            for (ClienteFrecuenteDTO c : listaCompleta) {
-                String nomCliente = c.getNombres() != null ? c.getNombres().toLowerCase() : "";
-                String visitasCalculadas = "10";
-                String totalCalculado = "$1,500.00";
-                String fechaUltima = "20/03/2026";
-
-                boolean pasaNombre = fNombre.isEmpty() || nomCliente.contains(fNombre);
-                boolean pasaVisitas = fVisitas.isEmpty() || visitasCalculadas.equals(fVisitas);
-
-                if (pasaNombre && pasaVisitas) {
-                    modelo.addRow(new Object[]{ c.getId(), c.getNombres(), c.getApellidoPaterno(), c.getApellidoMaterno(), visitasCalculadas, totalCalculado, fechaUltima });
-                }
+            for (ClienteFrecuenteDTO c : lista) {
+                modelo.addRow(new Object[]{
+                    c.getId(),
+                    c.getNombres(),
+                    c.getApellidoPaterno(),
+                    c.getApellidoMaterno(),
+                    c.getVisitas(),
+                    String.format("$%.2f", c.getTotalGastado() != null ? c.getTotalGastado() : 0.0),
+                    c.getFechaUltimaComanda()
+                });
             }
         } catch (NegocioException ex) {
-            JOptionPane.showMessageDialog(this, "Error al cargar datos de BD: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Error al cargar datos: " + ex.getMessage());
         }
     }
-
+    
     private void generarReportePDF() {
         try {
             JasperReport reporte = JasperCompileManager.compileReport("src/main/resources/ReporteClientes.jrxml");

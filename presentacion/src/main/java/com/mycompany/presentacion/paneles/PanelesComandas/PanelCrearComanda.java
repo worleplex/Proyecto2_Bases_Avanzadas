@@ -125,7 +125,7 @@ public class PanelCrearComanda extends JPanel {
                     if (texto.isEmpty()) {
                         llenarTablaProductos(tablaProductos);
                     } else {
-                        List<ProductoDTO> productos = ProductoBO.getInstance().buscarProductos(texto);
+                        List<ProductoDTO> productos = ProductoBO.getInstance().buscarProductosFiltrados(texto, null, null);
                         DefaultTableModel modelo = (DefaultTableModel) tablaProductos.getModel();
                         modelo.setRowCount(0);
                         for (ProductoDTO p : productos) {
@@ -314,7 +314,7 @@ public class PanelCrearComanda extends JPanel {
     private void llenarTablaProductos(JTable tabla) throws NegocioException {
         DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
         modelo.setRowCount(0);
-        List<ProductoDTO> productos = ProductoBO.getInstance().buscarProductos("");
+        List<ProductoDTO> productos = ProductoBO.getInstance().buscarProductosFiltrados("", null, null);
         for (ProductoDTO p : productos) {
             if (p.getEstado() != null && p.getEstado()) {
                 modelo.addRow(new Object[]{
@@ -329,7 +329,7 @@ public class PanelCrearComanda extends JPanel {
     private void llenarTablaTipoProductos(JTable tabla, TipoProducto tipo) throws NegocioException {
         DefaultTableModel modelo = (DefaultTableModel) tabla.getModel();
         modelo.setRowCount(0);
-        List<ProductoDTO> todos = ProductoBO.getInstance().buscarProductos("");
+        List<ProductoDTO> todos = ProductoBO.getInstance().buscarProductosFiltrados("", null, null);
         for (ProductoDTO p : todos) {
             if (p.getEstado() != null && p.getEstado()
                     && p.getTipo() != null

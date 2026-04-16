@@ -308,5 +308,65 @@ public class ProductoDAO {
             em.close();
         }
     }
+    
+    /**
+     * Busca productos filtrando dinámicamente por nombre, tipo y estado. 
+     * Los parámetros nulos o vacíos se ignoran inteligentemente.
+     *
+     * @param nombre nombre parcial del producto (puede ser null o vacío)
+     * @param tipo tipo de producto (puede ser null)
+     * @param estado estado del producto (puede ser null)
+     * @return lista de productos que cumplen los filtros exactos
+     * @throws PersistenciaException si ocurre un error en la consulta
+     */
+    public List<Producto> buscarProductosFiltrados(String nombre, TipoProducto tipo, Boolean estado) throws PersistenciaException {
+        LOG.log(Level.INFO, "Buscando productos con filtros dinámicos -> Nombre: {0}, Tipo: {1}, Estado: {2}", 
+                new Object[]{nombre != null ? nombre : "N/A", tipo != null ? tipo : "TODOS", estado != null ? estado : "TODOS"});
+        
+        EntityManager em = ConexionBD.crearConexion();
+        try {
+            StringBuilder jpql = new StringBuilder(
+                "SELECT DISTINCT p FROM Producto p " +
+                "LEFT JOIN FETCH p.ingredientesRequeridos pi " +
+                "LEFT JOIN FETCH pi.ingrediente " +
+                "WHERE 1=1 ");
+            if (nombre != null && !nombre.trim().isEmpty()) {
+                jpql.append("AND LOWER(p.nombre) LIKE LOWER(:nombre) ");
+                LOG.info("Se aplicará filtro de Nombre");
+            }
+            if (tipo != null) {
+                jpql.append("AND p.tipo = :tipo ");
+                LOG.info("Se aplicará filtro de Tipo.");
+            }
+            if (estado != null) {
+                jpql.append("AND p.estado = :estado ");
+                LOG.info("Se aplicará filtro de Estado");
+            }
+           
+            jpql.append("ORDER BY p.nombre ASC");
+            TypedQuery<Producto> query = em.createQuery(jpql.toString(), Producto.class);
 
+            if (nombre != null && !nombre.trim().isEmpty()) {
+                query.setParameter("nombre", "%" + nombre.trim() + "%");
+            }
+            if (tipo != null) {
+                query.setParameter("tipo", tipo);
+            }
+            if (estado != null) {
+                query.setParameter("estado", estado);
+            }
+
+            List<Producto> resultado = query.getResultList();
+            LOG.log(Level.INFO, "Éxito: Se encontraron {0} productos con los filtros aplicados", resultado.size());
+            
+            return resultado;
+            
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Error crítico al buscar productos con filtros dinámicos: {0}", e.getMessage());
+            throw new PersistenciaException("Error al buscar productos filtrados: " + e.getMessage());
+        } finally {
+            em.close();
+        }
+    }
+    
 }

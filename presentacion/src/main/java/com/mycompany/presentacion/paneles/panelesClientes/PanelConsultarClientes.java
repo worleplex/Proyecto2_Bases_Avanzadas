@@ -117,31 +117,21 @@ public class PanelConsultarClientes extends JPanel {
     private void cargarDatos() {
         try {
             modelo.setRowCount(0);
-            List<ClienteFrecuenteDTO> listaCompleta = bo.obtenerTodosLosClientes();
-            
-            String fNombre = obtenerTextoFiltro(txtFiltroNombre, "ingresar el nombre del cliente").toLowerCase();
-            String fTel = obtenerTextoFiltro(txtFiltroTelefono, "ingresar el telefono").toLowerCase();
-            String fCorreo = obtenerTextoFiltro(txtFiltroCorreo, "ingrese el correo").toLowerCase();
+            String fNombre = obtenerTextoFiltro(txtFiltroNombre, "ingresar el nombre del cliente");
+            String fTel = obtenerTextoFiltro(txtFiltroTelefono, "ingresar el telefono");
+            String fCorreo = obtenerTextoFiltro(txtFiltroCorreo, "ingrese el correo");
 
-            for (ClienteFrecuenteDTO c : listaCompleta) {
-                String nomCliente = c.getNombres() != null ? c.getNombres().toLowerCase() : "";
-                String telCliente = c.getTelefono() != null ? c.getTelefono().toLowerCase() : "";
-                String correoCliente = c.getCorreo() != null ? c.getCorreo().toLowerCase() : "";
+            List<ClienteFrecuenteDTO> lista = bo.buscarFiltrados(fNombre, fTel, fCorreo);
 
-                boolean pasaNombre = fNombre.isEmpty() || nomCliente.contains(fNombre);
-                boolean pasaTel = fTel.isEmpty() || telCliente.contains(fTel);
-                boolean pasaCorreo = fCorreo.isEmpty() || correoCliente.contains(fCorreo);
-
-                if (pasaNombre && pasaTel && pasaCorreo) {
-                    modelo.addRow(new Object[]{
-                        c.getNombres(), 
-                        c.getApellidoPaterno(), 
-                        c.getApellidoMaterno(), 
-                        c.getCorreo() != null && !c.getCorreo().isEmpty() ? c.getCorreo() : "N/A", 
-                        c.getTelefono(), 
-                        c.getPuntos()
-                    });
-                }
+            for (ClienteFrecuenteDTO c : lista) {
+                modelo.addRow(new Object[]{
+                    c.getNombres(),
+                    c.getApellidoPaterno(),
+                    c.getApellidoMaterno(),
+                    c.getCorreo() != null && !c.getCorreo().isEmpty() ? c.getCorreo() : "N/A",
+                    c.getTelefono(),
+                    c.getPuntos()
+                });
             }
         } catch (NegocioException ex) {
             JOptionPane.showMessageDialog(this, "Error al cargar datos: " + ex.getMessage());

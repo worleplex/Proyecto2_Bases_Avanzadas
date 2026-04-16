@@ -9,6 +9,7 @@ import daos.ClienteFrecuenteDAO;
 import dtos.ClienteFrecuenteDTO;
 import entidades.ClienteFrecuente;
 import excepciones.NegocioException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -254,6 +255,92 @@ public class ClienteFrecuenteBO {
         } catch (Exception e) {
             LOG.log(Level.WARNING, "No se pudo desencriptar el teléfono (Puede que no estuviera encriptado) devolviendo original");
             return telefonoEncriptado; 
+        }
+    }
+    
+    /**
+     * Busca clientes frecuentes con filtros dinámicos aplicados en BD.
+     * Desencripta los teléfonos antes de devolver la lista.
+     *
+     * @param nombre nombre parcial a filtrar
+     * @param telefono teléfono parcial a filtrar  
+     * @param correo correo parcial a filtrar
+     * @return lista filtrada de ClienteFrecuenteDTO
+     * @throws NegocioException si ocurre un error
+     */
+    public List<ClienteFrecuenteDTO> buscarFiltrados(String nombre, String telefono, String correo) throws NegocioException {
+        LOG.info("Buscando clientes frecuentes con filtros en BD");
+        try {
+            List<ClienteFrecuente> entidades = clienteDAO.buscarFiltrados(nombre, telefono, correo);
+            List<ClienteFrecuenteDTO> listaDTOs = ClienteFrecuenteAdapter.listaEntidadADTO(entidades);
+            for (ClienteFrecuenteDTO dto : listaDTOs) {
+                dto.setTelefono(desencriptarTelefono(dto.getTelefono()));
+            }
+            LOG.log(Level.INFO, "Se encontraron {0} clientes con los filtros aplicados", listaDTOs.size());
+            return listaDTOs;
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Error al buscar clientes filtrados: {0}", e.getMessage());
+            throw new NegocioException("Error al buscar clientes: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Busca clientes frecuentes con filtro de nombre y mínimo de visitas.
+     * El conteo de visitas se hace en BD con subquery COUNT.
+     *
+     * @param nombre nombre parcial a filtrar
+     * @param minimoVisitas número mínimo de visitas (0 = ignorar)
+     * @return lista filtrada con visitas calculadas en BD
+     * @throws NegocioException si ocurre un error
+     */
+    public List<ClienteFrecuenteDTO> buscarFiltradosConVisitas(String nombre, int minimoVisitas) throws NegocioException {
+        LOG.log(Level.INFO, "Buscando clientes con nombre={0} y minimoVisitas={1}",
+            new Object[]{nombre, minimoVisitas});
+        try {
+            List<ClienteFrecuente> entidades = clienteDAO.buscarFiltradosConVisitas(nombre, minimoVisitas);
+            List<ClienteFrecuenteDTO> listaDTOs = ClienteFrecuenteAdapter.listaEntidadADTO(entidades);
+            for (ClienteFrecuenteDTO dto : listaDTOs) {
+                dto.setTelefono(desencriptarTelefono(dto.getTelefono()));
+            }
+            return listaDTOs;
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Error al buscar clientes con visitas: {0}", e.getMessage());
+            throw new NegocioException("Error al buscar clientes: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * Obtiene datos completos para el reporte de clientes con cálculos en BD.
+     *
+     * @param nombre filtro de nombre
+     * @param minimoVisitas mínimo de visitas
+     * @return lista de ClienteFrecuenteReporteDTO con todos los datos calculados
+     * @throws NegocioException si ocurre un error
+     */
+    public List<ClienteFrecuenteDTO> obtenerDatosReporteClientes(String nombre, int minimoVisitas) throws NegocioException {
+        try {
+            List<Object[]> filas = clienteDAO.buscarDatosReporteClientes(nombre, minimoVisitas);
+            List<ClienteFrecuenteDTO> resultado = new ArrayList<>();
+
+            for (Object[] fila : filas) {
+                ClienteFrecuente cf = (ClienteFrecuente) fila[0];
+                Long visitas = fila[1] != null ? (Long) fila[1] : 0L;
+                Double totalGastado = fila[2] != null ? (Double) fila[2] : 0.0;
+                java.time.LocalDateTime fechaUltima = fila[3] != null ? (java.time.LocalDateTime) fila[3] : null;
+
+                ClienteFrecuenteDTO dto = ClienteFrecuenteAdapter.entidadADTO(cf);
+                dto.setTelefono(desencriptarTelefono(dto.getTelefono()));
+                dto.setVisitas(visitas);
+                dto.setTotalGastado(totalGastado);
+                dto.setFechaUltimaComanda(fechaUltima != null
+                    ? fechaUltima.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                    : "Sin comandas");
+                resultado.add(dto);
+            }
+            return resultado;
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Error al obtener reporte de clientes: {0}", e.getMessage());
+            throw new NegocioException("Error al generar reporte de clientes: " + e.getMessage());
         }
     }
 }

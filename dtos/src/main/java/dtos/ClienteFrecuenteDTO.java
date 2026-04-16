@@ -12,6 +12,9 @@ import java.time.LocalDate;
 public class ClienteFrecuenteDTO extends ClienteDTO {
     
     private Double puntos;
+    private Long visitas;
+    private Double totalGastado;
+    private String fechaUltimaComanda;
 
     public ClienteFrecuenteDTO() {
         super();
@@ -30,8 +33,31 @@ public class ClienteFrecuenteDTO extends ClienteDTO {
         this.puntos = puntos;
     }
 
-    @Override
-    public String toString() {
-        return "ClienteFrecuenteDTO{" + "ID=" + getId() + ", Nombres=" + getNombres() + ", Telefono=" + getTelefono() + ", Puntos=" + puntos + '}';
+    public Long getVisitas() {
+        return visitas;
     }
+
+    public void setVisitas(Long visitas) {
+        this.visitas = visitas;
+    }
+
+    public Double getTotalGastado() {
+        return totalGastado;
+    }
+
+    public void setTotalGastado(Double totalGastado) {
+        this.totalGastado = totalGastado;
+    }
+
+    public String getFechaUltimaComanda() {
+        return fechaUltimaComanda;
+    }
+
+    public void setFechaUltimaComanda(String fechaUltimaComanda) {
+        this.fechaUltimaComanda = fechaUltimaComanda;
+    }
+
+    
+    
+    
 }
