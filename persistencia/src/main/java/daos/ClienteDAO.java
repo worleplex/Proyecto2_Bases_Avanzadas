@@ -10,7 +10,10 @@ import entidades.ClienteFrecuente;
 import excepciones.PersistenciaException;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 /**
  *
@@ -19,6 +22,7 @@ import javax.persistence.EntityManager;
  * 
  */
 public class ClienteDAO {
+    private static final Logger LOG = Logger.getLogger(ClienteDAO.class.getName());
     // singleton
     private static ClienteDAO instancia;
 
@@ -107,45 +111,67 @@ public class ClienteDAO {
             em.close();
         }
     }
+    
     /**
-     * Busca un cliente por su id.
-     *
-     * @param id Id del cliente.
-     * @return Cliente encontrado o null si no existe.
+     * metodo para buscar al cliente por ID
+     * @param id
+     * @return 
      */
     public Cliente buscarPorId(Long id) {
         EntityManager em = ConexionBD.crearConexion();
-
         try {
             return em.find(Cliente.class, id);
         } finally {
             em.close();
         }
     }
-     /**
-     * Recupera todos los clientes de la base de datos.
+    
+    /**
+     * metodo dinamico de busqueda
+     * @param nombre
+     * @param telefonoEncriptado
+     * @param correo
+     * @return
+     * @throws PersistenciaException 
      */
-    public List<Cliente> buscarTodos() {
+    public List<Cliente> buscarClientesFiltrados(String nombre, String telefonoEncriptado, String correo) throws PersistenciaException {
+        LOG.log(Level.INFO, "Buscando clientes con filtros dinámicos");
         EntityManager em = ConexionBD.crearConexion();
         try {
-            String jpql = "SELECT c FROM Cliente c";
-            return em.createQuery(jpql, Cliente.class).getResultList();
-        } finally {
-            em.close();
-        }
-    }
+            StringBuilder jpql = new StringBuilder("SELECT c FROM Cliente c WHERE 1=1 ");
 
-    public ClienteFrecuente buscarPorNombre(String nombre) throws PersistenciaException{
-        EntityManager em = ConexionBD.crearConexion();
-        try {
-            String jpql = "SELECT c FROM Cliente c WHERE c.nombres = :nombre";
-            return em.createQuery(jpql, ClienteFrecuente.class)
-                    .setParameter("nombre", nombre)
-                    .getSingleResult();
+            if (nombre != null && !nombre.trim().isEmpty()) {
+                jpql.append("AND LOWER(c.nombres) LIKE LOWER(:nombre) ");
+            }
+            if (correo != null && !correo.trim().isEmpty()) {
+                jpql.append("AND LOWER(c.correo) LIKE LOWER(:correo) ");
+            }
+            if (telefonoEncriptado != null && !telefonoEncriptado.trim().isEmpty()) {
+                jpql.append("AND c.telefono = :telefono "); // Búsqueda exacta del Hash
+            }
+            
+            jpql.append("ORDER BY c.nombres ASC");
+
+            TypedQuery<Cliente> query = em.createQuery(jpql.toString(), Cliente.class);
+
+            if (nombre != null && !nombre.trim().isEmpty()) {
+                query.setParameter("nombre", "%" + nombre.trim() + "%");
+            }
+            if (correo != null && !correo.trim().isEmpty()) {
+                query.setParameter("correo", "%" + correo.trim() + "%");
+            }
+            if (telefonoEncriptado != null && !telefonoEncriptado.trim().isEmpty()) {
+                query.setParameter("telefono", telefonoEncriptado);
+            }
+
+            List<Cliente> resultados = query.getResultList();
+            LOG.log(Level.INFO, "DAO: Se encontraron {0} clientes.", resultados.size());
+            return resultados;
+            
         } catch (Exception e) {
-            throw new PersistenciaException("Error al consultar el cliente: " + e.getMessage());
-        }
-        finally {
+            LOG.log(Level.SEVERE, "Error al buscar clientes filtrados: {0}", e.getMessage());
+            throw new PersistenciaException("Error al buscar clientes: " + e.getMessage());
+        } finally {
             em.close();
         }
     }
