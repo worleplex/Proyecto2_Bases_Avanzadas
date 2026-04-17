@@ -2,13 +2,17 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+ */
 package correrinicio;
 
 import com.mycompany.persistencia.Persistencia.ConexionBD;
 import entidades.*;
 
 import java.time.LocalDate;
-import java.util.Random;
+import java.time.LocalDateTime;
 import javax.persistence.EntityManager;
 
 /**
@@ -39,6 +43,8 @@ public class insertsMasivos {
 
         try {
             em.getTransaction().begin();
+            
+            // --- 1. USUARIOS ---
             Admin admin = new Admin("Maye Tolano", "Maye", hashear("1234"));
             em.persist(admin);
 
@@ -48,14 +54,13 @@ public class insertsMasivos {
             Mesero mesero2 = new Mesero("Julian Izaguirre", "julian", hashear("0000"), "Matutino", "M-002");
             em.persist(mesero2);
 
-            // Para Vaso de Agua
+            // --- 2. INGREDIENTES ---
             Ingrediente agua = new Ingrediente("Agua", UnidadMedida.MILILITRO, 10000.0, getRuta("agua.png"));
             em.persist(agua);
 
             Ingrediente hielo = new Ingrediente("Hielo", UnidadMedida.PIEZA, 200.0, getRuta("hielo.png"));
             em.persist(hielo);
 
-            // Para Tacos de Carne Asada
             Ingrediente tortilla = new Ingrediente("Tortilla de Maíz", UnidadMedida.PIEZA, 300.0, getRuta("tortilla_maiz.png"));
             em.persist(tortilla);
 
@@ -68,13 +73,13 @@ public class insertsMasivos {
             Ingrediente cilantro = new Ingrediente("Cilantro", UnidadMedida.GRAMO, 500.0, getRuta("cilantro.png"));
             em.persist(cilantro);
 
-            // Para Quesadilla
             Ingrediente tortillaHarina = new Ingrediente("Tortilla de Harina", UnidadMedida.PIEZA, 200.0, getRuta("tortilla_harina.png"));
             em.persist(tortillaHarina);
 
             Ingrediente queso = new Ingrediente("Queso Oaxaca", UnidadMedida.GRAMO, 3000.0, getRuta("queso.png"));
             em.persist(queso);
 
+            // --- 3. PRODUCTOS ---
             // Vaso de Agua
             Producto vasoAgua = new Producto();
             vasoAgua.setNombre("Vaso de Agua");
@@ -85,11 +90,8 @@ public class insertsMasivos {
             vasoAgua.setImagen(getRuta("vaso_agua.png"));
             em.persist(vasoAgua);
 
-            ProductoIngrediente piAgua = new ProductoIngrediente(250.0, vasoAgua, agua);
-            em.persist(piAgua);
-
-            ProductoIngrediente piHielo = new ProductoIngrediente(3.0, vasoAgua, hielo);
-            em.persist(piHielo);
+            em.persist(new ProductoIngrediente(250.0, vasoAgua, agua));
+            em.persist(new ProductoIngrediente(3.0, vasoAgua, hielo));
 
             // Taco de Carne Asada
             Producto tacos = new Producto();
@@ -119,8 +121,10 @@ public class insertsMasivos {
             em.persist(new ProductoIngrediente(2.0,   quesadilla, tortillaHarina));
             em.persist(new ProductoIngrediente(100.0, quesadilla, queso));
 
-            em.persist(new Mesa("1", true));
-            em.persist(new Mesa("2", true));
+            // --- 4. MESAS ---
+            Mesa mesa1 = new Mesa("1", true); em.persist(mesa1);
+            Mesa mesa2 = new Mesa("2", true); em.persist(mesa2);
+            
             em.persist(new Mesa("3", true));
             em.persist(new Mesa("4", true));
             em.persist(new Mesa("5", true));
@@ -139,6 +143,7 @@ public class insertsMasivos {
             em.persist(new Mesa("19", true));
             em.persist(new Mesa("20", true));
 
+            // --- 5. CLIENTES FRECUENTES ---
             ClienteFrecuente cliente1 = new ClienteFrecuente();
             cliente1.setNombres("Juan");
             cliente1.setApellido_paterno("Pérez");
@@ -159,9 +164,64 @@ public class insertsMasivos {
             cliente2.setFechaRegistro(LocalDate.now());
             em.persist(cliente2);
 
+            // --- 6. COMANDAS Y DETALLES DE PRUEBA ---
+            
+            // Comanda 1: Abierta (En proceso), Mesa 1, Atiende Luis Ortiz, Pide Cliente 1
+            Comanda comanda1 = new Comanda();
+            comanda1.setFolio("COM-001");
+            comanda1.setFechaHora(LocalDateTime.now().minusHours(1)); // Hace 1 hora
+            comanda1.setEstadoComanda(EstadoComanda.ABIERTA); 
+            comanda1.setMesa(mesa1);
+            comanda1.setMesero(mesero1);
+            comanda1.setCliente(cliente1);
+            comanda1.setTotal(85.0); // 35 (Tacos) + 50 (Quesadilla)
+            em.persist(comanda1);
+
+            DetalleComanda det1 = new DetalleComanda();
+            det1.setComanda(comanda1);
+            det1.setProducto(tacos);
+            det1.setCantidad(1);
+            det1.setCosto(35.0);
+            det1.setComentario("Sin cebolla");
+            em.persist(det1);
+
+            DetalleComanda det2 = new DetalleComanda();
+            det2.setComanda(comanda1);
+            det2.setProducto(quesadilla);
+            det2.setCantidad(1);
+            det2.setCosto(50.0);
+            det2.setComentario("");
+            em.persist(det2);
+
+            // Comanda 2: Entregada (Ya pagada), Mesa 2, Atiende Julian, Pide Cliente 2
+            Comanda comanda2 = new Comanda();
+            comanda2.setFolio("COM-002");
+            comanda2.setFechaHora(LocalDateTime.now().minusDays(1)); // Ayer
+            comanda2.setEstadoComanda(EstadoComanda.ENTREGADA); 
+            comanda2.setMesa(mesa2);
+            comanda2.setMesero(mesero2);
+            comanda2.setCliente(cliente2);
+            comanda2.setTotal(65.0); // 2 Vasos de Agua (30) + 1 Taco (35)
+            em.persist(comanda2);
+
+            DetalleComanda det3 = new DetalleComanda();
+            det3.setComanda(comanda2);
+            det3.setProducto(vasoAgua);
+            det3.setCantidad(2);
+            det3.setCosto(30.0); // 15 c/u x 2
+            det3.setComentario("Mucho hielo");
+            em.persist(det3);
+
+            DetalleComanda det4 = new DetalleComanda();
+            det4.setComanda(comanda2);
+            det4.setProducto(tacos);
+            det4.setCantidad(1);
+            det4.setCosto(35.0);
+            det4.setComentario("Bien doraditos");
+            em.persist(det4);
 
             em.getTransaction().commit();
-            System.out.println("¡Listo! Datos ingresados bien");
+            System.out.println("¡Listo! Datos y Comandas ingresados correctamente.");
 
         } catch (Exception e) {
             if (em.getTransaction().isActive()) {
