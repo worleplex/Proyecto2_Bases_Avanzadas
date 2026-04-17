@@ -284,32 +284,6 @@ public class ProductoDAO {
     }
 
     /**
-     * Obtiene todos los productos filtrados por tipo.
-     *
-     * @param tipo tipo de producto a filtrar (PLATILLO, BEBIDA, POSTRE)
-     * @return lista de productos del tipo indicado
-     * @throws PersistenciaException si ocurre un error en la consulta
-     */
-    public List<Producto> obtenerPorTipo(TipoProducto tipo) throws PersistenciaException {
-        LOG.log(Level.INFO, "Obteniendo productos por tipo: {0}", tipo);
-        EntityManager em = ConexionBD.crearConexion();
-        try {
-            List<Producto> productos = em.createQuery(
-                "select p from Producto p where p.tipo = :tipo", Producto.class)
-                .setParameter("tipo", tipo)
-                .getResultList();
-            LOG.log(Level.INFO, "Se encontraron {0} productos de tipo {1}",
-                new Object[]{productos.size(), tipo});
-            return productos;
-        } catch (Exception e) {
-            LOG.log(Level.SEVERE, "Error al obtener productos por tipo: {0}", e.getMessage());
-            throw new PersistenciaException("Error al obtener productos por tipo: " + e.getMessage());
-        } finally {
-            em.close();
-        }
-    }
-    
-    /**
      * Busca productos filtrando dinámicamente por nombre, tipo y estado. 
      * Los parámetros nulos o vacíos se ignoran inteligentemente.
      *
