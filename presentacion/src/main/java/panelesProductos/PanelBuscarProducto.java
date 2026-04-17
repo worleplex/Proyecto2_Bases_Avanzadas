@@ -79,7 +79,8 @@ public class PanelBuscarProducto extends JPanel {
                 return;
             }
             try {
-                List<ProductoDTO> resultados = ProductoBO.getInstance().buscarProductosFiltrados(busqueda, null, true);
+                // este cambio lo menciono en mi video
+                List<ProductoDTO> resultados = ProductoBO.getInstance().buscarProductosFiltrados(busqueda, null, null);
                 if (resultados == null || resultados.isEmpty()) {
                     JOptionPane.showMessageDialog(this,"no hay ningun producto con ese name","Sin resultados",JOptionPane.WARNING_MESSAGE);
                     return;
